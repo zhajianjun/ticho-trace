@@ -76,7 +76,7 @@
         <appender-ref ref="all"/>
     </appender>
 
-    <appender name="ticho-log" class="top.ticho.trace.core.DistributedLogAppender">
+    <appender name="ticho-log" class="top.ticho.trace.client.core.DistributedLogAppender">
         <url>http://127.0.0.1:8000/log/collect</url>
         <pushSize>50</pushSize>
         <flushInterval>500</flushInterval>
