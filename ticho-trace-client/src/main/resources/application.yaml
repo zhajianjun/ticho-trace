@@ -4,3 +4,8 @@ server:
 spring:
   profiles:
     active: dev
+ticho:
+  trace:
+    enable: true
+    url: http://127.0.0.1:8000/trace/collect
+    log-url: http://127.0.0.1:8000/log/collect

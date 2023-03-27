@@ -13,6 +13,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import top.ticho.trace.core.json.JsonUtil;
+import top.ticho.trace.core.push.TracePushContext;
+import top.ticho.trace.spring.component.SpringTracePushContext;
 import top.ticho.trace.spring.prop.SpringTraceLogProperty;
 import top.ticho.trace.spring.util.IpUtil;
 import top.ticho.trace.spring.wrapper.RequestWrapper;
@@ -45,10 +47,12 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
     private final TransmittableThreadLocal<LogInfo> theadLocal;
 
     private final SpringTraceLogProperty springTraceLogProperty;
+    private final SpringTracePushContext springTracePushContext;
 
-    public WebLogInterceptor(SpringTraceLogProperty springTraceLogProperty) {
+    public WebLogInterceptor(SpringTraceLogProperty springTraceLogProperty, SpringTracePushContext springTracePushContext) {
         this.theadLocal = new TransmittableThreadLocal<>();
         this.springTraceLogProperty = springTraceLogProperty;
+        this.springTracePushContext = springTracePushContext;
     }
 
     @Override
@@ -126,6 +130,8 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         if (print) {
             log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, method, url, status, time, resBody);
         }
+        String traceUrl = springTraceLogProperty.getUrl();
+        springTracePushContext.push(traceUrl, logInfo);
     }
 
     private String getResBody(HttpServletResponse response) {

@@ -12,8 +12,6 @@
         <module>ticho-trace-client</module>
         <module>ticho-trace-core</module>
         <module>ticho-trace-spring</module>
-        <module>ticho-trace-logback</module>
-        <module>ticho-trace-push</module>
     </modules>
 
     <dependencyManagement>
@@ -70,6 +68,12 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>2.6.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>2.6.3</version>
             </dependency>
 

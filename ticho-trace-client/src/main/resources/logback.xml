@@ -76,7 +76,9 @@
         <appender-ref ref="all"/>
     </appender>
 
-    <appender name="ticho-log" class="top.ticho.trace.client.core.DistributedLogAppender">
+    <springProperty scope="context" name="url" source="ticho.trace.logUrl"/>
+
+    <appender name="ticho-log" class="top.ticho.trace.core.logback.DistributedLogAppender">
         <url>http://127.0.0.1:8000/log/collect</url>
         <pushSize>50</pushSize>
         <flushInterval>500</flushInterval>

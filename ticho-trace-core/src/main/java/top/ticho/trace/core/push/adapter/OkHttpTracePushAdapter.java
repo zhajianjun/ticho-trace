@@ -4,6 +4,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.push.TracePushAdapter;
 
@@ -24,8 +25,7 @@ public class OkHttpTracePushAdapter implements TracePushAdapter {
         String json = JsonUtil.toJsonString(data);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);
         Request request = new Request.Builder().url(url).post(requestBody).build();
-        try {
-            httpClient.newCall(request).execute();
+        try(Response execute = httpClient.newCall(request).execute()) {
         } catch (IOException e) {
             System.out.println("okhttp Failed to push data " + e.getMessage());
         }

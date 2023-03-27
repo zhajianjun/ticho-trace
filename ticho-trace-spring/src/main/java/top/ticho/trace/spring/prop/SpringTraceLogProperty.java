@@ -24,6 +24,9 @@ public class SpringTraceLogProperty {
     /** 链路服务url */
     private String url;
 
+    /** 日志收集服务url */
+    private String logUrl;
+
     /** 链路服务秘钥 */
     private String secret;
 

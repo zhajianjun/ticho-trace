@@ -2,6 +2,7 @@ package top.ticho.trace.core.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import cn.hutool.core.thread.ThreadUtil;
 import top.ticho.trace.core.push.TracePushContext;
 
 import java.util.ArrayList;
@@ -136,6 +137,7 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
                 lastLogTimeStamp.set(timeStamp);
             }
             Map<String, String> mdc = new HashMap<>(event.getMDCPropertyMap());
+            mdc.put("msg", event.getFormattedMessage());
             mdc.put("sequence", Long.toString(currentSequence));
             message.add(mdc);
         }
