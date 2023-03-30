@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.web.method.HandlerMethod;
 
+import java.util.Map;
+
 /**
  * 接口日志
  *
@@ -68,7 +70,7 @@ public class LogInfo {
 
     public Long getTime() {
         if (start == null || end == null) {
-            return -1L;
+            return 0L;
         }
         return end - start;
     }

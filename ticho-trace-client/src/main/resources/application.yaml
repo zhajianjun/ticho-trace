@@ -8,4 +8,5 @@ ticho:
   trace:
     enable: true
     url: http://127.0.0.1:8000/trace/collect
-    log-url: http://127.0.0.1:8000/log/collect
+    logUrl: http://127.0.0.1:8000/log/collect
+    print: true

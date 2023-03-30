@@ -2,20 +2,15 @@ package top.ticho.trace.core.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
+import top.ticho.trace.core.bean.TichoLog;
+import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.push.TracePushContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -25,8 +20,10 @@ import java.util.concurrent.atomic.AtomicLong;
  * @date 2023-03-27 12:34
  */
 public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
-    /** */
-    private String url; // 日志推送的url
+    /** 应用名称 */
+    private String appName = "default";
+    /** 日志推送的url */
+    private String url;
     /** 批量推送的日志数量，达到一定数量则进行推送日志 */
     private int pushSize = 100;
     /** 日志推送的时间间隔，单位：毫秒（ms） */
@@ -55,6 +52,10 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public void setPushSize(int pushSize) {
@@ -122,7 +123,7 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
 
 
     private void batchHandle(List<ILoggingEvent> loggingEvents) {
-        List<Map<String, String>> message = new ArrayList<>();
+        List<Map<String, Object>> message = new ArrayList<>();
         for (ILoggingEvent event : loggingEvents) {
             long timeStamp = event.getTimeStamp();
             long lastLogTimeStampGet = lastLogTimeStamp.get();
@@ -136,10 +137,33 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
                 sequence.set(0);
                 lastLogTimeStamp.set(timeStamp);
             }
-            Map<String, String> mdc = new HashMap<>(event.getMDCPropertyMap());
-            mdc.put("msg", event.getFormattedMessage());
-            mdc.put("sequence", Long.toString(currentSequence));
-            message.add(mdc);
+
+            LocalDateTime of = LocalDateTimeUtil.of(timeStamp);
+            String format = LocalDateTimeUtil.format(of, DatePattern.NORM_DATETIME_PATTERN);
+            TichoLog tichoLog = new TichoLog();
+            tichoLog.setAppName(appName);
+            tichoLog.setTraceId("");
+            tichoLog.setSpanId("");
+            tichoLog.setLogLevel(event.getLevel().toString());
+            tichoLog.setDateTime(format);
+            tichoLog.setDtTime(lastLogTimeStampGet);
+            tichoLog.setClassName(event.getLoggerName());
+            StackTraceElement[] stackTraceElements = event.getCallerData();
+            if (stackTraceElements != null && stackTraceElements.length > 0) {
+                StackTraceElement stackTraceElement = stackTraceElements[0];
+                String method = stackTraceElement.getMethodName();
+                String line = String.valueOf(stackTraceElement.getLineNumber());
+                tichoLog.setMethod(method + "(" + stackTraceElement.getFileName() + ":" + line + ")");
+            }
+            tichoLog.setSeq(currentSequence);
+            tichoLog.setIp("");
+            tichoLog.setContent(event.getFormattedMessage());
+            tichoLog.setThreadName(event.getThreadName());
+            Map<String, Object> mdcMap = new HashMap<>(event.getMDCPropertyMap());
+            String tichoLogMap = JsonUtil.toJsonString(tichoLog);
+            Map<String, Object> logMap = JsonUtil.toMap(tichoLogMap, Object.class);
+            mdcMap.putAll(logMap);
+            message.add(mdcMap);
         }
         TracePushContext.push(url, message);
     }
