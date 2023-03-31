@@ -5,6 +5,7 @@ import ch.qos.logback.core.AppenderBase;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import top.ticho.trace.core.bean.TichoLog;
+import top.ticho.trace.core.constant.LogConst;
 import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.push.TracePushContext;
 
@@ -21,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     /** 应用名称 */
-    private String appName = "default";
+    private String appName = LogConst.UNKNOWN;
     /** 日志推送的url */
     private String url;
     /** 批量推送的日志数量，达到一定数量则进行推送日志 */
@@ -142,8 +143,6 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
             String format = LocalDateTimeUtil.format(of, DatePattern.NORM_DATETIME_PATTERN);
             TichoLog tichoLog = new TichoLog();
             tichoLog.setAppName(appName);
-            tichoLog.setTraceId("");
-            tichoLog.setSpanId("");
             tichoLog.setLogLevel(event.getLevel().toString());
             tichoLog.setDateTime(format);
             tichoLog.setDtTime(lastLogTimeStampGet);

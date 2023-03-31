@@ -4,6 +4,8 @@ server:
 spring:
   profiles:
     active: dev
+  application:
+    name: ticho-trace-client
 ticho:
   trace:
     enable: true

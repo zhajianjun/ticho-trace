@@ -18,14 +18,6 @@ public class TichoLog {
      */
     private String appName;
     /**
-     * 链路id
-     */
-    private String traceId;
-    /**
-     * 跨度id
-     */
-    private String spanId;
-    /**
      * 日志级别
      */
     private String logLevel;

@@ -1,11 +1,5 @@
 package top.ticho.trace.core.constant;
 
-import cn.hutool.core.net.Ipv4Util;
-import sun.net.util.IPAddressUtil;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 /**
  * 日志静态常量
  *
@@ -22,9 +16,9 @@ public class LogConst {
     /** 跨度id key */
     public static final String SPAN_ID_KEY = "spanId";
     /** 当前应用名称 key */
-    public static final String CURR_APP_NAME_KEY = "currAppName";
+    public static final String CURR_APP_NAME_KEY = "appName";
     /** 当前ip key */
-    public static final String CURR_IP_KEY = "currIp";
+    public static final String CURR_IP_KEY = "ip";
     /** 上个链路的应用名称 key */
     public static final String PRE_APP_NAME_KEY = "preAppName";
     /** 上个链路的Ip key */
@@ -33,10 +27,10 @@ public class LogConst {
     public static final String UNKNOWN = "UNKNOWN";
     /** MDC_KEY */
     public static final String MDC_KEY = "ticho";
+    /** 耗时 key */
+    public static final String CONSUME_KEY = "consume";
 
+    public static final String DEFAULT_APP_NAME = UNKNOWN;
 
-    public static void main(String[] args) throws UnknownHostException {
-
-    }
 
 }

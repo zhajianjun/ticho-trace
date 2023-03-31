@@ -77,7 +77,7 @@
     </appender>
 
     <springProperty scope="context" name="logUrl" source="ticho.trace.logUrl"/>
-    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="ticho-trace-client"/>
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
 
     <appender name="ticho-log" class="top.ticho.trace.core.logback.DistributedLogAppender">
         <appName>${appName}</appName>

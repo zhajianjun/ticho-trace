@@ -95,10 +95,16 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         String body = nullOfDefault(requestWrapper.getBody());
         // header
         Map<String, String> headersMap = getHeaders(request);
+        Map<String, String> traceMap = new HashMap<>(headersMap);
+        String ip = IpUtil.getIp(request);
+        // ip
+        traceMap.put(LogConst.CURR_IP_KEY, ip);
+        // 应用名
+        traceMap.put(LogConst.CURR_APP_NAME_KEY, environment.getProperty("spring.application.name"));
+        TraceUtil.prepare(traceMap);
         String headers = toJsonOfDefault(headersMap);
         String requestPrefixText = springTraceLogProperty.getRequestPrefixText();
         UserAgent userAgent = IpUtil.getUserAgent(request);
-        String ip = IpUtil.getIp(request);
         Principal principal = request.getUserPrincipal();
         LogInfo logInfo = LogInfo.builder()
             .type(method)
@@ -117,10 +123,6 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         if (print) {
             log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, method, url, params, body, headers);
         }
-        Map<String, String> traceMap = new HashMap<>(headersMap);
-        traceMap.put(LogConst.CURR_IP_KEY, ip);
-        traceMap.put(LogConst.CURR_APP_NAME_KEY, environment.getProperty("spring.application.name"));
-        TraceUtil.prepare(traceMap);
         return true;
     }
 
@@ -144,7 +146,10 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, method, url, status, time, resBody);
         }
         String traceUrl = springTraceLogProperty.getUrl();
-        springTracePushContext.push(traceUrl, MDC.getCopyOfContextMap());
+        HashMap<String, String> hashMap = new HashMap<>(MDC.getCopyOfContextMap());
+        // 耗时
+        hashMap.put(LogConst.CONSUME_KEY, Long.toString(time));
+        springTracePushContext.push(traceUrl, hashMap);
         TraceUtil.complete();
     }
 
