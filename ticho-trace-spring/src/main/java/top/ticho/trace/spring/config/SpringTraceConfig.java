@@ -6,12 +6,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.ticho.trace.spring.component.SpringTracePushContext;
 import top.ticho.trace.spring.filter.WapperRequestFilter;
 import top.ticho.trace.spring.interceptor.WebLogInterceptor;
 import top.ticho.trace.spring.prop.SpringTraceLogProperty;
+
+import javax.annotation.Resource;
 
 /**
  *
@@ -24,11 +27,15 @@ import top.ticho.trace.spring.prop.SpringTraceLogProperty;
 @ConditionalOnProperty(value = "ticho.trace.enable", havingValue = "true", matchIfMissing = true)
 public class SpringTraceConfig implements WebMvcConfigurer {
 
-    @Autowired
+    @Resource
     private SpringTraceLogProperty springTraceLogProperty;
 
-    @Autowired
+    @Resource
     private SpringTracePushContext springTracePushContext;
+
+    @Resource
+    private Environment environment;
+
 
     @Bean
     public WapperRequestFilter wapperRequestFilter() {
@@ -37,7 +44,7 @@ public class SpringTraceConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new WebLogInterceptor(springTraceLogProperty, springTracePushContext)).order(Ordered.HIGHEST_PRECEDENCE + 10);
+        registry.addInterceptor(new WebLogInterceptor(springTraceLogProperty, springTracePushContext, environment)).order(Ordered.HIGHEST_PRECEDENCE + 10);
     }
 
 }

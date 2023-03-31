@@ -5,15 +5,18 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.useragent.UserAgent;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import top.ticho.trace.core.constant.LogConst;
 import top.ticho.trace.core.json.JsonUtil;
-import top.ticho.trace.core.push.TracePushContext;
+import top.ticho.trace.core.util.TraceUtil;
 import top.ticho.trace.spring.component.SpringTracePushContext;
 import top.ticho.trace.spring.prop.SpringTraceLogProperty;
 import top.ticho.trace.spring.util.IpUtil;
@@ -47,12 +50,17 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
     private final TransmittableThreadLocal<LogInfo> theadLocal;
 
     private final SpringTraceLogProperty springTraceLogProperty;
+
     private final SpringTracePushContext springTracePushContext;
 
-    public WebLogInterceptor(SpringTraceLogProperty springTraceLogProperty, SpringTracePushContext springTracePushContext) {
+    private final Environment environment;
+
+    public WebLogInterceptor(SpringTraceLogProperty springTraceLogProperty, SpringTracePushContext springTracePushContext,
+            Environment environment) {
         this.theadLocal = new TransmittableThreadLocal<>();
         this.springTraceLogProperty = springTraceLogProperty;
         this.springTracePushContext = springTracePushContext;
+        this.environment = environment;
     }
 
     @Override
@@ -86,15 +94,16 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         RequestWrapper requestWrapper = (RequestWrapper) request;
         String body = nullOfDefault(requestWrapper.getBody());
         // header
-        Map<String, Object> headersMap = getHeaders(request);
+        Map<String, String> headersMap = getHeaders(request);
         String headers = toJsonOfDefault(headersMap);
         String requestPrefixText = springTraceLogProperty.getRequestPrefixText();
         UserAgent userAgent = IpUtil.getUserAgent(request);
+        String ip = IpUtil.getIp(request);
         Principal principal = request.getUserPrincipal();
         LogInfo logInfo = LogInfo.builder()
             .type(method)
             .url(url)
-            .ip(IpUtil.getIp(request))
+            .ip(ip)
             .reqParams(params)
             .reqBody(body)
             .reqHeaders(headers)
@@ -108,6 +117,10 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         if (print) {
             log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, method, url, params, body, headers);
         }
+        Map<String, String> traceMap = new HashMap<>(headersMap);
+        traceMap.put(LogConst.CURR_IP_KEY, ip);
+        traceMap.put(LogConst.CURR_APP_NAME_KEY, environment.getProperty("spring.application.name"));
+        TraceUtil.prepare(traceMap);
         return true;
     }
 
@@ -131,7 +144,8 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, method, url, status, time, resBody);
         }
         String traceUrl = springTraceLogProperty.getUrl();
-        springTracePushContext.push(traceUrl, logInfo);
+        springTracePushContext.push(traceUrl, MDC.getCopyOfContextMap());
+        TraceUtil.complete();
     }
 
     private String getResBody(HttpServletResponse response) {
@@ -160,8 +174,8 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         return map;
     }
 
-    public Map<String, Object> getHeaders(HttpServletRequest request) {
-        Map<String, Object> map = new HashMap<>();
+    public Map<String, String> getHeaders(HttpServletRequest request) {
+        Map<String, String> map = new HashMap<>();
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             //获得每个文本域的name
@@ -174,8 +188,8 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         return map;
     }
 
-    public Map<String, Object> getHeaders(HttpServletResponse response) {
-        Map<String, Object> map = new HashMap<>();
+    public Map<String, String> getHeaders(HttpServletResponse response) {
+        Map<String, String> map = new HashMap<>();
         Collection<String> headerNames = response.getHeaderNames();
         for (String name : headerNames) {
             String value = response.getHeader(name);
@@ -184,7 +198,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         return map;
     }
 
-    private String toJsonOfDefault(Map<String, Object> map) {
+    private String toJsonOfDefault(Map<String, ?> map) {
         String result = JsonUtil.toJsonString(map);
         return nullOfDefault(result);
     }
