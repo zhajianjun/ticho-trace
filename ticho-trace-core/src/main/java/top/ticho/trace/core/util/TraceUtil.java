@@ -4,7 +4,7 @@ import cn.hutool.core.lang.generator.SnowflakeGenerator;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import org.slf4j.MDC;
-import top.ticho.trace.core.constant.LogConst;
+import top.ticho.trace.common.constant.LogConst;
 
 import java.util.Map;
 import java.util.Optional;
@@ -33,19 +33,44 @@ public class TraceUtil {
         return StrUtil.format("{}.{}", currentSpanId, currentSpanIndex);
     }
 
+    /**
+     * 准备
+     *
+     * @param map map
+     */
     public static void prepare(Map<String, String> map) {
         // 链路id */
-        String traceId = nullDefault(map.get(LogConst.TRACE_ID_KEY), ()-> Long.toString(SNOW.next()));
+        String traceId = map.get(LogConst.TRACE_ID_KEY);
         // 跨度id */
-        String spanId = nullDefault(map.get(LogConst.SPAN_ID_KEY), ()-> null);
+        String spanId = map.get(LogConst.SPAN_ID_KEY);
         // 当前应用名称 */
-        String currAppName = nullDefault(map.get(LogConst.CURR_APP_NAME_KEY));
+        String currAppName = map.get(LogConst.APP_NAME_KEY);
         // 当前ip */
-        String currIp = nullDefault(map.get(LogConst.CURR_IP_KEY));
+        String currIp = map.get(LogConst.IP_KEY);
         // 上个链路的应用名称 */
-        String preAppName = nullDefault(map.get(LogConst.PRE_APP_NAME_KEY));
+        String preAppName = map.get(LogConst.PRE_APP_NAME_KEY);
         // 上个链路的Ip */
-        String preIp = nullDefault(map.get(LogConst.PRE_IP_KEY));
+        String preIp = map.get(LogConst.PRE_IP_KEY);
+        prepare(traceId, spanId, currAppName, currIp, preAppName, preIp);
+    }
+
+    /**
+     * 准备
+     *
+     * @param traceId 链路id
+     * @param spanId 跨度id
+     * @param appName 当前应用名称
+     * @param ip 当前ip
+     * @param preAppName 上个链路的应用名称
+     * @param preIp 上个链路的ip
+     */
+    public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp) {
+        traceId = nullDefault(traceId, ()-> Long.toString(SNOW.next()));
+        spanId = nullDefault(spanId, ()-> null);
+        appName = nullDefault(appName);
+        ip = nullDefault(ip);
+        preAppName = nullDefault(preAppName);
+        preIp = nullDefault(preIp);
         MDC.put(LogConst.MDC_KEY, "");
         MDC.put(LogConst.TRACE_ID_KEY, traceId);
         if (StrUtil.isBlank(spanId)) {
@@ -53,8 +78,8 @@ public class TraceUtil {
         }
         NEXT_SPAN_INDEX_TL.set(new AtomicInteger(0));
         MDC.put(LogConst.SPAN_ID_KEY, spanId);
-        MDC.put(LogConst.CURR_IP_KEY, currIp);
-        MDC.put(LogConst.CURR_APP_NAME_KEY, currAppName);
+        MDC.put(LogConst.IP_KEY, ip);
+        MDC.put(LogConst.APP_NAME_KEY, appName);
         MDC.put(LogConst.PRE_IP_KEY, preIp);
         MDC.put(LogConst.PRE_APP_NAME_KEY, preAppName);
     }
@@ -64,8 +89,8 @@ public class TraceUtil {
         MDC.remove(LogConst.MDC_KEY);
         MDC.remove(LogConst.TRACE_ID_KEY);
         MDC.remove(LogConst.SPAN_ID_KEY);
-        MDC.remove(LogConst.CURR_APP_NAME_KEY);
-        MDC.remove(LogConst.CURR_IP_KEY);
+        MDC.remove(LogConst.APP_NAME_KEY);
+        MDC.remove(LogConst.IP_KEY);
         MDC.remove(LogConst.PRE_APP_NAME_KEY);
         MDC.remove(LogConst.PRE_IP_KEY);
     }

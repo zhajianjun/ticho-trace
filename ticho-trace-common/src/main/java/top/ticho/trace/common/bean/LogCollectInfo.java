@@ -1,17 +1,17 @@
-package top.ticho.trace.core.bean;
+package top.ticho.trace.common.bean;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 日志
+ * 日志收集日志
  *
  * @author zhajianjun
  * @date 2023-03-30 20:20:20
  */
 @NoArgsConstructor
 @Data
-public class TichoLog {
+public class LogCollectInfo {
 
     /**
      * 应用名称
@@ -41,10 +41,6 @@ public class TichoLog {
      * 序列号
      */
     private Long seq;
-    /**
-     * ip
-     */
-    private String ip;
     /**
      * 内容
      */

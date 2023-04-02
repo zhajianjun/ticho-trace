@@ -1,16 +1,19 @@
 package top.ticho.trace.server.controller;
 
-import com.ticho.boot.json.util.JsonUtil;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import top.ticho.trace.server.service.LogService;
 
-import java.util.Comparator;
+import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 /**
+ * 日志控制器
+ *
  * @author zhajianjun
  * @date 2023-03-27 12:34
  */
@@ -18,17 +21,13 @@ import java.util.Map;
 @RequestMapping("log")
 public class LogController {
 
+    @Resource
+    private LogService logService;
+
     @PostMapping("collect")
-    public void collect(@RequestBody List<Map<String, Object>> logs) {
-        logs.stream().sorted(Comparator.comparing(this::sortMapping)).forEach(x -> System.out.println("日志收集：" + JsonUtil.toJsonString(x)));
+    public int collect(@RequestBody List<Map<String, Object>> logs) {
+        return logService.collect(logs);
     }
 
-    private Long sortMapping(Map<String, Object> x) {
-        String dtTimeStr = x.get("dtTime").toString();
-        String seqStr = x.get("seq").toString();
-        Long dtTime = Long.valueOf(dtTimeStr);
-        Long seq = Long.valueOf(dtTimeStr);
-        return dtTime + seq;
-    }
 
 }

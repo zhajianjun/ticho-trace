@@ -1,4 +1,4 @@
-package top.ticho.trace.core.constant;
+package top.ticho.trace.common.constant;
 
 /**
  * 日志静态常量
@@ -16,9 +16,9 @@ public class LogConst {
     /** 跨度id key */
     public static final String SPAN_ID_KEY = "spanId";
     /** 当前应用名称 key */
-    public static final String CURR_APP_NAME_KEY = "appName";
+    public static final String APP_NAME_KEY = "appName";
     /** 当前ip key */
-    public static final String CURR_IP_KEY = "ip";
+    public static final String IP_KEY = "ip";
     /** 上个链路的应用名称 key */
     public static final String PRE_APP_NAME_KEY = "preAppName";
     /** 上个链路的Ip key */
@@ -30,7 +30,14 @@ public class LogConst {
     /** 耗时 key */
     public static final String CONSUME_KEY = "consume";
 
-    public static final String DEFAULT_APP_NAME = UNKNOWN;
+    public static final String DATE_TIME_KEY = "dateTime";
+
+    public static final String DT_TIME_KEY = "dtTime";
+
+    public static final String LOG_INDEX_PREFIX = "log";
+
+    public static final String ID_KEY = "id";
+
 
 
 }

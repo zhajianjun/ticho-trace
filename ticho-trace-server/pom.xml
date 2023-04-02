@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ticho-trace</artifactId>
         <groupId>top.ticho.log</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ticho-trace-server</artifactId>
@@ -16,7 +16,38 @@
         <dependency>
             <groupId>com.ticho.boot</groupId>
             <artifactId>ticho-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.elasticsearch.client</groupId>
+                    <artifactId>elasticsearch-rest-client</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/cn.easy-es/easy-es-boot-starter -->
+        <dependency>
+            <groupId>cn.easy-es</groupId>
+            <artifactId>easy-es-boot-starter</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>7.14.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>7.14.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.ticho.log</groupId>
+            <artifactId>ticho-trace-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
 
     </dependencies>
 
@@ -31,5 +62,62 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.6.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <properties>
+                <spring.active>local</spring.active>
+                <es.host>www.ticho.top:10090</es.host>
+                <es.username>elastic</es.username>
+                <es.password>1511ticho.</es.password>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.active>dev</spring.active>
+                <es.host>192.168.243.138:10090</es.host>
+                <es.username>elastic</es.username>
+                <es.password>1511ticho.</es.password>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <spring.active>prod</spring.active>
+                <es.host>192.168.243.138:10090</es.host>
+                <es.username>elastic</es.username>
+                <es.password>1511ticho.</es.password>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

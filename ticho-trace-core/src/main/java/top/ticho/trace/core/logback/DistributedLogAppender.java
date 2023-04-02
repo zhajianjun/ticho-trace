@@ -4,8 +4,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
-import top.ticho.trace.core.bean.TichoLog;
-import top.ticho.trace.core.constant.LogConst;
+import top.ticho.trace.common.bean.LogCollectInfo;
+import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.push.TracePushContext;
 
@@ -141,25 +141,24 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
 
             LocalDateTime of = LocalDateTimeUtil.of(timeStamp);
             String format = LocalDateTimeUtil.format(of, DatePattern.NORM_DATETIME_PATTERN);
-            TichoLog tichoLog = new TichoLog();
-            tichoLog.setAppName(appName);
-            tichoLog.setLogLevel(event.getLevel().toString());
-            tichoLog.setDateTime(format);
-            tichoLog.setDtTime(lastLogTimeStampGet);
-            tichoLog.setClassName(event.getLoggerName());
+            LogCollectInfo logCollectInfo = new LogCollectInfo();
+            logCollectInfo.setAppName(appName);
+            logCollectInfo.setLogLevel(event.getLevel().toString());
+            logCollectInfo.setDateTime(format);
+            logCollectInfo.setDtTime(lastLogTimeStampGet);
+            logCollectInfo.setClassName(event.getLoggerName());
             StackTraceElement[] stackTraceElements = event.getCallerData();
             if (stackTraceElements != null && stackTraceElements.length > 0) {
                 StackTraceElement stackTraceElement = stackTraceElements[0];
                 String method = stackTraceElement.getMethodName();
                 String line = String.valueOf(stackTraceElement.getLineNumber());
-                tichoLog.setMethod(method + "(" + stackTraceElement.getFileName() + ":" + line + ")");
+                logCollectInfo.setMethod(method + "(" + stackTraceElement.getFileName() + ":" + line + ")");
             }
-            tichoLog.setSeq(currentSequence);
-            tichoLog.setIp("");
-            tichoLog.setContent(event.getFormattedMessage());
-            tichoLog.setThreadName(event.getThreadName());
+            logCollectInfo.setSeq(currentSequence);
+            logCollectInfo.setContent(event.getFormattedMessage());
+            logCollectInfo.setThreadName(event.getThreadName());
             Map<String, Object> mdcMap = new HashMap<>(event.getMDCPropertyMap());
-            String tichoLogMap = JsonUtil.toJsonString(tichoLog);
+            String tichoLogMap = JsonUtil.toJsonString(logCollectInfo);
             Map<String, Object> logMap = JsonUtil.toMap(tichoLogMap, Object.class);
             mdcMap.putAll(logMap);
             message.add(mdcMap);
