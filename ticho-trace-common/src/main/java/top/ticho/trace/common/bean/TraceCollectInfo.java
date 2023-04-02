@@ -59,19 +59,13 @@ public class TraceCollectInfo {
     private Integer status;
 
     /* 请求开始时间戳 */
-    private String start;
+    private Long start;
 
     /* 请求结束时间戳 */
-    private String end;
-
-    /* 请求开始时间 */
-    private String startTime;
-
-    /* 请求结束时间 */
-    private String endTime;
+    private Long end;
 
     /* 耗时 */
-    private String consume;
+    private Long consume;
 
 
     public String getFullUrl() {

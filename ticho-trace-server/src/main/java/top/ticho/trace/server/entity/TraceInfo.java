@@ -1,8 +1,6 @@
 package top.ticho.trace.server.entity;
 
-import cn.easyes.annotation.IndexField;
 import cn.easyes.annotation.IndexId;
-import cn.easyes.annotation.rely.FieldType;
 import cn.easyes.annotation.rely.IdType;
 import lombok.Data;
 
@@ -13,18 +11,14 @@ import lombok.Data;
 @Data
 public class TraceInfo {
 
-    /** es id */
-    @IndexId(type = IdType.CUSTOMIZE)
-    private String esId;
-
     /** id */
+    @IndexId(type = IdType.CUSTOMIZE)
     private String id;
 
     /** 链路id */
     private String traceId;
 
     /** 跨度id */
-    @IndexField(fieldType = FieldType.KEYWORD_TEXT)
     private String spanId;
 
     /** 当前应用名称 */
@@ -58,10 +52,10 @@ public class TraceInfo {
     private Integer status;
 
     /* 请求开始时间戳 */
-    private String start;
+    private Long start;
 
     /* 请求结束时间戳 */
-    private String end;
+    private Long end;
 
     /* 请求开始时间 */
     private String startTime;
@@ -70,6 +64,6 @@ public class TraceInfo {
     private String endTime;
 
     /* 耗时 */
-    private String consume;
+    private Long consume;
 
 }

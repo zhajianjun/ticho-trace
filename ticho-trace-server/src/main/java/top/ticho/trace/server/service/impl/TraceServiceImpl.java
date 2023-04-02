@@ -3,6 +3,8 @@ package top.ticho.trace.server.service.impl;
 import cn.easyes.core.biz.OrderByParam;
 import cn.easyes.core.conditions.LambdaEsQueryWrapper;
 import cn.easyes.core.toolkit.EsWrappers;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import org.elasticsearch.search.sort.SortOrder;
@@ -13,6 +15,7 @@ import top.ticho.trace.server.entity.TraceInfo;
 import top.ticho.trace.server.mapper.TraceMapper;
 import top.ticho.trace.server.service.TraceService;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,11 +33,15 @@ public class TraceServiceImpl implements TraceService {
 
     @Override
     public void collect(TraceInfo traceInfo) {
-        String startTime = traceInfo.getStartTime();
+        Long start = traceInfo.getStart();
+        Long end = traceInfo.getEnd();
+        String startTime = LocalDateTimeUtil.of(start).format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_MS_PATTERN));
+        String endTime = LocalDateTimeUtil.of(end).format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_MS_PATTERN));
+        traceInfo.setStartTime(startTime);
+        traceInfo.setEndTime(endTime);
         String indexName = LogConst.TRACE_INDEX_PREFIX + "_" + startTime.substring(0, 10);
         String id = IdUtil.getSnowflakeNextIdStr();
         traceInfo.setId(id);
-        traceInfo.setEsId(id);
         traceMapper.insert(traceInfo, indexName);
     }
 

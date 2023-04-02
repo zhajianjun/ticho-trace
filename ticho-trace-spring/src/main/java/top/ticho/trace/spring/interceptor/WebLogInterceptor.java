@@ -1,6 +1,5 @@
 package top.ticho.trace.spring.interceptor;
 
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.StrUtil;
@@ -29,7 +28,7 @@ import top.ticho.trace.spring.wrapper.ResponseWrapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -115,7 +114,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .traceId(MDC.get(LogConst.TRACE_ID_KEY))
             .spanId(MDC.get(LogConst.SPAN_ID_KEY))
             .appName(MDC.get(LogConst.APP_NAME_KEY))
-            .ip(MDC.get(LogConst.ID_KEY))
+            .ip(MDC.get(LogConst.IP_KEY))
             .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
             .preIp(MDC.get(LogConst.PRE_IP_KEY))
             .type(method)
@@ -125,7 +124,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .reqBody(body)
             .reqHeaders(headers)
             .start(millis)
-            .startTime(LocalDateTimeUtil.of(millis))
+            .startTime(LocalDateTimeUtil.of(millis, ZoneId.of("UTC+8")))
             .username((principal != null ? principal.getName() : null))
             .userAgent(userAgent)
             .handlerMethod((HandlerMethod) handler)
@@ -173,11 +172,9 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .method(handlerMethod.toString())
             .type(logInfo.getType())
             .status(status)
-            .start(Long.toString(logInfo.getStart()))
-            .end(Long.toString(logInfo.getEnd()))
-            .startTime(logInfo.getStartTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)))
-            .endTime(logInfo.getEndTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)))
-            .consume(Long.toString(logInfo.getConsume()))
+            .start(logInfo.getStart())
+            .end(logInfo.getEnd())
+            .consume(logInfo.getConsume())
             .build();
         springTracePushContext.push(traceUrl, traceCollectInfo);
         TraceUtil.complete();
