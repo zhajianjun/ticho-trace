@@ -1,31 +1,30 @@
-package top.ticho.trace.common.bean;
+package top.ticho.trace.server.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
+import cn.easyes.annotation.IndexField;
+import cn.easyes.annotation.IndexId;
+import cn.easyes.annotation.rely.FieldType;
+import cn.easyes.annotation.rely.IdType;
+import lombok.Data;
 
 /**
- * 链路收集信息
- *
  * @author zhajianjun
- * @date 2023-03-30 20:20:20
+ * @date 2023-04-02 01:40:22
  */
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-@ToString
-public class TraceCollectInfo {
+@Data
+public class TraceInfo {
+
+    /** es id */
+    @IndexId(type = IdType.CUSTOMIZE)
+    private String esId;
+
+    /** id */
+    private String id;
 
     /** 链路id */
     private String traceId;
 
     /** 跨度id */
+    @IndexField(fieldType = FieldType.KEYWORD_TEXT)
     private String spanId;
 
     /** 当前应用名称 */
@@ -72,13 +71,5 @@ public class TraceCollectInfo {
 
     /* 耗时 */
     private String consume;
-
-
-    public String getFullUrl() {
-        if (url == null || port == null || ip == null) {
-            return null;
-        }
-        return String.format("%s:%s%s", ip, port, url);
-    }
 
 }

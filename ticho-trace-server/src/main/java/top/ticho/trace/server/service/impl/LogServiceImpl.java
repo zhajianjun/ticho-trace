@@ -89,9 +89,10 @@ public class LogServiceImpl implements LogService {
     private void handle(BulkRequest bulkRequest, Map<String, Object> logInfo) {
         String dateTimeStr = logInfo.get(LogConst.DATE_TIME_KEY).toString();
         String indexName = LogConst.LOG_INDEX_PREFIX + "_" + dateTimeStr.substring(0, 10);
-        String snowflakeNextIdStr = IdUtil.getSnowflakeNextIdStr();
-        logInfo.put(LogConst.ID_KEY, snowflakeNextIdStr);
+        String id = IdUtil.getSnowflakeNextIdStr();
         IndexRequest indexRequest = new IndexRequest();
+        indexRequest.id(id);
+        logInfo.put(LogConst.ID_KEY, id);
         String jsonData = JsonUtil.toJsonString(logInfo);
         indexRequest.index(indexName);
         indexRequest.source(jsonData, XContentType.JSON);
@@ -100,3 +101,4 @@ public class LogServiceImpl implements LogService {
 
 
 }
+

@@ -1,5 +1,7 @@
 package top.ticho.trace.spring.interceptor;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.useragent.UserAgent;
@@ -27,6 +29,7 @@ import top.ticho.trace.spring.wrapper.ResponseWrapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -107,13 +110,14 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         String ip = IpUtil.getIp(request);
         String preAppName = headersMap.get(LogConst.PRE_IP_KEY);
         String preIp = headersMap.get(LogConst.PRE_APP_NAME_KEY);
+        TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp);
         LogInfo logInfo = LogInfo.builder()
-            .traceId(traceId)
-            .spanId(spanId)
-            .appName(appName)
-            .ip(ip)
-            .preAppName(preAppName)
-            .preIp(preIp)
+            .traceId(MDC.get(LogConst.TRACE_ID_KEY))
+            .spanId(MDC.get(LogConst.SPAN_ID_KEY))
+            .appName(MDC.get(LogConst.APP_NAME_KEY))
+            .ip(MDC.get(LogConst.ID_KEY))
+            .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
+            .preIp(MDC.get(LogConst.PRE_IP_KEY))
             .type(method)
             .url(url)
             .port(port)
@@ -121,12 +125,12 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .reqBody(body)
             .reqHeaders(headers)
             .start(millis)
+            .startTime(LocalDateTimeUtil.of(millis))
             .username((principal != null ? principal.getName() : null))
             .userAgent(userAgent)
             .handlerMethod((HandlerMethod) handler)
             .build();
         theadLocal.set(logInfo);
-        TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp);
         boolean print = Boolean.TRUE.equals(springTraceLogProperty.getPrint());
         if (print) {
             log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, method, url, params, body, headers);
@@ -146,7 +150,9 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         logInfo.setResBody(resBody);
         String requestPrefixText = springTraceLogProperty.getRequestPrefixText();
         theadLocal.remove();
-        logInfo.setEnd(SystemClock.now());
+        long now = SystemClock.now();
+        logInfo.setEnd(now);
+        logInfo.setEndTime(LocalDateTimeUtil.of(now));
         int status = response.getStatus();
         Long time = logInfo.getConsume();
         boolean print = Boolean.TRUE.equals(springTraceLogProperty.getPrint());
@@ -167,9 +173,11 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .method(handlerMethod.toString())
             .type(logInfo.getType())
             .status(status)
-            .start(logInfo.getStart())
-            .end(logInfo.getEnd())
-            .consume(logInfo.getConsume())
+            .start(Long.toString(logInfo.getStart()))
+            .end(Long.toString(logInfo.getEnd()))
+            .startTime(logInfo.getStartTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)))
+            .endTime(logInfo.getEndTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)))
+            .consume(Long.toString(logInfo.getConsume()))
             .build();
         springTracePushContext.push(traceUrl, traceCollectInfo);
         TraceUtil.complete();

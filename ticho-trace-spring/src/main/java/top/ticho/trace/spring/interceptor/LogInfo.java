@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.web.method.HandlerMethod;
 
+import java.time.LocalDateTime;
+
 /**
  * 接口日志
  *
@@ -66,11 +68,17 @@ public class LogInfo {
     /** 响应头 */
     private String resHeaders;
 
-    /* 请求开始时间 */
+    /* 请求开始时间戳 */
     private Long start;
 
-    /* 请求结束时间 */
+    /* 请求结束时间戳 */
     private Long end;
+
+    /* 请求开始时间 */
+    private LocalDateTime startTime;
+
+    /* 请求结束时间 */
+    private LocalDateTime endTime;
 
     /* 请求间隔 */
     private Long consume;

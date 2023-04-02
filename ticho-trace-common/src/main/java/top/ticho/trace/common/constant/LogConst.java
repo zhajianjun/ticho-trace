@@ -36,6 +36,8 @@ public class LogConst {
 
     public static final String LOG_INDEX_PREFIX = "log";
 
+    public static final String TRACE_INDEX_PREFIX = "trace";
+
     public static final String ID_KEY = "id";
 
 
