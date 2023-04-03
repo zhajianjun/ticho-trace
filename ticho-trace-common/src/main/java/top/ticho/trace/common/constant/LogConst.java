@@ -25,10 +25,12 @@ public class LogConst {
     public static final String PRE_IP_KEY = "preIp";
     /** UNKNOWN */
     public static final String UNKNOWN = "UNKNOWN";
-    /** MDC_KEY */
-    public static final String TRACE_KEY = "trace";
+    /** TRACE_KEY */
+    public static final String TRACE_KEY = "traceKey";
+    /** TRACE */
+    public static final String TRACE = "trace";
     /** 默认链路 */
-    public static final String DEFAULT_TRACE = "[$traceId].[$spanId]";
+    public static final String DEFAULT_TRACE = "[${traceId}].[${spanId}]";
     /** 耗时 key */
     public static final String CONSUME_KEY = "consume";
 

@@ -1,5 +1,6 @@
 package top.ticho.trace.server.controller;
 
+import com.ticho.boot.view.core.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +30,8 @@ public class TraceController {
     }
 
     @GetMapping("getByTraceId")
-    public List<TraceInfo> getByTraceId(String traceId) {
-        return traceService.getByTraceId(traceId);
+    public Result<List<TraceInfo>> getByTraceId(String traceId) {
+        return Result.ok(traceService.getByTraceId(traceId));
     }
 
 }

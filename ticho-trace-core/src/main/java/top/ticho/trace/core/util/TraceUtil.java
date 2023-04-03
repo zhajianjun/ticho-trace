@@ -67,14 +67,15 @@ public class TraceUtil {
      * @param preIp 上个链路的ip
      * @param trace 链路
      */
-    public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp, String trace) {
-        traceId = nullDefault(traceId, ()-> Long.toString(SNOW.next()));
-        spanId = nullDefault(spanId, ()-> null);
+    public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp,
+            String trace) {
+        traceId = nullDefault(traceId, () -> Long.toString(SNOW.next()));
+        spanId = nullDefault(spanId, () -> null);
         appName = nullDefault(appName);
         ip = nullDefault(ip);
         preAppName = nullDefault(preAppName);
         preIp = nullDefault(preIp);
-        trace = nullDefault(trace, ()-> LogConst.DEFAULT_TRACE);
+        trace = nullDefault(trace, () -> LogConst.DEFAULT_TRACE);
         MDC.put(LogConst.TRACE_KEY, trace);
         MDC.put(LogConst.TRACE_ID_KEY, traceId);
         if (StrUtil.isBlank(spanId)) {
@@ -86,9 +87,16 @@ public class TraceUtil {
         MDC.put(LogConst.APP_NAME_KEY, appName);
         MDC.put(LogConst.PRE_IP_KEY, preIp);
         MDC.put(LogConst.PRE_APP_NAME_KEY, preAppName);
+        render();
     }
 
-    public static void complete(){
+    public static void render() {
+        String traceKey = MDC.get(LogConst.TRACE_KEY);
+        String trace = BeetlUtil.render(traceKey, MDC.getCopyOfContextMap());
+        MDC.put(LogConst.TRACE, trace);
+    }
+
+    public static void complete() {
         //移除MDC里的信息
         MDC.remove(LogConst.TRACE_KEY);
         MDC.remove(LogConst.TRACE_ID_KEY);
@@ -100,7 +108,7 @@ public class TraceUtil {
     }
 
     public static String nullDefault(String obj) {
-        return nullDefault(obj, ()-> LogConst.UNKNOWN);
+        return nullDefault(obj, () -> LogConst.UNKNOWN);
     }
 
     public static String nullDefault(String obj, Supplier<String> supplier) {

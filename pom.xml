@@ -104,6 +104,13 @@
                 <version>2.13.1</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/com.ibeetl/beetl -->
+            <dependency>
+                <groupId>com.ibeetl</groupId>
+                <artifactId>beetl</artifactId>
+                <version>3.14.1.RELEASE</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

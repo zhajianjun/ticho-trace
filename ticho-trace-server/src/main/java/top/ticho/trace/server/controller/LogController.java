@@ -1,5 +1,6 @@
 package top.ticho.trace.server.controller;
 
+import com.ticho.boot.view.core.Result;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import top.ticho.trace.server.service.LogService;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +25,8 @@ public class LogController {
     private LogService logService;
 
     @PostMapping("collect")
-    public int collect(@RequestBody List<Map<String, Object>> logs) {
-        return logService.collect(logs);
+    public Result<Integer> collect(@RequestBody List<Map<String, Object>> logs) {
+        return Result.ok(logService.collect(logs));
     }
 
 
