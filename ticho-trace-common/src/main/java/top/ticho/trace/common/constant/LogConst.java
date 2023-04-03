@@ -26,7 +26,9 @@ public class LogConst {
     /** UNKNOWN */
     public static final String UNKNOWN = "UNKNOWN";
     /** MDC_KEY */
-    public static final String MDC_KEY = "ticho";
+    public static final String TRACE_KEY = "trace";
+    /** 默认链路 */
+    public static final String DEFAULT_TRACE = "[$trace].[$spanId]";
     /** 耗时 key */
     public static final String CONSUME_KEY = "consume";
 

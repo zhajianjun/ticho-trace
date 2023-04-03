@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>top.ticho.log</groupId>
+    <groupId>top.ticho.trace</groupId>
     <artifactId>ticho-trace</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0</version>
@@ -13,6 +13,7 @@
         <module>ticho-trace-core</module>
         <module>ticho-trace-spring</module>
         <module>ticho-trace-common</module>
+        <module>ticho-trace-feign</module>
     </modules>
 
     <dependencyManagement>
@@ -76,6 +77,12 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>2.6.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>3.1.1</version>
             </dependency>
 
             <dependency>

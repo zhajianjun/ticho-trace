@@ -100,6 +100,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         Map<String, String> headersMap = getHeaders(request);
         String headers = toJsonOfDefault(headersMap);
         String requestPrefixText = springTraceLogProperty.getRequestPrefixText();
+        String trace = springTraceLogProperty.getTrace();
         UserAgent userAgent = IpUtil.getUserAgent(request);
         Principal principal = request.getUserPrincipal();
         String traceId = headersMap.get(LogConst.TRACE_ID_KEY);
@@ -109,14 +110,8 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         String ip = IpUtil.getIp(request);
         String preAppName = headersMap.get(LogConst.PRE_IP_KEY);
         String preIp = headersMap.get(LogConst.PRE_APP_NAME_KEY);
-        TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp);
+        TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
         LogInfo logInfo = LogInfo.builder()
-            .traceId(MDC.get(LogConst.TRACE_ID_KEY))
-            .spanId(MDC.get(LogConst.SPAN_ID_KEY))
-            .appName(MDC.get(LogConst.APP_NAME_KEY))
-            .ip(MDC.get(LogConst.IP_KEY))
-            .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
-            .preIp(MDC.get(LogConst.PRE_IP_KEY))
             .type(method)
             .url(url)
             .port(port)
@@ -161,12 +156,12 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         String traceUrl = springTraceLogProperty.getUrl();
         HandlerMethod handlerMethod = logInfo.getHandlerMethod();
         TraceCollectInfo traceCollectInfo = TraceCollectInfo.builder()
-            .traceId(logInfo.getTraceId())
-            .spanId(logInfo.getSpanId())
-            .appName(logInfo.getAppName())
-            .ip(logInfo.getIp())
-            .preAppName(logInfo.getPreAppName())
-            .preIp(logInfo.getPreIp())
+            .traceId(MDC.get(LogConst.TRACE_ID_KEY))
+            .spanId(MDC.get(LogConst.SPAN_ID_KEY))
+            .appName(MDC.get(LogConst.APP_NAME_KEY))
+            .ip(MDC.get(LogConst.IP_KEY))
+            .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
+            .preIp(MDC.get(LogConst.PRE_IP_KEY))
             .url(logInfo.getUrl())
             .port(logInfo.getPort())
             .method(handlerMethod.toString())

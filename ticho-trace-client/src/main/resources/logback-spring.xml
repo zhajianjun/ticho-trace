@@ -10,9 +10,9 @@
     <!-- 增加如下的TLog MDC Listener -->
     <!-- 3.一些属性值定义 -->
     <!-- 彩色日志格式 -->
-    <property name="console.log.pattern" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}) %clr([%thread]) %highlight(%-5level) %boldMagenta(%logger{50}) %clr(%X{tl}) : %msg%n"/>
+    <property name="console.log.pattern" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}) %clr([%thread]) %highlight(%-5level) %boldMagenta(%logger{50}) %clr(%X{trace}) : %msg%n"/>
     <!--日志格式-->
-    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} %X{tl} %msg%n"/>"
+    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} %X{trace} %msg%n"/>"
     <!--日志最大的历史 7天-->
     <property name="log.maxHistory" value="30"/>
     <!--日志最大的文件大小 100MB-->

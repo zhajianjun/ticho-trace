@@ -51,7 +51,9 @@ public class TraceUtil {
         String preAppName = map.get(LogConst.PRE_APP_NAME_KEY);
         // 上个链路的Ip */
         String preIp = map.get(LogConst.PRE_IP_KEY);
-        prepare(traceId, spanId, currAppName, currIp, preAppName, preIp);
+        // 链路
+        String traceKey = map.get(LogConst.TRACE_KEY);
+        prepare(traceId, spanId, currAppName, currIp, preAppName, preIp, traceKey);
     }
 
     /**
@@ -63,15 +65,17 @@ public class TraceUtil {
      * @param ip 当前ip
      * @param preAppName 上个链路的应用名称
      * @param preIp 上个链路的ip
+     * @param trace 链路
      */
-    public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp) {
+    public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp, String trace) {
         traceId = nullDefault(traceId, ()-> Long.toString(SNOW.next()));
         spanId = nullDefault(spanId, ()-> null);
         appName = nullDefault(appName);
         ip = nullDefault(ip);
         preAppName = nullDefault(preAppName);
         preIp = nullDefault(preIp);
-        MDC.put(LogConst.MDC_KEY, "");
+        trace = nullDefault(trace, ()-> LogConst.DEFAULT_TRACE);
+        MDC.put(LogConst.TRACE_KEY, trace);
         MDC.put(LogConst.TRACE_ID_KEY, traceId);
         if (StrUtil.isBlank(spanId)) {
             spanId = "0";
@@ -86,7 +90,7 @@ public class TraceUtil {
 
     public static void complete(){
         //移除MDC里的信息
-        MDC.remove(LogConst.MDC_KEY);
+        MDC.remove(LogConst.TRACE_KEY);
         MDC.remove(LogConst.TRACE_ID_KEY);
         MDC.remove(LogConst.SPAN_ID_KEY);
         MDC.remove(LogConst.APP_NAME_KEY);

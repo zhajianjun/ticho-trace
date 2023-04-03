@@ -26,24 +26,6 @@ import java.time.LocalDateTime;
 @ToString
 public class LogInfo {
 
-    /** 链路id */
-    private String traceId;
-
-    /** 跨度id */
-    private String spanId;
-
-    /** 当前应用名称 */
-    private String appName;
-
-    /** 当前ip */
-    private String ip;
-
-    /** 上个链路的应用名称 */
-    private String preAppName;
-
-    /** 上个链路的Ip */
-    private String preIp;
-
     /** 请求类型 */
     private String type;
 

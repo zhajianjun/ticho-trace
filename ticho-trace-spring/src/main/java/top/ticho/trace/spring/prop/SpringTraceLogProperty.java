@@ -33,4 +33,7 @@ public class SpringTraceLogProperty {
     /** 日志打印前缀 */
     private String requestPrefixText = "[REQUEST]";
 
+    /** 链路 */
+    private String trace = "[$trace].[$spanId]";
+
 }
