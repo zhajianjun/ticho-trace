@@ -48,6 +48,9 @@ public class LogInfo {
     /** 响应头 */
     private String resHeaders;
 
+    /** 响应状态 */
+    private Integer status;
+
     /* 请求开始时间戳 */
     private Long start;
 

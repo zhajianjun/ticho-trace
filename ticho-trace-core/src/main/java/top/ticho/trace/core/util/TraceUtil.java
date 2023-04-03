@@ -1,6 +1,6 @@
 package top.ticho.trace.core.util;
 
-import cn.hutool.core.lang.generator.SnowflakeGenerator;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import org.slf4j.MDC;
@@ -8,6 +8,7 @@ import top.ticho.trace.common.constant.LogConst;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -24,8 +25,11 @@ public class TraceUtil {
 
     /** 下个跨度id的索引 */
     private static final TransmittableThreadLocal<AtomicInteger> NEXT_SPAN_INDEX_TL = new TransmittableThreadLocal<>();
+    private static final TransmittableThreadLocal<AtomicBoolean> SWITCH_TL = new TransmittableThreadLocal<>();
 
-    public static final SnowflakeGenerator SNOW = new SnowflakeGenerator();
+    static {
+        SWITCH_TL.set(new AtomicBoolean(false));
+    }
 
     public static String nextSpanId() {
         String currentSpanId = MDC.get(LogConst.SPAN_ID_KEY);
@@ -60,16 +64,15 @@ public class TraceUtil {
      * 准备
      *
      * @param traceId 链路id
-     * @param spanId 跨度id
+     * @param spanId 跨度id0
      * @param appName 当前应用名称
      * @param ip 当前ip
      * @param preAppName 上个链路的应用名称
      * @param preIp 上个链路的ip
      * @param trace 链路
      */
-    public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp,
-            String trace) {
-        traceId = nullDefault(traceId, () -> Long.toString(SNOW.next()));
+    public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp, String trace) {
+        traceId = nullDefault(traceId, IdUtil::getSnowflakeNextIdStr);
         spanId = nullDefault(spanId, () -> null);
         appName = nullDefault(appName);
         ip = nullDefault(ip);
@@ -113,6 +116,16 @@ public class TraceUtil {
 
     public static String nullDefault(String obj, Supplier<String> supplier) {
         return Optional.ofNullable(obj).filter(StrUtil::isNotBlank).orElseGet(supplier);
+    }
+
+    public static boolean isOpen() {
+        AtomicBoolean atomicBoolean = SWITCH_TL.get();
+        return atomicBoolean.get();
+    }
+
+    public static void isOpen(boolean isOpen) {
+        AtomicBoolean atomicBoolean = SWITCH_TL.get();
+        atomicBoolean.set(isOpen);
     }
 
 

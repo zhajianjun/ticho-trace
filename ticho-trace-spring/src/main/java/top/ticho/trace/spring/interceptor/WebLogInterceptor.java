@@ -19,6 +19,7 @@ import top.ticho.trace.common.bean.TraceCollectInfo;
 import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.common.prop.TraceLogProperty;
 import top.ticho.trace.core.json.JsonUtil;
+import top.ticho.trace.core.push.TracePushContext;
 import top.ticho.trace.core.util.TraceUtil;
 import top.ticho.trace.spring.component.SpringTracePushContext;
 import top.ticho.trace.spring.util.IpUtil;
@@ -87,7 +88,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             return true;
         }
         long millis = SystemClock.now();
-        String method = request.getMethod();
+        String type = request.getMethod();
         String url = request.getRequestURI();
         // params
         Map<String, Object> paramsMap = getParams(request);
@@ -114,7 +115,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         }
         TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
         LogInfo logInfo = LogInfo.builder()
-            .type(method)
+            .type(type)
             .url(url)
             .port(port)
             .reqParams(params)
@@ -127,7 +128,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         theadLocal.set(logInfo);
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
         if (print) {
-            log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, method, url, params, body, headers);
+            log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, body, headers);
         }
         return true;
     }
@@ -138,7 +139,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         if (logInfo == null) {
             return;
         }
-        String method = request.getMethod();
+        String type = request.getMethod();
         String url = request.getRequestURI();
         String resBody = nullOfDefault(getResBody(response));
         logInfo.setResBody(resBody);
@@ -149,7 +150,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         Long consume = logInfo.getConsume();
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
         if (print) {
-            log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, method, url, status, consume, resBody);
+            log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, type, url, status, consume, resBody);
         }
         String traceUrl = traceLogProperty.getUrl();
         HandlerMethod handlerMethod = (HandlerMethod) handler;
@@ -169,8 +170,9 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .end(end)
             .consume(consume)
             .build();
-        System.out.println("----" + MDC.getCopyOfContextMap());
-        springTracePushContext.push(traceUrl, traceCollectInfo);
+        if (TraceUtil.isOpen()) {
+            springTracePushContext.push(traceUrl, traceCollectInfo);
+        }
         theadLocal.remove();
         TraceUtil.complete();
     }

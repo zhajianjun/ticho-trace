@@ -4,10 +4,12 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import top.ticho.trace.common.bean.LogCollectInfo;
 import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.push.TracePushContext;
+import top.ticho.trace.core.util.TraceUtil;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -43,7 +45,7 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     public DistributedLogAppender() {
         // @formatter:off
         this.queue = new LinkedBlockingQueue<>(10000);
-        this.executor = new ThreadPoolExecutor(1, 1, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1), new ThreadPoolExecutor.DiscardOldestPolicy());
+        this.executor = ThreadUtil.newExecutorByBlockingCoefficient(1);
         this.sequence = new AtomicLong();
         this.pushTime = new AtomicLong();
         this.lastLogTimeStamp = new AtomicLong();
@@ -83,6 +85,9 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     @Override
     protected void append(ILoggingEvent event) {
         if (event == null) {
+            return;
+        }
+        if (!TraceUtil.isOpen()) {
             return;
         }
         queue.add(event);
