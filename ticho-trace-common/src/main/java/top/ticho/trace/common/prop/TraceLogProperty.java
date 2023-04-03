@@ -1,6 +1,7 @@
 package top.ticho.trace.common.prop;
 
 import lombok.Data;
+import top.ticho.trace.common.constant.LogConst;
 
 /**
  * 日志配置
@@ -30,6 +31,6 @@ public class TraceLogProperty {
     private String requestPrefixText = "[REQUEST]";
 
     /** 链路 */
-    private String trace = "[$trace].[$spanId]";
+    private String trace = LogConst.DEFAULT_TRACE;
 
 }

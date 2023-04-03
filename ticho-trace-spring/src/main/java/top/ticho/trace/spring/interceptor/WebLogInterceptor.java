@@ -1,6 +1,5 @@
 package top.ticho.trace.spring.interceptor;
 
-import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.useragent.UserAgent;
@@ -15,12 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import top.ticho.trace.common.bean.LogInfo;
 import top.ticho.trace.common.bean.TraceCollectInfo;
 import top.ticho.trace.common.constant.LogConst;
+import top.ticho.trace.common.prop.TraceLogProperty;
 import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.util.TraceUtil;
 import top.ticho.trace.spring.component.SpringTracePushContext;
-import top.ticho.trace.common.prop.TraceLogProperty;
 import top.ticho.trace.spring.util.IpUtil;
 import top.ticho.trace.spring.wrapper.RequestWrapper;
 import top.ticho.trace.spring.wrapper.ResponseWrapper;
@@ -28,7 +28,6 @@ import top.ticho.trace.spring.wrapper.ResponseWrapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -108,8 +107,8 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         String appName = environment.getProperty("spring.application.name");
         String port = environment.getProperty("server.port");
         String ip = IpUtil.localIp();
-        String preAppName = headersMap.get(LogConst.PRE_IP_KEY);
-        String preIp = headersMap.get(LogConst.PRE_APP_NAME_KEY);
+        String preAppName = headersMap.get(LogConst.PRE_APP_NAME_KEY);
+        String preIp = headersMap.get(LogConst.PRE_IP_KEY);
         if (preIp == null) {
             preIp = IpUtil.preIp(request);
         }
@@ -122,10 +121,8 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .reqBody(body)
             .reqHeaders(headers)
             .start(millis)
-            .startTime(LocalDateTimeUtil.of(millis, ZoneId.of("UTC+8")))
             .username((principal != null ? principal.getName() : null))
             .userAgent(userAgent)
-            .handlerMethod((HandlerMethod) handler)
             .build();
         theadLocal.set(logInfo);
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
@@ -146,18 +143,16 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         String resBody = nullOfDefault(getResBody(response));
         logInfo.setResBody(resBody);
         String requestPrefixText = traceLogProperty.getRequestPrefixText();
-        theadLocal.remove();
-        long now = SystemClock.now();
-        logInfo.setEnd(now);
-        logInfo.setEndTime(LocalDateTimeUtil.of(now));
+        long end = SystemClock.now();
+        logInfo.setEnd(end);
         int status = response.getStatus();
-        Long time = logInfo.getConsume();
+        Long consume = logInfo.getConsume();
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
         if (print) {
-            log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, method, url, status, time, resBody);
+            log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, method, url, status, consume, resBody);
         }
         String traceUrl = traceLogProperty.getUrl();
-        HandlerMethod handlerMethod = logInfo.getHandlerMethod();
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
         TraceCollectInfo traceCollectInfo = TraceCollectInfo.builder()
             .traceId(MDC.get(LogConst.TRACE_ID_KEY))
             .spanId(MDC.get(LogConst.SPAN_ID_KEY))
@@ -171,10 +166,12 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .type(logInfo.getType())
             .status(status)
             .start(logInfo.getStart())
-            .end(logInfo.getEnd())
-            .consume(logInfo.getConsume())
+            .end(end)
+            .consume(consume)
             .build();
+        System.out.println("----" + MDC.getCopyOfContextMap());
         springTracePushContext.push(traceUrl, traceCollectInfo);
+        theadLocal.remove();
         TraceUtil.complete();
     }
 

@@ -1,14 +1,12 @@
-package top.ticho.trace.spring.interceptor;
+package top.ticho.trace.common.bean;
 
 import cn.hutool.http.useragent.UserAgent;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.web.method.HandlerMethod;
 
 import java.time.LocalDateTime;
 
@@ -56,12 +54,6 @@ public class LogInfo {
     /* 请求结束时间戳 */
     private Long end;
 
-    /* 请求开始时间 */
-    private LocalDateTime startTime;
-
-    /* 请求结束时间 */
-    private LocalDateTime endTime;
-
     /* 请求间隔 */
     private Long consume;
 
@@ -69,11 +61,7 @@ public class LogInfo {
     private String username;
 
     /* User-Agent信息对象 */
-    @JsonIgnore
     private UserAgent userAgent;
-
-    @JsonIgnore
-    private HandlerMethod handlerMethod;
 
     public Long getConsume() {
         if (start == null || end == null) {

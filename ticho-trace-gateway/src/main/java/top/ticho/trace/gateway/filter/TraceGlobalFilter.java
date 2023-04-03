@@ -1,7 +1,11 @@
 package top.ticho.trace.gateway.filter;
 
+import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.useragent.UserAgentUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -12,8 +16,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import top.ticho.trace.common.bean.LogInfo;
+import top.ticho.trace.common.bean.TraceCollectInfo;
 import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.common.prop.TraceLogProperty;
+import top.ticho.trace.core.push.TracePushContext;
 import top.ticho.trace.core.util.TraceUtil;
 
 import java.net.InetAddress;
@@ -33,8 +40,10 @@ import java.util.function.Consumer;
 @Slf4j
 @ConditionalOnProperty(value = "ticho.trace.enable", havingValue = "true", matchIfMissing = true)
 public class TraceGlobalFilter implements GlobalFilter, Ordered {
+    public static final String USER_AGENT = "User-Agent";
 
     private static final List<String> localhosts = new ArrayList<>();
+    private final TransmittableThreadLocal<LogInfo> theadLocal = new TransmittableThreadLocal<>();
 
     static{
         localhosts.add("127.0.0.1");
@@ -49,7 +58,33 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return chain.filter(preHandle(exchange)).doFinally(signalType -> TraceUtil.complete());
+        return chain.filter(preHandle(exchange)).doFinally(signalType -> {
+            LogInfo logInfo = theadLocal.get();
+            if (logInfo == null) {
+                return;
+            }
+            long end = SystemClock.now();
+            logInfo.setEnd(end);
+            TraceCollectInfo traceCollectInfo = TraceCollectInfo.builder()
+                .traceId(MDC.get(LogConst.TRACE_ID_KEY))
+                .spanId(MDC.get(LogConst.SPAN_ID_KEY))
+                .appName(MDC.get(LogConst.APP_NAME_KEY))
+                .ip(MDC.get(LogConst.IP_KEY))
+                .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
+                .preIp(MDC.get(LogConst.PRE_IP_KEY))
+                .url(logInfo.getUrl())
+                .port(logInfo.getPort())
+                .method("")
+                .type(logInfo.getType())
+                .status(200)
+                .start(logInfo.getStart())
+                .end(end)
+                .consume(logInfo.getConsume())
+                .build();
+            TracePushContext.push(traceLogProperty.getUrl(), traceCollectInfo);
+            theadLocal.remove();
+            TraceUtil.complete();
+        });
     }
 
     public ServerWebExchange preHandle(ServerWebExchange exchange) {
@@ -57,21 +92,36 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         HttpHeaders headers = request.getHeaders();
         String traceId = headers.getFirst(LogConst.TRACE_ID_KEY);
         String spanId = headers.getFirst(LogConst.SPAN_ID_KEY);
-        String preAppNam = headers.getFirst(LogConst.PRE_APP_NAME_KEY);
+        String preAppName = headers.getFirst(LogConst.PRE_APP_NAME_KEY);
         String preIp = headers.getFirst(LogConst.PRE_IP_KEY);
         if (preIp == null) {
             preIp = preIp(request);
         }
         String ip = localIp();
         String appName = environment.getProperty("spring.application.name");
+        String port = environment.getProperty("server.port");
         String trace = traceLogProperty.getTrace();
-        TraceUtil.prepare(traceId, spanId, appName, ip, preAppNam, preIp, trace);
+        TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
+        traceId = MDC.get(LogConst.TRACE_ID_KEY);
         if (StrUtil.isBlank(traceId)) {
             log.debug("MDC中不存在链路信息,本次调用不传递traceId");
             return exchange;
         }
+        long millis = SystemClock.now();
+        String finalTraceId = traceId;
+        LogInfo logInfo = LogInfo.builder()
+            .type(request.getMethodValue())
+            .url(request.getPath().toString())
+            .port(port)
+            //.reqParams(params)
+            //.reqBody(body)
+            //.reqHeaders(headers)
+            .start(millis)
+            .userAgent(UserAgentUtil.parse(headers.getFirst(USER_AGENT)))
+            .build();
+        theadLocal.set(logInfo);
         Consumer<HttpHeaders> httpHeaders = httpHeader -> {
-            httpHeader.set(LogConst.TRACE_ID_KEY, traceId);
+            httpHeader.set(LogConst.TRACE_ID_KEY, finalTraceId);
             httpHeader.set(LogConst.SPAN_ID_KEY, TraceUtil.nextSpanId());
             httpHeader.set(LogConst.PRE_APP_NAME_KEY, appName);
             httpHeader.set(LogConst.PRE_IP_KEY, ip);
