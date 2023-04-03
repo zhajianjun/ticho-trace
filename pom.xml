@@ -14,6 +14,7 @@
         <module>ticho-trace-spring</module>
         <module>ticho-trace-common</module>
         <module>ticho-trace-feign</module>
+        <module>ticho-trace-gateway</module>
     </modules>
 
     <dependencyManagement>
@@ -82,6 +83,12 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>3.1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-gateway</artifactId>
                 <version>3.1.1</version>
             </dependency>
 

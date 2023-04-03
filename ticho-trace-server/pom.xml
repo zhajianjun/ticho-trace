@@ -92,7 +92,7 @@
             <id>local</id>
             <properties>
                 <spring.active>local</spring.active>
-                <es.host>www.ticho.top:10090</es.host>
+                <es.host>192.168.243.138:10090</es.host>
                 <es.username>elastic</es.username>
                 <es.password>1511ticho.</es.password>
             </properties>

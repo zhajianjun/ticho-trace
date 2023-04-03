@@ -1,8 +1,6 @@
-package top.ticho.trace.spring.prop;
+package top.ticho.trace.common.prop;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 /**
  * 日志配置
@@ -10,10 +8,8 @@ import org.springframework.stereotype.Component;
  * @author zhajianjun
  * @date 2023-03-27 12:34
  */
-@Component
 @Data
-@ConfigurationProperties(prefix = "ticho.trace")
-public class SpringTraceLogProperty {
+public class TraceLogProperty {
 
     /** 是否开启链路拦截器 */
     private Boolean enable = true;

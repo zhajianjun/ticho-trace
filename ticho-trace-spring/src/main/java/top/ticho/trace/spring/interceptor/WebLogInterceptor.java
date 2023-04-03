@@ -20,7 +20,7 @@ import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.util.TraceUtil;
 import top.ticho.trace.spring.component.SpringTracePushContext;
-import top.ticho.trace.spring.prop.SpringTraceLogProperty;
+import top.ticho.trace.common.prop.TraceLogProperty;
 import top.ticho.trace.spring.util.IpUtil;
 import top.ticho.trace.spring.wrapper.RequestWrapper;
 import top.ticho.trace.spring.wrapper.ResponseWrapper;
@@ -52,16 +52,16 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
 
     private final TransmittableThreadLocal<LogInfo> theadLocal;
 
-    private final SpringTraceLogProperty springTraceLogProperty;
+    private final TraceLogProperty traceLogProperty;
 
     private final SpringTracePushContext springTracePushContext;
 
     private final Environment environment;
 
-    public WebLogInterceptor(SpringTraceLogProperty springTraceLogProperty, SpringTracePushContext springTracePushContext,
+    public WebLogInterceptor(TraceLogProperty traceLogProperty, SpringTracePushContext springTracePushContext,
             Environment environment) {
         this.theadLocal = new TransmittableThreadLocal<>();
-        this.springTraceLogProperty = springTraceLogProperty;
+        this.traceLogProperty = traceLogProperty;
         this.springTracePushContext = springTracePushContext;
         this.environment = environment;
     }
@@ -99,17 +99,20 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         // header
         Map<String, String> headersMap = getHeaders(request);
         String headers = toJsonOfDefault(headersMap);
-        String requestPrefixText = springTraceLogProperty.getRequestPrefixText();
-        String trace = springTraceLogProperty.getTrace();
+        String requestPrefixText = traceLogProperty.getRequestPrefixText();
+        String trace = traceLogProperty.getTrace();
         UserAgent userAgent = IpUtil.getUserAgent(request);
         Principal principal = request.getUserPrincipal();
         String traceId = headersMap.get(LogConst.TRACE_ID_KEY);
         String spanId = headersMap.get(LogConst.SPAN_ID_KEY);
         String appName = environment.getProperty("spring.application.name");
         String port = environment.getProperty("server.port");
-        String ip = IpUtil.getIp(request);
+        String ip = IpUtil.localIp();
         String preAppName = headersMap.get(LogConst.PRE_IP_KEY);
         String preIp = headersMap.get(LogConst.PRE_APP_NAME_KEY);
+        if (preIp == null) {
+            preIp = IpUtil.preIp(request);
+        }
         TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
         LogInfo logInfo = LogInfo.builder()
             .type(method)
@@ -125,7 +128,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .handlerMethod((HandlerMethod) handler)
             .build();
         theadLocal.set(logInfo);
-        boolean print = Boolean.TRUE.equals(springTraceLogProperty.getPrint());
+        boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
         if (print) {
             log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, method, url, params, body, headers);
         }
@@ -142,18 +145,18 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         String url = request.getRequestURI();
         String resBody = nullOfDefault(getResBody(response));
         logInfo.setResBody(resBody);
-        String requestPrefixText = springTraceLogProperty.getRequestPrefixText();
+        String requestPrefixText = traceLogProperty.getRequestPrefixText();
         theadLocal.remove();
         long now = SystemClock.now();
         logInfo.setEnd(now);
         logInfo.setEndTime(LocalDateTimeUtil.of(now));
         int status = response.getStatus();
         Long time = logInfo.getConsume();
-        boolean print = Boolean.TRUE.equals(springTraceLogProperty.getPrint());
+        boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
         if (print) {
             log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, method, url, status, time, resBody);
         }
-        String traceUrl = springTraceLogProperty.getUrl();
+        String traceUrl = traceLogProperty.getUrl();
         HandlerMethod handlerMethod = logInfo.getHandlerMethod();
         TraceCollectInfo traceCollectInfo = TraceCollectInfo.builder()
             .traceId(MDC.get(LogConst.TRACE_ID_KEY))

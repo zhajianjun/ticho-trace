@@ -30,7 +30,7 @@ public class IpUtil {
         localhosts.add("0:0:0:0:0:0:0:1");
     }
 
-    public static String getIp(HttpServletRequest request) {
+    public static String preIp(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
         // Proxy-Client-IP 这个一般是经过apache http服务器的请求才会有，用apache http做代理时一般会加上Proxy-Client-IP请求头，而WL-Proxy-Client-IP是他的weblogic插件加上的头。
         String unknown = "unknown";
@@ -54,6 +54,10 @@ public class IpUtil {
             return ip;
         }
         // 获取本机真正的ip地址
+        return localIp();
+    }
+
+    public static String localIp() {
         try {
             return InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
