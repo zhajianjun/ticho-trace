@@ -48,6 +48,14 @@
             <version>1.0.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.github.ulisesbocchio/jasypt-spring-boot-starter -->
+        <dependency>
+            <groupId>com.github.ulisesbocchio</groupId>
+            <artifactId>jasypt-spring-boot-starter</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+
+
 
     </dependencies>
 
@@ -92,9 +100,9 @@
             <id>local</id>
             <properties>
                 <spring.active>local</spring.active>
-                <es.host>192.168.243.138:10090</es.host>
-                <es.username>elastic</es.username>
-                <es.password>1511ticho.</es.password>
+                <es.host>ENC(wI5t6PPkOvJacNYUDLEHghuZu+tCvdptyvZve1Niw9A=)</es.host>
+                <es.username>ENC(9xGUDJEGhujXpc7cu3yG6A==)</es.username>
+                <es.password>ENC(cFW6dvepPqk8/Y7eF70aYgqGLYFK7LQM)</es.password>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -104,18 +112,18 @@
             <id>dev</id>
             <properties>
                 <spring.active>dev</spring.active>
-                <es.host>192.168.243.138:10090</es.host>
-                <es.username>elastic</es.username>
-                <es.password>1511ticho.</es.password>
+                <es.host>ENC(QkjHFFZDmVi0U3Hk9GTK400CJdGfoaiF2qa01W1Z1Wo=)</es.host>
+                <es.username>ENC(8c1FGvU45vYgfzVSeF/Fmg==)</es.username>
+                <es.password>ENC(6qT6mmYA/l4/F8jod4HmfNuvlwE6ZzSs)</es.password>
             </properties>
         </profile>
         <profile>
             <id>prod</id>
             <properties>
                 <spring.active>prod</spring.active>
-                <es.host>192.168.243.138:10090</es.host>
-                <es.username>elastic</es.username>
-                <es.password>1511ticho.</es.password>
+                <es.host>ENC(i0XPaqggurvxQRNTQcz/s+w0xbb0ujAmPA87pfsD+AQ=)</es.host>
+                <es.username>ENC(fBgFFXlgI2Zxf052Cj+Q2g==)</es.username>
+                <es.password>ENC(k2i1uWGMnhWGtuNesvWhJiupcblNKlRG)</es.password>
             </properties>
         </profile>
     </profiles>
