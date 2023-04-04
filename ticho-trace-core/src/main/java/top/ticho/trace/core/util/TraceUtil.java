@@ -27,10 +27,6 @@ public class TraceUtil {
     private static final TransmittableThreadLocal<AtomicInteger> NEXT_SPAN_INDEX_TL = new TransmittableThreadLocal<>();
     private static final TransmittableThreadLocal<AtomicBoolean> SWITCH_TL = new TransmittableThreadLocal<>();
 
-    static {
-        SWITCH_TL.set(new AtomicBoolean(false));
-    }
-
     public static String nextSpanId() {
         String currentSpanId = MDC.get(LogConst.SPAN_ID_KEY);
         int currentSpanIndex = NEXT_SPAN_INDEX_TL.get().incrementAndGet();
@@ -120,11 +116,19 @@ public class TraceUtil {
 
     public static boolean isOpen() {
         AtomicBoolean atomicBoolean = SWITCH_TL.get();
+        if (atomicBoolean == null) {
+            atomicBoolean = new AtomicBoolean(false);
+            SWITCH_TL.set(atomicBoolean);
+        }
         return atomicBoolean.get();
     }
 
     public static void isOpen(boolean isOpen) {
         AtomicBoolean atomicBoolean = SWITCH_TL.get();
+        if (atomicBoolean == null) {
+            atomicBoolean = new AtomicBoolean(isOpen);
+            SWITCH_TL.set(atomicBoolean);
+        }
         atomicBoolean.set(isOpen);
     }
 

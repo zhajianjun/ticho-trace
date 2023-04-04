@@ -45,7 +45,7 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     public DistributedLogAppender() {
         // @formatter:off
         this.queue = new LinkedBlockingQueue<>(10000);
-        this.executor = ThreadUtil.newExecutorByBlockingCoefficient(1);
+        this.executor = ThreadUtil.newExecutorByBlockingCoefficient(0.8f);
         this.sequence = new AtomicLong();
         this.pushTime = new AtomicLong();
         this.lastLogTimeStamp = new AtomicLong();

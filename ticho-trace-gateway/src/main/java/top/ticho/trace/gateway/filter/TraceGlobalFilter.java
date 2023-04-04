@@ -69,7 +69,7 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
 
     private static final List<String> localhosts = new ArrayList<>();
     private final TransmittableThreadLocal<LogInfo> theadLocal = new TransmittableThreadLocal<>();
-    private final ThreadPoolExecutor executor = ThreadUtil.newExecutorByBlockingCoefficient(1);
+    private final ThreadPoolExecutor executor = ThreadUtil.newExecutorByBlockingCoefficient(0.8f);
 
     static{
         localhosts.add("127.0.0.1");
@@ -110,8 +110,10 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
             String type = logInfo.getType();
             String url = logInfo.getUrl();
             Long consume = logInfo.getConsume();
+            Integer status = logInfo.getStatus();
+            String resBody = logInfo.getResBody();
             if (print) {
-                log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, type, url, "", consume, "");
+                log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, type, url, status, consume, resBody);
             }
             TraceCollectInfo traceCollectInfo = TraceCollectInfo.builder()
                 .traceId(MDC.get(LogConst.TRACE_ID_KEY))
@@ -141,28 +143,32 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
         MultiValueMap<String, String> queryParams = serverHttpRequest.getQueryParams();
         String params = JsonUtil.toJsonString(queryParams);
+        String methodValue = serverHttpRequest.getMethodValue();
+        String body = "";
+        if (Objects.equals("POST", methodValue)) {
+            //从请求里获取Post请求体
+            body = resolveBodyFromRequest(serverHttpRequest);
+            //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
+            URI uri = serverHttpRequest.getURI();
+            serverHttpRequest = serverHttpRequest.mutate().uri(uri).build();
+            DataBuffer bodyDataBuffer = stringBuffer(body);
+            Flux<DataBuffer> bodyFlux = Flux.just(bodyDataBuffer);
+            serverHttpRequest = new ServerHttpRequestDecorator(serverHttpRequest) {
+                @Override
+                public Flux<DataBuffer> getBody() {
+                    return bodyFlux;
+                }
+            };
+        }
 
-        //从请求里获取Post请求体
-        String body = resolveBodyFromRequest(serverHttpRequest);
-        //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
-        URI uri = serverHttpRequest.getURI();
-        ServerHttpRequest request = serverHttpRequest.mutate().uri(uri).build();
-        DataBuffer bodyDataBuffer = stringBuffer(body);
-        Flux<DataBuffer> bodyFlux = Flux.just(bodyDataBuffer);
-        request = new ServerHttpRequestDecorator(request) {
-            @Override
-            public Flux<DataBuffer> getBody() {
-                return bodyFlux;
-            }
-        };
-        HttpHeaders headers = request.getHeaders();
+        HttpHeaders headers = serverHttpRequest.getHeaders();
         String headersStr = JsonUtil.toJsonString(headers);
         String traceId = headers.getFirst(LogConst.TRACE_ID_KEY);
         String spanId = headers.getFirst(LogConst.SPAN_ID_KEY);
         String preAppName = headers.getFirst(LogConst.PRE_APP_NAME_KEY);
         String preIp = headers.getFirst(LogConst.PRE_IP_KEY);
         if (preIp == null) {
-            preIp = preIp(request);
+            preIp = preIp(serverHttpRequest);
         }
         String ip = localIp();
         String appName = environment.getProperty("spring.application.name");
@@ -176,8 +182,8 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         }
         long millis = SystemClock.now();
         String finalTraceId = traceId;
-        String type = request.getMethodValue();
-        String url = request.getPath().toString();
+        String type = serverHttpRequest.getMethodValue();
+        String url = serverHttpRequest.getPath().toString();
         LogInfo logInfo = LogInfo.builder()
             .type(type)
             .url(url)
@@ -235,7 +241,7 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         };
 
 
-        ServerHttpRequest newRequest = request.mutate().headers(httpHeaders).build();
+        ServerHttpRequest newRequest = serverHttpRequest.mutate().headers(httpHeaders).build();
         return exchange.mutate().request(newRequest).response(response).build();
     }
 
