@@ -22,6 +22,7 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -141,11 +142,13 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
 
     public ServerWebExchange preHandle(ServerWebExchange exchange) {
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
+        HttpHeaders headers = serverHttpRequest.getHeaders();
         MultiValueMap<String, String> queryParams = serverHttpRequest.getQueryParams();
         String params = JsonUtil.toJsonString(queryParams);
         String methodValue = serverHttpRequest.getMethodValue();
         String body = "";
-        if (Objects.equals("POST", methodValue)) {
+        MediaType contentType = headers.getContentType();
+        if (Objects.equals("POST", methodValue) && contentType != null && contentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
             //从请求里获取Post请求体
             body = resolveBodyFromRequest(serverHttpRequest);
             //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
@@ -161,7 +164,6 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
             };
         }
 
-        HttpHeaders headers = serverHttpRequest.getHeaders();
         String headersStr = JsonUtil.toJsonString(headers);
         String traceId = headers.getFirst(LogConst.TRACE_ID_KEY);
         String spanId = headers.getFirst(LogConst.SPAN_ID_KEY);
@@ -269,7 +271,6 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
 
     private DataBuffer stringBuffer(String value) {
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-
         NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
         DataBuffer buffer = nettyDataBufferFactory.allocateBuffer(bytes.length);
         buffer.write(bytes);
