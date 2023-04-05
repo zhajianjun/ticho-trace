@@ -1,4 +1,17 @@
-package top.ticho.trace.core.logback;
+/**
+ * Logback: the reliable, generic, fast and flexible logging framework.
+ * Copyright (C) 1999-2015, QOS.ch. All rights reserved.
+ *
+ * This program and the accompanying materials are dual-licensed under
+ * either the terms of the Eclipse Public License v1.0 as published by
+ * the Eclipse Foundation
+ *
+ *   or (per the licensee's choosing)
+ *
+ * under the terms of the GNU Lesser General Public License version 2.1
+ * as published by the Free Software Foundation.
+ */
+package ch.qos.logback.classic.util;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
 import org.slf4j.spi.MDCAdapter;
@@ -9,19 +22,44 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * A <em>Mapped Diagnostic Context</em>, or MDC in short, is an instrument for
+ * distinguishing interleaved log output from different sources. Log output is
+ * typically interleaved when a server handles multiple clients
+ * near-simultaneously.
+ * <p/>
+ * <b><em>The MDC is managed on a per thread basis</em></b>. A child thread
+ * automatically inherits a <em>copy</em> of the mapped diagnostic context of
+ * its parent.
+ * <p/>
+ * <p/>
+ * For more information about MDC, please refer to the online manual at
+ * http://logback.qos.ch/manual/mdc.html
  *
- *
- * @author zhajianjun
- * @date 2023-03-31 17:01
+ * @author Ceki G&uuml;lc&uuml;
  */
-public class TraceMdcAdapter implements MDCAdapter {
+public class LogbackMDCAdapter implements MDCAdapter {
+
+    // The internal map is copied so as
+
+    // We wish to avoid unnecessarily copying of the map. To ensure
+    // efficient/timely copying, we have a variable keeping track of the last
+    // operation. A copy is necessary on 'put' or 'remove' but only if the last
+    // operation was a 'get'. Get operations never necessitate a copy nor
+    // successive 'put/remove' operations, only a get followed by a 'put/remove'
+    // requires copying the map.
+    // See http://jira.qos.ch/browse/LOGBACK-620 for the original discussion.
+
+    // We no longer use CopyOnInheritThreadLocal in order to solve LBCLASSIC-183
+    // Initially the contents of the thread local in parent and child threads
+    // reference the same map. However, as soon as a thread invokes the put()
+    // method, the maps diverge as they should.
     final ThreadLocal<Map<String, String>> copyOnThreadLocal = new TransmittableThreadLocal<>();
 
     private static final int WRITE_OPERATION = 1;
     private static final int MAP_COPY_OPERATION = 2;
 
     // keeps track of the last operation performed
-    final ThreadLocal<Integer> lastOperation = new TransmittableThreadLocal<>();
+    final ThreadLocal<Integer> lastOperation = new ThreadLocal<Integer>();
 
     private Integer getAndSetLastOperation(int op) {
         Integer lastOp = lastOperation.get();
@@ -30,7 +68,7 @@ public class TraceMdcAdapter implements MDCAdapter {
     }
 
     private boolean wasLastOpReadOrNull(Integer lastOp) {
-        return lastOp == null || lastOp == MAP_COPY_OPERATION;
+        return lastOp == null || lastOp.intValue() == MAP_COPY_OPERATION;
     }
 
     private Map<String, String> duplicateAndInsertNewMap(Map<String, String> oldMap) {
@@ -149,7 +187,7 @@ public class TraceMdcAdapter implements MDCAdapter {
         if (hashMap == null) {
             return null;
         } else {
-            return new HashMap<>(hashMap);
+            return new HashMap<String, String>(hashMap);
         }
     }
 
