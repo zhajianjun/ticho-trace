@@ -44,7 +44,9 @@ import top.ticho.trace.core.util.TraceUtil;
 import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 @Slf4j
@@ -245,28 +248,34 @@ public class ApiRequestFilter implements GlobalFilter {
      * @return
      */
     private Mono<Void> readBody(ServerWebExchange exchange, GatewayFilterChain chain, LogInfo logInfo) {
-        return DataBufferUtils.join(exchange.getRequest().getBody()).flatMap(dataBuffer -> {
-            byte[] bytes = new byte[dataBuffer.readableByteCount()];
-            dataBuffer.read(bytes);
-            DataBufferUtils.release(dataBuffer);
-            Flux<DataBuffer> cachedFlux = Flux.defer(() -> {
-                DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-                DataBufferUtils.retain(buffer);
-                return Mono.just(buffer);
-            });
-            ServerHttpRequest mutatedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
-                @Override
-                public Flux<DataBuffer> getBody() {
-                    return cachedFlux;
-                }
-            };
-            ServerHttpResponse response = getResponse(exchange, logInfo);
-            ServerWebExchange mutatedExchange = exchange.mutate().response(response).request(mutatedRequest).build();
-            return ServerRequest.create(mutatedExchange, messageReaders)
-                .bodyToMono(String.class)
-                .doOnNext(logInfo::setReqBody)
-                .then(chain.filter(mutatedExchange));
+        ServerHttpRequest request = exchange.getRequest();
+        //获取请求体
+        Flux<DataBuffer> body = request.getBody();
+        AtomicReference<String> bodyRef = new AtomicReference<>();
+        body.subscribe(buffer -> {
+            CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer.asByteBuffer());
+            DataBufferUtils.release(buffer);
+            bodyRef.set(charBuffer.toString());
         });
+        //获取request body
+        String bodyStr =  bodyRef.get();
+        logInfo.setReqBody(bodyStr);
+        //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
+        URI uri = request.getURI();
+        request = request.mutate().uri(uri).build();
+        byte[] bytes = bodyStr.getBytes(StandardCharsets.UTF_8);
+        NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
+        DataBuffer buffer = nettyDataBufferFactory.allocateBuffer(bytes.length);
+        buffer.write(bytes);
+        Flux<DataBuffer> bodyFlux = Flux.just(buffer);
+        request =  new ServerHttpRequestDecorator(request) {
+            @Override
+            public Flux<DataBuffer> getBody() {
+                return bodyFlux;
+            }
+        };
+        exchange = exchange.mutate().request(request).build();
+        return chain.filter(exchange);
     }
 
     public static String preIp(ServerHttpRequest request) {
