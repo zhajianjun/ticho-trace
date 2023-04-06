@@ -7,6 +7,7 @@ import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.useragent.UserAgentUtil;
 import io.netty.buffer.ByteBufAllocator;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -14,13 +15,18 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -43,6 +49,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -168,6 +175,7 @@ public class ApiRequestFilter implements GlobalFilter {
                 String formDataBodyString = "";
                 if (formDataBodyBuilder.length() > 0) {
                     formDataBodyString = formDataBodyBuilder.substring(0, formDataBodyBuilder.length() - 1);
+                    logInfo.setReqParams(formDataBodyString);
                 }
                 byte[] bodyBytes = formDataBodyString.getBytes(StandardCharsets.UTF_8);
                 int contentLength = bodyBytes.length;
@@ -189,9 +197,45 @@ public class ApiRequestFilter implements GlobalFilter {
                         return DataBufferUtils.read(new ByteArrayResource(bodyBytes), new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), contentLength);
                     }
                 };
-                ServerWebExchange mutateExchange = exchange.mutate().request(decorator).build();
+                ServerHttpResponse response = getResponse(exchange, logInfo);
+                ServerWebExchange mutateExchange = exchange.mutate().response(response).request(decorator).build();
                 return chain.filter(mutateExchange);
         }));
+    }
+
+    private ServerHttpResponseDecorator getResponse(ServerWebExchange exchange, LogInfo logInfo) {
+        ServerHttpResponse originalResponse = exchange.getResponse();
+        DataBufferFactory bufferFactory = originalResponse.bufferFactory();
+        return new ServerHttpResponseDecorator(originalResponse) {
+            @Override
+            public Mono<Void> writeWith(Publisher<? extends DataBuffer> body1) {
+                HttpStatus statusCode = getStatusCode();
+                if (Objects.equals(statusCode, HttpStatus.OK) && body1 instanceof Flux) {
+                    Flux<? extends DataBuffer> fluxBody = Flux.from(body1);
+                    return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
+                        DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
+                        DataBuffer join = dataBufferFactory.join(dataBuffers);
+                        byte[] content = new byte[join.readableByteCount()];
+                        join.read(content);
+                        DataBufferUtils.release(join);
+                        String responseData = new String(content, StandardCharsets.UTF_8);
+                        //
+                        logInfo.setResBody(responseData);
+                        logInfo.setStatus(statusCode.value());
+                        originalResponse.getHeaders().setContentLength(content.length);
+                        return bufferFactory.wrap(content);
+                    }));
+                } else {
+                    log.error("获取响应体数据 ：" + statusCode);
+                }
+                return super.writeWith(body1);
+            }
+
+            @Override
+            public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body1) {
+                return writeWith(Flux.from(body1).flatMapSequential(p -> p));
+            }
+        };
     }
 
     /**
@@ -216,7 +260,8 @@ public class ApiRequestFilter implements GlobalFilter {
                     return cachedFlux;
                 }
             };
-            ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
+            ServerHttpResponse response = getResponse(exchange, logInfo);
+            ServerWebExchange mutatedExchange = exchange.mutate().response(response).request(mutatedRequest).build();
             return ServerRequest.create(mutatedExchange, messageReaders)
                 .bodyToMono(String.class)
                 .doOnNext(logInfo::setReqBody)
