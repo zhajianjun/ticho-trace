@@ -1,0 +1,42 @@
+server:
+  port: 9090
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: ticho-trace-client
+          uri: lb://ticho-trace-client
+          predicates:
+            - Path=/client/**
+          filters:
+            - StripPrefix= 1
+        - id: ticho-trace-client2
+          uri: lb://ticho-trace-client2
+          predicates:
+            - Path=/client2/**
+          filters:
+            - StripPrefix= 1
+
+management:
+  endpoint:
+    shutdown:
+      enabled: true #开启端点
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*" #开启所有接口
+
+
+
+
+ticho:
+  trace:
+    enable: true
+    url: http://127.0.0.1:8000/trace/collect
+    logUrl: http://127.0.0.1:8000/log/collect
+    print: true

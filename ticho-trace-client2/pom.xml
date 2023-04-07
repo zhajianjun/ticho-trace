@@ -2,14 +2,10 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>top.ticho.trace</groupId>
-        <artifactId>ticho-trace</artifactId>
-        <version>1.0.0</version>
-    </parent>
+    <groupId>top.ticho.trace</groupId>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ticho-trace-client</artifactId>
-
+    <artifactId>ticho-trace-client2</artifactId>
+    <version>1.0.0</version>
 
     <dependencies>
 

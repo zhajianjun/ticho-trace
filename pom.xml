@@ -9,12 +9,14 @@
     <version>1.0.0</version>
     <modules>
         <module>ticho-trace-server</module>
-        <module>ticho-trace-client</module>
         <module>ticho-trace-core</module>
         <module>ticho-trace-spring</module>
         <module>ticho-trace-common</module>
         <module>ticho-trace-feign</module>
         <module>ticho-trace-gateway</module>
+        <module>ticho-trace-client</module>
+        <module>ticho-trace-client2</module>
+        <module>ticho-trace-client-gateway</module>
     </modules>
 
     <dependencyManagement>
