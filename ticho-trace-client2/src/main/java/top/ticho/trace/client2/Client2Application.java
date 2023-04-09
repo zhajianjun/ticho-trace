@@ -3,6 +3,7 @@ package top.ticho.trace.client2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 
 /**
@@ -13,6 +14,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication
 @EnableFeignClients(basePackages = {"top.ticho.trace.client2.feign"})
+@EnableAsync
 public class Client2Application {
     public static void main(String[] args) {
         SpringApplication.run(Client2Application.class, args);
