@@ -13,6 +13,8 @@ easy-es:
   username: @es.username@
   password: @es.password@
   banner: false
+  connect-timeout: 5000
+  socket-timeout: 60000
 
 jasypt:
   encryptor:
