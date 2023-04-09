@@ -2,6 +2,7 @@ package top.ticho.trace.client2;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @date 2023-03-27 12:34
  */
 @SpringBootApplication
+@EnableFeignClients(basePackages = {"top.ticho.trace.client2.feign"})
 public class Client2Application {
     public static void main(String[] args) {
         SpringApplication.run(Client2Application.class, args);

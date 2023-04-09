@@ -19,7 +19,6 @@ import top.ticho.trace.common.bean.TraceCollectInfo;
 import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.common.prop.TraceLogProperty;
 import top.ticho.trace.core.json.JsonUtil;
-import top.ticho.trace.core.push.TracePushContext;
 import top.ticho.trace.core.util.TraceUtil;
 import top.ticho.trace.spring.component.SpringTracePushContext;
 import top.ticho.trace.spring.util.IpUtil;
@@ -170,9 +169,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .end(end)
             .consume(consume)
             .build();
-        if (TraceUtil.isOpen()) {
-            springTracePushContext.push(traceUrl, traceCollectInfo);
-        }
+        springTracePushContext.push(traceUrl, traceCollectInfo);
         theadLocal.remove();
         TraceUtil.complete();
     }

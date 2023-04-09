@@ -136,9 +136,7 @@ public class ApiFilter implements GlobalFilter, Ordered {
                     .end(end)
                     .consume(logInfo.getConsume())
                     .build();
-            if (TraceUtil.isOpen()) {
-                executor.execute(()-> TracePushContext.push(traceLogProperty.getUrl(), traceCollectInfo));
-            }
+            executor.execute(()-> TracePushContext.push(traceLogProperty.getUrl(), traceCollectInfo));
             theadLocal.remove();
             TraceUtil.complete();
         });

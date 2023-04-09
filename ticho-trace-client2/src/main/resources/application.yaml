@@ -13,3 +13,5 @@ ticho:
     url: http://127.0.0.1:8000/trace/collect
     logUrl: http://127.0.0.1:8000/log/collect
     print: true
+  http:
+    print-log: true
