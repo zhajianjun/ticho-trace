@@ -42,8 +42,14 @@ public class CilentController {
     }
 
     @PostMapping("city")
-    @ApiOperation(value = "城市信息保存")
+    @ApiOperation(value = "城市信息保存body")
     public Result<CityDTO> city(@RequestBody CityDTO cityDTO) {
+        return Result.ok(cityDTO);
+    }
+
+    @PostMapping("city2")
+    @ApiOperation(value = "城市信息保存form")
+    public Result<CityDTO> city2(CityDTO cityDTO) {
         return Result.ok(cityDTO);
     }
 

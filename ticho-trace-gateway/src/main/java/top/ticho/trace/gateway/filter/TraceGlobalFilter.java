@@ -3,6 +3,7 @@ package top.ticho.trace.gateway.filter;
 import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import io.netty.buffer.ByteBufAllocator;
@@ -15,6 +16,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -28,6 +30,7 @@ import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -49,6 +52,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -99,13 +103,8 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return chain.filter(preHandle(exchange)).doFinally(signalType -> {
-            LogInfo logInfo = theadLocal.get();
-            if (logInfo == null) {
-                return;
-            }
-            long end = SystemClock.now();
-            logInfo.setEnd(end);
+        LogInfo logInfo = new LogInfo();
+        return chain.filter(preHandle(exchange, logInfo)).doFinally(signalType -> {
             boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
             String requestPrefixText = traceLogProperty.getRequestPrefixText();
             String type = logInfo.getType();
@@ -129,7 +128,7 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
                 .type(logInfo.getType())
                 .status(logInfo.getStatus())
                 .start(logInfo.getStart())
-                .end(end)
+                .end(logInfo.getEnd())
                 .consume(logInfo.getConsume())
                 .build();
             if (TraceUtil.isOpen()) {
@@ -140,31 +139,9 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         });
     }
 
-    public ServerWebExchange preHandle(ServerWebExchange exchange) {
+    public ServerWebExchange preHandle(ServerWebExchange exchange, LogInfo logInfo) {
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
         HttpHeaders headers = serverHttpRequest.getHeaders();
-        MultiValueMap<String, String> queryParams = serverHttpRequest.getQueryParams();
-        String params = JsonUtil.toJsonString(queryParams);
-        String methodValue = serverHttpRequest.getMethodValue();
-        String body = "";
-        MediaType contentType = headers.getContentType();
-        if (Objects.equals("POST", methodValue) && contentType != null && contentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
-            //从请求里获取Post请求体
-            body = resolveBodyFromRequest(serverHttpRequest);
-            //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
-            URI uri = serverHttpRequest.getURI();
-            serverHttpRequest = serverHttpRequest.mutate().uri(uri).build();
-            DataBuffer bodyDataBuffer = stringBuffer(body);
-            Flux<DataBuffer> bodyFlux = Flux.just(bodyDataBuffer);
-            serverHttpRequest = new ServerHttpRequestDecorator(serverHttpRequest) {
-                @Override
-                public Flux<DataBuffer> getBody() {
-                    return bodyFlux;
-                }
-            };
-        }
-
-        String headersStr = JsonUtil.toJsonString(headers);
         String traceId = headers.getFirst(LogConst.TRACE_ID_KEY);
         String spanId = headers.getFirst(LogConst.SPAN_ID_KEY);
         String preAppName = headers.getFirst(LogConst.PRE_APP_NAME_KEY);
@@ -172,46 +149,46 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         if (preIp == null) {
             preIp = preIp(serverHttpRequest);
         }
+        MultiValueMap<String, String> queryParams = serverHttpRequest.getQueryParams();
+        String params = JsonUtil.toJsonString(queryParams);
         String ip = localIp();
         String appName = environment.getProperty("spring.application.name");
-        String port = environment.getProperty("server.port");
         String trace = traceLogProperty.getTrace();
-        TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
-        traceId = MDC.get(LogConst.TRACE_ID_KEY);
-        if (StrUtil.isBlank(traceId)) {
-            log.debug("MDC中不存在链路信息,本次调用不传递traceId");
-            return exchange;
-        }
-        long millis = SystemClock.now();
-        String finalTraceId = traceId;
         String type = serverHttpRequest.getMethodValue();
         String url = serverHttpRequest.getPath().toString();
-        LogInfo logInfo = LogInfo.builder()
-            .type(type)
-            .url(url)
-            .port(port)
-            .reqParams(params)
-            .reqBody(body)
-            .reqHeaders(headersStr)
-            .start(millis)
-            .userAgent(UserAgentUtil.parse(headers.getFirst(USER_AGENT)))
-            .build();
-        boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
-        String requestPrefixText = traceLogProperty.getRequestPrefixText();
-        if (print) {
-            log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, body, headers);
-        }
-        theadLocal.set(logInfo);
+        logInfo.setUrl(url);
+        logInfo.setPort(environment.getProperty("server.port"));
+        logInfo.setStart(SystemClock.now());
+        logInfo.setType(type);
+        logInfo.setReqParams(params);
+        TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
+        traceId = MDC.get(LogConst.TRACE_ID_KEY);
+        String finalTraceId = traceId;
         Consumer<HttpHeaders> httpHeaders = httpHeader -> {
             httpHeader.set(LogConst.TRACE_ID_KEY, finalTraceId);
             httpHeader.set(LogConst.SPAN_ID_KEY, TraceUtil.nextSpanId());
             httpHeader.set(LogConst.PRE_APP_NAME_KEY, appName);
             httpHeader.set(LogConst.PRE_IP_KEY, ip);
         };
+        boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
+        String requestPrefixText = traceLogProperty.getRequestPrefixText();
+        if (print) {
+            log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, logInfo.getReqBody(), headers);
+        }
+        ServerHttpRequest newRequest = serverHttpRequest.mutate().headers(httpHeaders).build();
+        ServerHttpResponse response = getResponse(exchange, logInfo);
+        return exchange.mutate().request(newRequest).response(response).build();
+    }
 
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE;
+    }
+
+    public ServerHttpResponse getResponse(ServerWebExchange exchange, LogInfo logInfo){
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
-        ServerHttpResponseDecorator response = new ServerHttpResponseDecorator(originalResponse) {
+        return new ServerHttpResponseDecorator(originalResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body1) {
                 HttpStatus statusCode = getStatusCode();
@@ -224,7 +201,7 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
                         join.read(content);
                         DataBufferUtils.release(join);
                         String responseData = new String(content, StandardCharsets.UTF_8);
-                        //
+                        logInfo.setEnd(SystemClock.now());
                         logInfo.setResBody(responseData);
                         logInfo.setStatus(statusCode.value());
                         originalResponse.getHeaders().setContentLength(content.length);
@@ -241,40 +218,6 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
                 return writeWith(Flux.from(body1).flatMapSequential(p -> p));
             }
         };
-
-
-        ServerHttpRequest newRequest = serverHttpRequest.mutate().headers(httpHeaders).build();
-        return exchange.mutate().request(newRequest).response(response).build();
-    }
-
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
-    }
-
-    /**
-     * 从Flux<DataBuffer>中获取字符串的方法
-     * @return 请求体
-     */
-    private String resolveBodyFromRequest(ServerHttpRequest serverHttpRequest) {
-        //获取请求体
-        Flux<DataBuffer> body = serverHttpRequest.getBody();
-        AtomicReference<String> bodyRef = new AtomicReference<>();
-        body.subscribe(buffer -> {
-            CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer.asByteBuffer());
-            DataBufferUtils.release(buffer);
-            bodyRef.set(charBuffer.toString());
-        });
-        //获取request body
-        return bodyRef.get();
-    }
-
-    private DataBuffer stringBuffer(String value) {
-        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-        NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
-        DataBuffer buffer = nettyDataBufferFactory.allocateBuffer(bytes.length);
-        buffer.write(bytes);
-        return buffer;
     }
 
     public static String preIp(ServerHttpRequest request) {
