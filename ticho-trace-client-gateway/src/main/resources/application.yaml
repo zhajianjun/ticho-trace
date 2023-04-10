@@ -2,6 +2,8 @@ server:
   port: 8085
 
 spring:
+  application:
+    name: ticho-trace-client-gateway
   cloud:
     gateway:
       routes:
