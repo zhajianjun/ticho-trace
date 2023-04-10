@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import top.ticho.trace.common.bean.LogInfo;
 import top.ticho.trace.server.service.LogService;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 日志控制器
@@ -25,7 +25,7 @@ public class LogController {
     private LogService logService;
 
     @PostMapping("collect")
-    public Result<Integer> collect(@RequestBody List<Map<String, Object>> logs) {
+    public Result<Integer> collect(@RequestBody List<LogInfo> logs) {
         return Result.ok(logService.collect(logs));
     }
 

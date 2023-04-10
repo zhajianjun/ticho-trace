@@ -1,5 +1,7 @@
 package top.ticho.trace.server.service;
 
+import top.ticho.trace.common.bean.LogInfo;
+
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +20,6 @@ public interface LogService {
      * @param logs 日志
      * @return int
      */
-    int collect(List<Map<String, Object>> logs);
+    int collect(List<LogInfo> logs);
 
 }
