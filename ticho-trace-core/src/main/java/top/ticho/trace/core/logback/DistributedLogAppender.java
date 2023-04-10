@@ -121,6 +121,8 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
             currentSequence = sequence.incrementAndGet();
         } else {
             sequence.set(0);
+            // 上一次日志信息的时间戳更新
+            lastLogTimeStampGet = timeStamp;
             lastLogTimeStamp.set(timeStamp);
         }
         Map<String, String> mdcMap = new HashMap<>(event.getMDCPropertyMap());
