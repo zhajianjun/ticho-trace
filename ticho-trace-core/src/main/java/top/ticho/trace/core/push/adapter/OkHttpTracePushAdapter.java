@@ -27,7 +27,7 @@ public class OkHttpTracePushAdapter implements TracePushAdapter {
         Request request = new Request.Builder().url(url).post(requestBody).build();
         try(Response execute = httpClient.newCall(request).execute()) {
         } catch (IOException e) {
-            System.out.printf("%s okhttp Failed to push data %s%n", Thread.currentThread().getName(), e.getMessage());
+            System.out.printf("[%s] okhttp Failed to push data error:%s%n", Thread.currentThread().getName(), e.getMessage());
         }
     }
 

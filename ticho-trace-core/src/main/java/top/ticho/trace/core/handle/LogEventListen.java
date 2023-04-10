@@ -13,12 +13,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 日志事件消费
+ * 日志事件消费者
  *
  * @author zhajianjun
  * @date 2023-04-10 09:30
  */
-public class LogEventConsumer implements EventHandler<LogInfo> {
+public class LogEventListen implements EventHandler<LogInfo> {
     // 推送地址
     private final String url;
     // 批次数据缓存
@@ -34,7 +34,7 @@ public class LogEventConsumer implements EventHandler<LogInfo> {
     // 定时任务逻辑是否执行
     private final AtomicBoolean taskExecute = new AtomicBoolean(false);
 
-    public LogEventConsumer(String url, int batchSize, long flushInterval) {
+    public LogEventListen(String url, int batchSize, long flushInterval) {
         this.url = url;
         this.batchSize = batchSize;
         this.flushInterval = flushInterval;
@@ -42,7 +42,7 @@ public class LogEventConsumer implements EventHandler<LogInfo> {
     }
 
     /**
-     * 事件处理
+     * 日志事件消费
      *
      * @param event 事件
      * @param sequence 序列
@@ -60,6 +60,9 @@ public class LogEventConsumer implements EventHandler<LogInfo> {
         taskExecute.set(true);
     }
 
+    /**
+     * 日志处理
+     */
     private synchronized void execute() {
         if (!logInfos.isEmpty()) {
             TracePushContext.push(url, logInfos);
@@ -70,6 +73,9 @@ public class LogEventConsumer implements EventHandler<LogInfo> {
         taskExecute.set(false);
     }
 
+    /**
+     * 开启定时任务
+     */
     public void start() {
         executorService.scheduleWithFixedDelay(() -> {
             if (!taskExecute.get()) {
@@ -79,6 +85,9 @@ public class LogEventConsumer implements EventHandler<LogInfo> {
         }, 500, flushInterval, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * 关闭定时任务
+     */
     public void shutdown() {
         executorService.shutdown();
         try {
