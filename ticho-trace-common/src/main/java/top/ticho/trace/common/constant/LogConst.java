@@ -32,18 +32,10 @@ public class LogConst {
     /** 默认链路 */
     public static final String DEFAULT_TRACE = "[${traceId}].[${spanId}]";
     /** 耗时 key */
-    public static final String CONSUME_KEY = "consume";
-
-    public static final String DATE_TIME_KEY = "dateTime";
-
-    public static final String DT_TIME_KEY = "dtTime";
+    public static final String MDC_KEY = "mdc";
 
     public static final String LOG_INDEX_PREFIX = "log";
 
     public static final String TRACE_INDEX_PREFIX = "trace";
-
-    public static final String ID_KEY = "id";
-
-
 
 }
