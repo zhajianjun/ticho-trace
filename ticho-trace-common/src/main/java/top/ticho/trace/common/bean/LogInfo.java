@@ -1,75 +1,63 @@
 package top.ticho.trace.common.bean;
 
-import cn.hutool.http.useragent.UserAgent;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
- * 接口日志
+ * 日志收集日志
  *
  * @author zhajianjun
- * @date 2023-03-27 12:34
+ * @date 2023-03-30 20:20:20
  */
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-@ToString
+@Data
 public class LogInfo {
 
-    /** 请求类型 */
-    private String type;
+    /** 链路id */
+    private String traceId;
 
-    /** 请求地址 */
-    private String url;
+    /** 跨度id */
+    private String spanId;
 
-    /** 端口号 */
-    private String port;
+    /** 当前应用名称 */
+    private String appName;
 
-    /** 请求参数 */
-    private String reqParams;
+    /** 当前ip */
+    private String ip;
 
-    /** 请求体 */
-    private String reqBody;
+    /** 上个链路的应用名称 */
+    private String preAppName;
 
-    /** 请求头 */
-    private String reqHeaders;
+    /** 上个链路的Ip */
+    private String preIp;
 
-    /** 响应体 */
-    private String resBody;
+    /** 日志级别 */
+    private String logLevel;
 
-    /** 响应头 */
-    private String resHeaders;
+    /** 日志时间 */
+    private String dateTime;
 
-    /** 响应状态 */
-    private Integer status;
+    /** 日志时间戳 */
+    private Long dtTime;
 
-    /* 请求开始时间戳 */
-    private Long start;
+    /** 类名称 */
+    private String className;
 
-    /* 请求结束时间戳 */
-    private Long end;
+    /** 方法名 */
+    private String method;
 
-    /* 请求间隔 */
-    private Long consume;
+    /** 序列号 */
+    private Long seq;
 
-    /* 用户信息 */
-    private String username;
+    /** 内容 */
+    private String content;
 
-    /* User-Agent信息对象 */
-    private UserAgent userAgent;
+    /** 线程名称 */
+    private String threadName;
 
-    public Long getConsume() {
-        if (start == null || end == null) {
-            return 0L;
-        }
-        return end - start;
-    }
+    /** mdc信息 */
+    private Map<String, String> mdc;
+
 }

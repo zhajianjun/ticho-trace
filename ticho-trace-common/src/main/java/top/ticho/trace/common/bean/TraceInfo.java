@@ -20,7 +20,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class TraceCollectInfo {
+public class TraceInfo {
 
     /** 链路id */
     private String traceId;

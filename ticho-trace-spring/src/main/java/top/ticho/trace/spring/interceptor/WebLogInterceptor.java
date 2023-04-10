@@ -14,8 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import top.ticho.trace.common.bean.LogInfo;
-import top.ticho.trace.common.bean.TraceCollectInfo;
+import top.ticho.trace.common.bean.HttpLogInfo;
+import top.ticho.trace.common.bean.TraceInfo;
 import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.common.prop.TraceLogProperty;
 import top.ticho.trace.core.json.JsonUtil;
@@ -47,9 +47,9 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
 
     private static final String NONE = "NONE";
 
-    private static TransmittableThreadLocal<LogInfo> logThreadLocal;
+    private static TransmittableThreadLocal<HttpLogInfo> logThreadLocal;
 
-    private final TransmittableThreadLocal<LogInfo> theadLocal;
+    private final TransmittableThreadLocal<HttpLogInfo> theadLocal;
 
     private final TraceLogProperty traceLogProperty;
 
@@ -70,11 +70,11 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         logThreadLocal = this.theadLocal;
     }
 
-    public LogInfo getLogInfo() {
+    public HttpLogInfo getLogInfo() {
         return theadLocal.get();
     }
 
-    public static LogInfo logInfo() {
+    public static HttpLogInfo logInfo() {
         return logThreadLocal.get();
     }
 
@@ -113,7 +113,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             preIp = IpUtil.preIp(request);
         }
         TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
-        LogInfo logInfo = LogInfo.builder()
+        HttpLogInfo httpLogInfo = HttpLogInfo.builder()
             .type(type)
             .url(url)
             .port(port)
@@ -124,7 +124,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .username((principal != null ? principal.getName() : null))
             .userAgent(userAgent)
             .build();
-        theadLocal.set(logInfo);
+        theadLocal.set(httpLogInfo);
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
         if (print) {
             log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, body, headers);
@@ -134,42 +134,42 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
 
     @Override
     public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler, Exception ex) {
-        LogInfo logInfo = theadLocal.get();
-        if (logInfo == null) {
+        HttpLogInfo httpLogInfo = theadLocal.get();
+        if (httpLogInfo == null) {
             return;
         }
         String type = request.getMethod();
         String url = request.getRequestURI();
         String resBody = nullOfDefault(getResBody(response));
-        logInfo.setResBody(resBody);
+        httpLogInfo.setResBody(resBody);
         String requestPrefixText = traceLogProperty.getRequestPrefixText();
         long end = SystemClock.now();
-        logInfo.setEnd(end);
+        httpLogInfo.setEnd(end);
         int status = response.getStatus();
-        Long consume = logInfo.getConsume();
+        Long consume = httpLogInfo.getConsume();
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
         if (print) {
             log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, type, url, status, consume, resBody);
         }
         String traceUrl = traceLogProperty.getUrl();
         HandlerMethod handlerMethod = (HandlerMethod) handler;
-        TraceCollectInfo traceCollectInfo = TraceCollectInfo.builder()
+        TraceInfo traceInfo = TraceInfo.builder()
             .traceId(MDC.get(LogConst.TRACE_ID_KEY))
             .spanId(MDC.get(LogConst.SPAN_ID_KEY))
             .appName(MDC.get(LogConst.APP_NAME_KEY))
             .ip(MDC.get(LogConst.IP_KEY))
             .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
             .preIp(MDC.get(LogConst.PRE_IP_KEY))
-            .url(logInfo.getUrl())
-            .port(logInfo.getPort())
+            .url(httpLogInfo.getUrl())
+            .port(httpLogInfo.getPort())
             .method(handlerMethod.toString())
-            .type(logInfo.getType())
+            .type(httpLogInfo.getType())
             .status(status)
-            .start(logInfo.getStart())
+            .start(httpLogInfo.getStart())
             .end(end)
             .consume(consume)
             .build();
-        springTracePushContext.push(traceUrl, traceCollectInfo);
+        springTracePushContext.push(traceUrl, traceInfo);
         theadLocal.remove();
         TraceUtil.complete();
     }

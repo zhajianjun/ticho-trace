@@ -35,8 +35,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import top.ticho.trace.common.bean.LogInfo;
-import top.ticho.trace.common.bean.TraceCollectInfo;
+import top.ticho.trace.common.bean.HttpLogInfo;
+import top.ticho.trace.common.bean.TraceInfo;
 import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.common.prop.TraceLogProperty;
 import top.ticho.trace.core.json.JsonUtil;
@@ -73,7 +73,7 @@ public class ApiFilter implements GlobalFilter, Ordered {
     public static final String USER_AGENT = "User-Agent";
 
     private static final List<String> localhosts = new ArrayList<>();
-    private final TransmittableThreadLocal<LogInfo> theadLocal = new TransmittableThreadLocal<>();
+    private final TransmittableThreadLocal<HttpLogInfo> theadLocal = new TransmittableThreadLocal<>();
     private final ThreadPoolExecutor executor = ThreadUtil.newExecutorByBlockingCoefficient(0.8f);
 
     static{
@@ -104,51 +104,51 @@ public class ApiFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return chain.filter(preHandle(exchange)).doFinally(signalType -> {
-            LogInfo logInfo = theadLocal.get();
-            if (logInfo == null) {
+            HttpLogInfo httpLogInfo = theadLocal.get();
+            if (httpLogInfo == null) {
                 return;
             }
             long end = SystemClock.now();
-            logInfo.setEnd(end);
+            httpLogInfo.setEnd(end);
             boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
             String requestPrefixText = traceLogProperty.getRequestPrefixText();
-            String type = logInfo.getType();
-            String url = logInfo.getUrl();
-            Long consume = logInfo.getConsume();
-            Integer status = logInfo.getStatus();
-            String resBody = logInfo.getResBody();
+            String type = httpLogInfo.getType();
+            String url = httpLogInfo.getUrl();
+            Long consume = httpLogInfo.getConsume();
+            Integer status = httpLogInfo.getStatus();
+            String resBody = httpLogInfo.getResBody();
             if (print) {
                 log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, type, url, status, consume, resBody);
             }
-            TraceCollectInfo traceCollectInfo = TraceCollectInfo.builder()
+            TraceInfo traceInfo = TraceInfo.builder()
                     .traceId(MDC.get(LogConst.TRACE_ID_KEY))
                     .spanId(MDC.get(LogConst.SPAN_ID_KEY))
                     .appName(MDC.get(LogConst.APP_NAME_KEY))
                     .ip(MDC.get(LogConst.IP_KEY))
                     .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
                     .preIp(MDC.get(LogConst.PRE_IP_KEY))
-                    .url(logInfo.getUrl())
-                    .port(logInfo.getPort())
+                    .url(httpLogInfo.getUrl())
+                    .port(httpLogInfo.getPort())
                     .method("")
-                    .type(logInfo.getType())
-                    .status(logInfo.getStatus())
-                    .start(logInfo.getStart())
+                    .type(httpLogInfo.getType())
+                    .status(httpLogInfo.getStatus())
+                    .start(httpLogInfo.getStart())
                     .end(end)
-                    .consume(logInfo.getConsume())
+                    .consume(httpLogInfo.getConsume())
                     .build();
-            executor.execute(()-> TracePushContext.push(traceLogProperty.getUrl(), traceCollectInfo));
+            executor.execute(()-> TracePushContext.push(traceLogProperty.getUrl(), traceInfo));
             theadLocal.remove();
             TraceUtil.complete();
         });
     }
 
     public ServerWebExchange preHandle(ServerWebExchange exchange) {
-        LogInfo logInfo = new LogInfo();
+        HttpLogInfo httpLogInfo = new HttpLogInfo();
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
         HttpHeaders headers = serverHttpRequest.getHeaders();
         MultiValueMap<String, String> queryParams = serverHttpRequest.getQueryParams();
         String params = JsonUtil.toJsonString(queryParams);
-        serverHttpRequest = getServerHttpRequest(exchange, logInfo, headers);
+        serverHttpRequest = getServerHttpRequest(exchange, httpLogInfo, headers);
 
         String headersStr = JsonUtil.toJsonString(headers);
         String traceId = headers.getFirst(LogConst.TRACE_ID_KEY);
@@ -172,19 +172,19 @@ public class ApiFilter implements GlobalFilter, Ordered {
         String finalTraceId = traceId;
         String type = serverHttpRequest.getMethodValue();
         String url = serverHttpRequest.getPath().toString();
-        logInfo.setType(type);
-        logInfo.setUrl(url);
-        logInfo.setPort(port);
-        logInfo.setReqParams(params);
-        logInfo.setReqHeaders(headersStr);
-        logInfo.setStart(millis);
-        logInfo.setUserAgent(UserAgentUtil.parse(headers.getFirst(USER_AGENT)));
+        httpLogInfo.setType(type);
+        httpLogInfo.setUrl(url);
+        httpLogInfo.setPort(port);
+        httpLogInfo.setReqParams(params);
+        httpLogInfo.setReqHeaders(headersStr);
+        httpLogInfo.setStart(millis);
+        httpLogInfo.setUserAgent(UserAgentUtil.parse(headers.getFirst(USER_AGENT)));
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
         String requestPrefixText = traceLogProperty.getRequestPrefixText();
         if (print) {
-            log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, logInfo.getReqBody(), headers);
+            log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, httpLogInfo.getReqBody(), headers);
         }
-        theadLocal.set(logInfo);
+        theadLocal.set(httpLogInfo);
         Consumer<HttpHeaders> httpHeaders = httpHeader -> {
             httpHeader.set(LogConst.TRACE_ID_KEY, finalTraceId);
             httpHeader.set(LogConst.SPAN_ID_KEY, TraceUtil.nextSpanId());
@@ -208,8 +208,8 @@ public class ApiFilter implements GlobalFilter, Ordered {
                         DataBufferUtils.release(join);
                         String responseData = new String(content, StandardCharsets.UTF_8);
                         //
-                        logInfo.setResBody(responseData);
-                        logInfo.setStatus(statusCode.value());
+                        httpLogInfo.setResBody(responseData);
+                        httpLogInfo.setStatus(statusCode.value());
                         originalResponse.getHeaders().setContentLength(content.length);
                         return bufferFactory.wrap(content);
                     }));
@@ -230,7 +230,7 @@ public class ApiFilter implements GlobalFilter, Ordered {
         return exchange.mutate().request(newRequest).response(response).build();
     }
 
-    private ServerHttpRequest getServerHttpRequest(ServerWebExchange exchange, LogInfo logInfo, HttpHeaders headers) {
+    private ServerHttpRequest getServerHttpRequest(ServerWebExchange exchange, HttpLogInfo httpLogInfo, HttpHeaders headers) {
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
         long contentLength = headers.getContentLength();
         if (contentLength <= 0) {
@@ -240,7 +240,7 @@ public class ApiFilter implements GlobalFilter, Ordered {
         if (MediaType.APPLICATION_JSON.equals(contentType) || MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
             //从请求里获取Post请求体
             String body = resolveBodyFromRequest(serverHttpRequest);
-            logInfo.setReqBody(body);
+            httpLogInfo.setReqBody(body);
             //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
             URI uri = serverHttpRequest.getURI();
             serverHttpRequest = serverHttpRequest.mutate().uri(uri).build();
@@ -254,16 +254,16 @@ public class ApiFilter implements GlobalFilter, Ordered {
             };
         }
         if (MediaType.APPLICATION_FORM_URLENCODED.equals(contentType)) {
-            return readFormData(exchange, logInfo);
+            return readFormData(exchange, httpLogInfo);
         }
         return serverHttpRequest;
     }
 
-    private ServerHttpRequest readFormData(ServerWebExchange exchange, LogInfo logInfo) {
+    private ServerHttpRequest readFormData(ServerWebExchange exchange, HttpLogInfo httpLogInfo) {
         MultiValueMap<String, String> formDataMap = new LinkedMultiValueMap<>();
         Mono<MultiValueMap<String, String>> data = exchange.getFormData();
         data.doOnNext(formDataMap::putAll);
-        logInfo.setReqParams(JsonUtil.toJsonString(data));
+        httpLogInfo.setReqParams(JsonUtil.toJsonString(data));
         String formData = getFormData(formDataMap);
         byte[] bodyBytes = formData.getBytes(StandardCharsets.UTF_8);
         int contentLength = bodyBytes.length;

@@ -2,23 +2,21 @@ package top.ticho.trace.core.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import top.ticho.trace.common.bean.LogCollectInfo;
+import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.TimeoutBlockingWaitStrategy;
+import com.lmax.disruptor.WaitStrategy;
+import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
+import top.ticho.trace.common.bean.LogInfo;
 import top.ticho.trace.common.constant.LogConst;
-import top.ticho.trace.core.json.JsonUtil;
-import top.ticho.trace.core.push.TracePushContext;
+import top.ticho.trace.core.handle.LogEventConsumer;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Optional;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -37,23 +35,19 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     private int pushSize = 100;
     /** 日志推送的时间间隔，单位：毫秒（ms） */
     private int flushInterval = 500;
-    /** 日志缓冲队列 */
-    private final BlockingQueue<ILoggingEvent> queue;
-    /** 日志推送线程池 */
-    private final ExecutorService executor;
     /** 日志序号，用于同一时刻日志的排序 */
     private final AtomicLong sequence;
-    /** 上一次日志推送的时间戳 */
-    private final AtomicLong pushTime;
     /** 上一次日志信息的时间戳 */
     private final AtomicLong lastLogTimeStamp;
 
+    private Disruptor<LogInfo> disruptor;
+    private RingBuffer<LogInfo> ringBuffer;
+    private LogEventConsumer logEventConsumer;
+
+
     public DistributedLogAppender() {
         // @formatter:off
-        this.queue = new LinkedBlockingQueue<>(10000);
-        this.executor = ThreadUtil.newExecutorByBlockingCoefficient(0.8f);
         this.sequence = new AtomicLong();
-        this.pushTime = new AtomicLong();
         this.lastLogTimeStamp = new AtomicLong();
         // @formatter:on
     }
@@ -78,14 +72,30 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     @Override
     public void start() {
         super.start();
-        executor.execute(this::scheduleFlushTask);
-
+        // 环形缓冲区大小，必须是2的幂次方
+        int bufferSize = 1024;
+        // 等待策略，超时
+        WaitStrategy waitStrategy = new TimeoutBlockingWaitStrategy(30, TimeUnit.SECONDS);
+        // 线程工厂
+        ThreadFactory threadFactory = ThreadUtil.newNamedThreadFactory("ticho-trace", false);
+        // 事件工厂
+        EventFactory<LogInfo> eventFactory = LogInfo::new;
+        // 生产者类型，单个还是多个
+        ProducerType producerType = ProducerType.MULTI;
+        this.disruptor = new Disruptor<>(eventFactory, bufferSize, threadFactory, producerType, waitStrategy);
+        this.logEventConsumer = new LogEventConsumer(url, pushSize, flushInterval);
+        // 注册事件消费者
+        disruptor.handleEventsWith(logEventConsumer);
+        // 启动Disruptor
+        this.ringBuffer = disruptor.start();
+        logEventConsumer.start();
     }
 
     @Override
     public void stop() {
         super.stop();
-        shutdown();
+        disruptor.shutdown();
+        logEventConsumer.shutdown();
     }
 
     @Override
@@ -93,97 +103,49 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
         if (event == null) {
             return;
         }
-        queue.add(event);
-    }
-
-    public void scheduleFlushTask() {
-        while (true) {
-            try {
-                int size = queue.size();
-                long currentTimeMillis = System.currentTimeMillis();
-                long time = currentTimeMillis - pushTime.get();
-                // 日志达到推送的数量、或者达到一定时间间隔则推送日志
-                if (size >= pushSize || time > flushInterval) {
-                    List<ILoggingEvent> logs = new ArrayList<>();
-                    queue.drainTo(logs, size);
-                    if (!logs.isEmpty()) {
-                        batchHandle(logs);
-                        pushTime.set(currentTimeMillis);
-                    }
-
-                } else if (size == 0) {
-                    // 当没有日志，则阻塞等待下一条日志产生，并进行推送
-                    ILoggingEvent log = queue.take();
-                    batchHandle(Collections.singletonList(log));
-                    pushTime.set(currentTimeMillis);
-                } else {
-                    // 阻塞100ms
-                    Thread.sleep(100);
-                }
-            } catch (Exception e) {
-                System.out.println("Failed to flush logs " + e.getMessage());
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException interruptedException) {
-                }
-            }
+        // 获取下一个序号
+        long ringSeq = ringBuffer.next();
+        // 根据序号创建数据
+        LogInfo logInfo = ringBuffer.get(ringSeq);
+        // 日志 时间戳
+        long timeStamp = event.getTimeStamp();
+        // 上一次日志信息的时间戳为空，则默认为当前日志时间戳
+        long lastLogTimeStampGet = lastLogTimeStamp.get();
+        if (lastLogTimeStampGet == 0) {
+            lastLogTimeStamp.set(timeStamp);
         }
-    }
-
-
-    private void batchHandle(List<ILoggingEvent> loggingEvents) {
-        List<Map<String, Object>> message = new ArrayList<>();
-        for (ILoggingEvent event : loggingEvents) {
-            long timeStamp = event.getTimeStamp();
-            long lastLogTimeStampGet = lastLogTimeStamp.get();
-            if (lastLogTimeStampGet == 0) {
-                lastLogTimeStamp.set(timeStamp);
-            }
-            long currentSequence = 0;
-            if (lastLogTimeStampGet == timeStamp) {
-                currentSequence = sequence.incrementAndGet();
-            } else {
-                sequence.set(0);
-                lastLogTimeStamp.set(timeStamp);
-            }
-
-            LocalDateTime of = LocalDateTimeUtil.of(timeStamp);
-            String format = LocalDateTimeUtil.format(of, DatePattern.NORM_DATETIME_PATTERN);
-            LogCollectInfo logCollectInfo = new LogCollectInfo();
-            logCollectInfo.setAppName(appName);
-            logCollectInfo.setLogLevel(event.getLevel().toString());
-            logCollectInfo.setDateTime(format);
-            logCollectInfo.setDtTime(lastLogTimeStampGet);
-            logCollectInfo.setClassName(event.getLoggerName());
-            StackTraceElement[] stackTraceElements = event.getCallerData();
-            if (stackTraceElements != null && stackTraceElements.length > 0) {
-                StackTraceElement stackTraceElement = stackTraceElements[0];
-                String method = stackTraceElement.getMethodName();
-                String line = String.valueOf(stackTraceElement.getLineNumber());
-                logCollectInfo.setMethod(method + "(" + stackTraceElement.getFileName() + ":" + line + ")");
-            }
-            logCollectInfo.setSeq(currentSequence);
-            logCollectInfo.setContent(event.getFormattedMessage());
-            logCollectInfo.setThreadName(event.getThreadName());
-            Map<String, Object> mdcMap = new HashMap<>(event.getMDCPropertyMap());
-            String tichoLogMap = JsonUtil.toJsonString(logCollectInfo);
-            Map<String, Object> logMap = JsonUtil.toMap(tichoLogMap, Object.class);
-            mdcMap.putAll(logMap);
-            message.add(mdcMap);
+        // 默认日志序列为0
+        long currentSequence = 0;
+        // 上一次日志信息的时间戳和日志时间戳相等，序列增加；否则，重置序列为0，并更新上一次日志信息的时间戳
+        if (lastLogTimeStampGet == timeStamp) {
+            currentSequence = sequence.incrementAndGet();
+        } else {
+            sequence.set(0);
+            lastLogTimeStamp.set(timeStamp);
         }
-        TracePushContext.push(url, message);
-    }
-
-    private void shutdown() {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
+        Map<String, String> mdcMap = new HashMap<>(event.getMDCPropertyMap());
+        String appName = Optional.ofNullable(mdcMap.get(LogConst.APP_NAME_KEY)).orElse(this.appName);
+        logInfo.setTraceId(mdcMap.get(LogConst.TRACE_ID_KEY));
+        logInfo.setSpanId(mdcMap.get(LogConst.SPAN_ID_KEY));
+        logInfo.setAppName(appName);
+        logInfo.setIp(mdcMap.get(LogConst.IP_KEY));
+        logInfo.setPreAppName(mdcMap.get(LogConst.PRE_APP_NAME_KEY));
+        logInfo.setPreIp(mdcMap.get(LogConst.PRE_IP_KEY));
+        logInfo.setLogLevel(event.getLevel().toString());
+        logInfo.setDtTime(lastLogTimeStampGet);
+        logInfo.setClassName(event.getLoggerName());
+        logInfo.setSeq(currentSequence);
+        logInfo.setContent(event.getFormattedMessage());
+        logInfo.setThreadName(event.getThreadName());
+        logInfo.setMdc(mdcMap);
+        StackTraceElement[] stackTraceElements = event.getCallerData();
+        if (stackTraceElements != null && stackTraceElements.length > 0) {
+            StackTraceElement stackTraceElement = stackTraceElements[0];
+            String method = stackTraceElement.getMethodName();
+            String line = String.valueOf(stackTraceElement.getLineNumber());
+            logInfo.setMethod(method + "(" + stackTraceElement.getFileName() + ":" + line + ")");
         }
+        ringBuffer.publish(ringSeq);
     }
 
 }

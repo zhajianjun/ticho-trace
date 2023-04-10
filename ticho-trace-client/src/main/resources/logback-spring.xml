@@ -83,7 +83,7 @@
         <appName>${appName}</appName>
         <url>${logUrl}</url>
         <pushSize>50</pushSize>
-        <flushInterval>500</flushInterval>
+        <flushInterval>1000</flushInterval>
     </appender>
 
     <root level="INFO">
