@@ -17,6 +17,7 @@
         <module>ticho-trace-client</module>
         <module>ticho-trace-client2</module>
         <module>ticho-trace-client-gateway</module>
+        <module>ticho-trace-okhttp</module>
     </modules>
 
     <dependencyManagement>
