@@ -65,7 +65,7 @@ public class LogEventListen implements EventHandler<LogInfo> {
      */
     private synchronized void execute() {
         if (!logInfos.isEmpty()) {
-            TracePushContext.push(url, logInfos);
+            TracePushContext.pushLogInfo(url, logInfos);
             // 清空批次缓存
             logInfos.clear();
             lastTime = SystemClock.now();

@@ -19,8 +19,8 @@ import top.ticho.trace.common.bean.TraceInfo;
 import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.common.prop.TraceLogProperty;
 import top.ticho.trace.core.json.JsonUtil;
+import top.ticho.trace.core.push.TracePushContext;
 import top.ticho.trace.core.util.TraceUtil;
-import top.ticho.trace.spring.component.SpringTracePushContext;
 import top.ticho.trace.spring.util.IpUtil;
 import top.ticho.trace.spring.wrapper.RequestWrapper;
 import top.ticho.trace.spring.wrapper.ResponseWrapper;
@@ -53,15 +53,11 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
 
     private final TraceLogProperty traceLogProperty;
 
-    private final SpringTracePushContext springTracePushContext;
-
     private final Environment environment;
 
-    public WebLogInterceptor(TraceLogProperty traceLogProperty, SpringTracePushContext springTracePushContext,
-            Environment environment) {
+    public WebLogInterceptor(TraceLogProperty traceLogProperty, Environment environment) {
         this.theadLocal = new TransmittableThreadLocal<>();
         this.traceLogProperty = traceLogProperty;
-        this.springTracePushContext = springTracePushContext;
         this.environment = environment;
     }
 
@@ -98,7 +94,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         // header
         Map<String, String> headersMap = getHeaders(request);
         String headers = toJsonOfDefault(headersMap);
-        String requestPrefixText = traceLogProperty.getRequestPrefixText();
+        String requestPrefixText = traceLogProperty.getReqPrefix();
         String trace = traceLogProperty.getTrace();
         UserAgent userAgent = IpUtil.getUserAgent(request);
         Principal principal = request.getUserPrincipal();
@@ -142,7 +138,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
         String url = request.getRequestURI();
         String resBody = nullOfDefault(getResBody(response));
         httpLogInfo.setResBody(resBody);
-        String requestPrefixText = traceLogProperty.getRequestPrefixText();
+        String requestPrefixText = traceLogProperty.getReqPrefix();
         long end = SystemClock.now();
         httpLogInfo.setEnd(end);
         int status = response.getStatus();
@@ -169,7 +165,7 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .end(end)
             .consume(consume)
             .build();
-        springTracePushContext.push(traceUrl, traceInfo);
+        TracePushContext.pushTraceInfoAsync(traceUrl, traceInfo);
         theadLocal.remove();
         TraceUtil.complete();
     }

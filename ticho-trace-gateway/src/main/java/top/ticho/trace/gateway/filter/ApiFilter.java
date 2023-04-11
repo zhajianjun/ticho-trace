@@ -43,7 +43,6 @@ import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.push.TracePushContext;
 import top.ticho.trace.core.util.TraceUtil;
 
-import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -56,7 +55,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -87,23 +85,10 @@ public class ApiFilter implements GlobalFilter, Ordered {
     @Autowired
     private TraceLogProperty traceLogProperty;
 
-    @PreDestroy
-    public void destroy() {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
-
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return chain.filter(preHandle(exchange)).doFinally(signalType -> {
+            // @formatter:off
             HttpLogInfo httpLogInfo = theadLocal.get();
             if (httpLogInfo == null) {
                 return;
@@ -111,7 +96,7 @@ public class ApiFilter implements GlobalFilter, Ordered {
             long end = SystemClock.now();
             httpLogInfo.setEnd(end);
             boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
-            String requestPrefixText = traceLogProperty.getRequestPrefixText();
+            String requestPrefixText = traceLogProperty.getReqPrefix();
             String type = httpLogInfo.getType();
             String url = httpLogInfo.getUrl();
             Long consume = httpLogInfo.getConsume();
@@ -136,9 +121,10 @@ public class ApiFilter implements GlobalFilter, Ordered {
                     .end(end)
                     .consume(httpLogInfo.getConsume())
                     .build();
-            executor.execute(()-> TracePushContext.push(traceLogProperty.getUrl(), traceInfo));
+            TracePushContext.pushTraceInfoAsync(traceLogProperty.getUrl(), traceInfo);
             theadLocal.remove();
             TraceUtil.complete();
+            // @formatter:on
         });
     }
 
@@ -180,7 +166,7 @@ public class ApiFilter implements GlobalFilter, Ordered {
         httpLogInfo.setStart(millis);
         httpLogInfo.setUserAgent(UserAgentUtil.parse(headers.getFirst(USER_AGENT)));
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
-        String requestPrefixText = traceLogProperty.getRequestPrefixText();
+        String requestPrefixText = traceLogProperty.getReqPrefix();
         if (print) {
             log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, httpLogInfo.getReqBody(), headers);
         }

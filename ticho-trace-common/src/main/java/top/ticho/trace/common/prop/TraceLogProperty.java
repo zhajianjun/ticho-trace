@@ -28,7 +28,7 @@ public class TraceLogProperty {
     private String secret;
 
     /** 日志打印前缀 */
-    private String requestPrefixText = "[REQUEST]";
+    private String reqPrefix = "[REQ]";
 
     /** 链路 */
     private String trace = LogConst.DEFAULT_TRACE;

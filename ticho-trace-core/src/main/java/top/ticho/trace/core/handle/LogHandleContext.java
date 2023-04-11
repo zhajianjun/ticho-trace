@@ -43,7 +43,7 @@ public class LogHandleContext {
         // 等待策略，超时
         WaitStrategy waitStrategy = new TimeoutBlockingWaitStrategy(30, TimeUnit.SECONDS);
         // 线程工厂
-        ThreadFactory threadFactory = ThreadUtil.newNamedThreadFactory("ticho-trace", false);
+        ThreadFactory threadFactory = ThreadUtil.newNamedThreadFactory(LogConst.THREAD_NAME_PREFIX_TRACE, false);
         // 事件工厂
         EventFactory<LogInfo> eventFactory = LogInfo::new;
         // 生产者类型，多个

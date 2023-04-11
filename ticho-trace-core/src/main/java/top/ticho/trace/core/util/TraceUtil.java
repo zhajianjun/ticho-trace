@@ -89,12 +89,6 @@ public class TraceUtil {
         render();
     }
 
-    public static void render() {
-        String traceKey = MDC.get(LogConst.TRACE_KEY);
-        String trace = BeetlUtil.render(traceKey, MDC.getCopyOfContextMap());
-        MDC.put(LogConst.TRACE, trace);
-    }
-
     public static void complete() {
         //移除MDC里的信息
         MDC.remove(LogConst.TRACE_KEY);
@@ -104,6 +98,12 @@ public class TraceUtil {
         MDC.remove(LogConst.IP_KEY);
         MDC.remove(LogConst.PRE_APP_NAME_KEY);
         MDC.remove(LogConst.PRE_IP_KEY);
+    }
+
+    public static void render() {
+        String traceKey = MDC.get(LogConst.TRACE_KEY);
+        String trace = BeetlUtil.render(traceKey, MDC.getCopyOfContextMap());
+        MDC.put(LogConst.TRACE, trace);
     }
 
     public static String nullDefault(String obj) {

@@ -31,11 +31,15 @@ public class LogConst {
     public static final String TRACE = "trace";
     /** 默认链路 */
     public static final String DEFAULT_TRACE = "[${traceId}].[${spanId}]";
-    /** 耗时 key */
+    /** MDC key */
     public static final String MDC_KEY = "mdc";
-
+    /** 日志索引前缀 */
     public static final String LOG_INDEX_PREFIX = "log";
-
+    /** 链路索引前缀 */
     public static final String TRACE_INDEX_PREFIX = "trace";
+    /** 链路线程名称前缀 */
+    public static final String THREAD_NAME_PREFIX_TRACE = "ticho-trace:";
+    /** 日志线程名称前缀 */
+    public static final String THREAD_NAME_PREFIX_LOG = "ticho-log:";
 
 }

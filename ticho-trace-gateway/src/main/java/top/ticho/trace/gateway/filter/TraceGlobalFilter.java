@@ -1,7 +1,6 @@
 package top.ticho.trace.gateway.filter;
 
 import cn.hutool.core.date.SystemClock;
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +34,6 @@ import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.push.TracePushContext;
 import top.ticho.trace.core.util.TraceUtil;
 
-import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -44,8 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -62,7 +58,6 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
 
     private static final List<String> localhosts = new ArrayList<>();
     private final TransmittableThreadLocal<HttpLogInfo> theadLocal = new TransmittableThreadLocal<>();
-    private final ThreadPoolExecutor executor = ThreadUtil.newExecutorByBlockingCoefficient(0.8f);
 
     static{
         localhosts.add("127.0.0.1");
@@ -75,26 +70,13 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
     @Autowired
     private TraceLogProperty traceLogProperty;
 
-    @PreDestroy
-    public void destroy() {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
-
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // @formatter:off
         HttpLogInfo httpLogInfo = new HttpLogInfo();
         return chain.filter(preHandle(exchange, httpLogInfo)).doFinally(signalType -> {
             boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
-            String requestPrefixText = traceLogProperty.getRequestPrefixText();
+            String requestPrefixText = traceLogProperty.getReqPrefix();
             String type = httpLogInfo.getType();
             String url = httpLogInfo.getUrl();
             Long consume = httpLogInfo.getConsume();
@@ -119,9 +101,10 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
                 .end(httpLogInfo.getEnd())
                 .consume(httpLogInfo.getConsume())
                 .build();
-            executor.execute(()-> TracePushContext.push(traceLogProperty.getUrl(), traceInfo));
+            TracePushContext.pushTraceInfoAsync(traceLogProperty.getUrl(), traceInfo);
             theadLocal.remove();
             TraceUtil.complete();
+            // @formatter:on
         });
     }
 
@@ -157,7 +140,7 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
             httpHeader.set(LogConst.PRE_IP_KEY, ip);
         };
         boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
-        String requestPrefixText = traceLogProperty.getRequestPrefixText();
+        String requestPrefixText = traceLogProperty.getReqPrefix();
         if (print) {
             log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, httpLogInfo.getReqBody(), headers);
         }

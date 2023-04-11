@@ -11,7 +11,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.ticho.trace.common.prop.TraceLogProperty;
-import top.ticho.trace.spring.component.SpringTracePushContext;
 import top.ticho.trace.spring.filter.WapperRequestFilter;
 import top.ticho.trace.spring.interceptor.WebLogInterceptor;
 
@@ -33,9 +32,6 @@ public class SpringTraceConfig implements WebMvcConfigurer {
     private TraceLogProperty traceLogProperty;
 
     @Resource
-    private SpringTracePushContext springTracePushContext;
-
-    @Resource
     private Environment environment;
 
     @Bean
@@ -52,7 +48,7 @@ public class SpringTraceConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new WebLogInterceptor(traceLogProperty, springTracePushContext, environment)).order(Ordered.HIGHEST_PRECEDENCE + 10);
+        registry.addInterceptor(new WebLogInterceptor(traceLogProperty, environment)).order(Ordered.HIGHEST_PRECEDENCE + 10);
     }
 
 }

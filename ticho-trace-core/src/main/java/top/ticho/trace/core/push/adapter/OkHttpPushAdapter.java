@@ -6,17 +6,17 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import top.ticho.trace.core.json.JsonUtil;
-import top.ticho.trace.core.push.TracePushAdapter;
+import top.ticho.trace.core.push.PushAdapter;
 
 import java.io.IOException;
 
 /**
- *
+ * 使用okhttp进行适配
  *
  * @author zhajianjun
  * @date 2023-03-27 12:34
  */
-public class OkHttpTracePushAdapter implements TracePushAdapter {
+public class OkHttpPushAdapter implements PushAdapter {
     /** http客户端 */
     private final OkHttpClient httpClient = new OkHttpClient.Builder().build();
 
