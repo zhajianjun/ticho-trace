@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import top.ticho.trace.common.prop.TraceLogProperty;
+import top.ticho.trace.core.push.TracePushContext;
 
 /**
  *
@@ -19,7 +20,9 @@ public class TraceConfig {
     @Bean
     @ConfigurationProperties(prefix = "ticho.trace")
     public TraceLogProperty traceLogProperty(){
-        return new TraceLogProperty();
+        TraceLogProperty traceLogProperty = new TraceLogProperty();
+        TracePushContext.setTraceLogProperty(traceLogProperty);
+        return traceLogProperty;
     }
 
 }

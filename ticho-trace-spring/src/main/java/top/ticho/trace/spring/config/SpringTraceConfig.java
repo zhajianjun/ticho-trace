@@ -11,6 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.ticho.trace.common.prop.TraceLogProperty;
+import top.ticho.trace.core.push.TracePushContext;
 import top.ticho.trace.spring.filter.WapperRequestFilter;
 import top.ticho.trace.spring.interceptor.WebLogInterceptor;
 
@@ -37,7 +38,9 @@ public class SpringTraceConfig implements WebMvcConfigurer {
     @Bean
     @ConfigurationProperties(prefix = "ticho.trace")
     public TraceLogProperty traceLogProperty(){
-        return new TraceLogProperty();
+        TraceLogProperty traceLogProperty = new TraceLogProperty();
+        TracePushContext.setTraceLogProperty(traceLogProperty);
+        return traceLogProperty;
     }
 
 

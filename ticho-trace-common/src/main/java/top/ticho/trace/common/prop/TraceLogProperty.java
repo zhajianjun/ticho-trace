@@ -14,23 +14,21 @@ public class TraceLogProperty {
 
     /** 是否开启链路拦截器 */
     private Boolean enable = true;
-
     /** 是否打印日志 */
     private Boolean print = false;
-
     /** 链路服务url */
     private String url;
-
     /** 日志收集服务url */
     private String logUrl;
-
     /** 链路服务秘钥 */
     private String secret;
-
     /** 日志打印前缀 */
     private String reqPrefix = "[REQ]";
-
     /** 链路 */
     private String trace = LogConst.DEFAULT_TRACE;
+    /** 是否推送日志 */
+    private Boolean isPushLog = false;
+    /** 是否推送链路信息 */
+    private Boolean isPushTrace = false;
 
 }
