@@ -27,8 +27,8 @@ public class TraceLogProperty {
     /** 链路 */
     private String trace = LogConst.DEFAULT_TRACE;
     /** 是否推送日志 */
-    private Boolean isPushLog = false;
+    private Boolean pushLog = false;
     /** 是否推送链路信息 */
-    private Boolean isPushTrace = false;
+    private Boolean pushTrace = false;
 
 }

@@ -1,14 +1,17 @@
 package top.ticho.trace.core.handle;
 
 import cn.hutool.core.date.SystemClock;
+import cn.hutool.core.thread.ThreadUtil;
 import com.lmax.disruptor.EventHandler;
 import top.ticho.trace.common.bean.LogInfo;
+import top.ticho.trace.common.constant.LogConst;
 import top.ticho.trace.core.push.TracePushContext;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -34,11 +37,11 @@ public class LogEventListen implements EventHandler<LogInfo> {
     // 定时任务逻辑是否执行
     private final AtomicBoolean taskExecute = new AtomicBoolean(false);
 
-    public LogEventListen(String url, int batchSize, long flushInterval) {
+    public LogEventListen(String url, int batchSize, long flushInterval, ThreadFactory threadFactory) {
         this.url = url;
         this.batchSize = batchSize;
         this.flushInterval = flushInterval;
-        this.executorService = Executors.newSingleThreadScheduledExecutor();
+        this.executorService = Executors.newSingleThreadScheduledExecutor(threadFactory);
     }
 
     /**

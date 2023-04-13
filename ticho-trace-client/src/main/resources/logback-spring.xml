@@ -77,13 +77,15 @@
     </appender>
 
     <springProperty scope="context" name="logUrl" source="ticho.trace.logUrl"/>
+    <springProperty scope="context" name="pushLog" source="ticho.trace.pushLog"/>
     <springProperty scope="context" name="appName" source="spring.application.name"/>
 
     <appender name="ticho-log" class="top.ticho.trace.core.logback.DistributedLogAppender">
         <appName>${appName}</appName>
         <url>${logUrl}</url>
+        <pushLog>${pushLog}</pushLog>
         <pushSize>50</pushSize>
-        <flushInterval>1000</flushInterval>
+        <flushInterval>500</flushInterval>
     </appender>
 
     <root level="INFO">

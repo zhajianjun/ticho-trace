@@ -29,6 +29,9 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     /** 日志推送的时间间隔，单位：毫秒（ms） */
     @Setter
     private int flushInterval = 500;
+    /** 是否推送日志 */
+    @Setter
+    private Boolean pushLog = false;
     /** 日志处理上下文 */
     private LogHandleContext logHandleContext;
 
@@ -36,6 +39,9 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     @Override
     public void start() {
         super.start();
+        if (!pushLog) {
+            return;
+        }
         this.logHandleContext = new LogHandleContext(appName, url, pushSize, flushInterval);
         logHandleContext.start();
     }
@@ -43,6 +49,9 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     @Override
     public void stop() {
         super.stop();
+        if (!pushLog) {
+            return;
+        }
         logHandleContext.stop();
     }
 

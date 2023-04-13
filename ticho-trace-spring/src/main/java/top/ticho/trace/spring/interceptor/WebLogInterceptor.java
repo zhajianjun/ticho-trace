@@ -165,7 +165,9 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
             .end(end)
             .consume(consume)
             .build();
-        TracePushContext.pushTraceInfoAsync(traceUrl, traceInfo);
+        if (traceLogProperty.getPushTrace()) {
+            TracePushContext.pushTraceInfoAsync(traceUrl, traceInfo);
+        }
         theadLocal.remove();
         TraceUtil.complete();
     }

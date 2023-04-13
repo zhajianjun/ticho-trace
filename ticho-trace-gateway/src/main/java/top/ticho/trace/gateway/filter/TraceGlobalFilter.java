@@ -101,7 +101,9 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
                 .end(httpLogInfo.getEnd())
                 .consume(httpLogInfo.getConsume())
                 .build();
-            TracePushContext.pushTraceInfoAsync(traceLogProperty.getUrl(), traceInfo);
+            if (traceLogProperty.getPushTrace()) {
+                TracePushContext.pushTraceInfoAsync(traceLogProperty.getUrl(), traceInfo);
+            }
             theadLocal.remove();
             TraceUtil.complete();
             // @formatter:on

@@ -25,9 +25,9 @@ public class OkHttpPushAdapter implements PushAdapter {
         String json = JsonUtil.toJsonString(data);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);
         Request request = new Request.Builder().url(url).post(requestBody).build();
-        try(Response execute = httpClient.newCall(request).execute()) {
+        try (Response execute = httpClient.newCall(request).execute()) {
         } catch (IOException e) {
-            System.out.printf("[%s] okhttp Failed to push data error:%s%n", Thread.currentThread().getName(), e.getMessage());
+            System.err.printf("[%s] okhttp Failed to push data to %s error:%s%n", Thread.currentThread().getName(), url, e.getMessage());
         }
     }
 

@@ -20,9 +20,7 @@ public class TraceConfig {
     @Bean
     @ConfigurationProperties(prefix = "ticho.trace")
     public TraceLogProperty traceLogProperty(){
-        TraceLogProperty traceLogProperty = new TraceLogProperty();
-        TracePushContext.setTraceLogProperty(traceLogProperty);
-        return traceLogProperty;
+        return new TraceLogProperty();
     }
 
 }

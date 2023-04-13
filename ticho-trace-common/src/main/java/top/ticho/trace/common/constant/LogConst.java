@@ -38,8 +38,8 @@ public class LogConst {
     /** 链路索引前缀 */
     public static final String TRACE_INDEX_PREFIX = "trace";
     /** 链路线程名称前缀 */
-    public static final String THREAD_NAME_PREFIX_TRACE = "ticho-trace:";
+    public static final String THREAD_NAME_PREFIX_TRACE = "ticho-trace-";
     /** 日志线程名称前缀 */
-    public static final String THREAD_NAME_PREFIX_LOG = "ticho-log:";
+    public static final String THREAD_NAME_PREFIX_LOG = "ticho-log-";
 
 }

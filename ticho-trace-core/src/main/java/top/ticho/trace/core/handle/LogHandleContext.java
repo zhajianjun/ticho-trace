@@ -43,14 +43,14 @@ public class LogHandleContext {
         // 等待策略，超时
         WaitStrategy waitStrategy = new TimeoutBlockingWaitStrategy(30, TimeUnit.SECONDS);
         // 线程工厂
-        ThreadFactory threadFactory = ThreadUtil.newNamedThreadFactory(LogConst.THREAD_NAME_PREFIX_TRACE, false);
+        ThreadFactory threadFactory = ThreadUtil.newNamedThreadFactory(LogConst.THREAD_NAME_PREFIX_LOG, false);
         // 事件工厂
         EventFactory<LogInfo> eventFactory = LogInfo::new;
         // 生产者类型，多个
         ProducerType producerType = ProducerType.MULTI;
         this.disruptor = new Disruptor<>(eventFactory, bufferSize, threadFactory, producerType, waitStrategy);
         // 初始化日志事件监听处理器
-        this.logEventListen = new LogEventListen(url, pushSize, flushInterval);
+        this.logEventListen = new LogEventListen(url, pushSize, flushInterval, threadFactory);
         // 注册事件消费者
         disruptor.handleEventsWith(logEventListen);
         this.sequence = new AtomicLong();
