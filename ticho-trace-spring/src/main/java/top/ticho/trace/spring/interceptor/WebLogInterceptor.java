@@ -12,7 +12,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import org.springframework.web.servlet.HandlerInterceptor;
 import top.ticho.trace.common.bean.HttpLogInfo;
 import top.ticho.trace.common.bean.TraceInfo;
@@ -78,15 +81,29 @@ public class WebLogInterceptor implements HandlerInterceptor, InitializingBean {
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
-        // 是否打印日志
+        Map<String, Object> paramsMap = null;
+        if (request instanceof StandardMultipartHttpServletRequest){
+            paramsMap = new HashMap<>();
+            StandardMultipartHttpServletRequest sr = (StandardMultipartHttpServletRequest) request;
+            request = sr.getRequest();
+            MultiValueMap<String,MultipartFile> multiFileMap = sr.getMultiFileMap();
+            Map<String,Object> finalParamsMap = paramsMap;
+            multiFileMap.forEach((x, y)-> {
+                finalParamsMap.put(x, y.stream().map(MultipartFile::getOriginalFilename).collect(Collectors.joining(",", "文件：","")));
+            });
+        }
         if (!(request instanceof RequestWrapper) || !(handler instanceof HandlerMethod)) {
             return true;
         }
         long millis = SystemClock.now();
         String type = request.getMethod();
         String url = request.getRequestURI();
+        if (paramsMap == null) {
+            paramsMap = new HashMap<>();
+        }
         // params
-        Map<String, Object> paramsMap = getParams(request);
+        Map<String, Object> paramsMapFromRequest = getParams(request);
+        paramsMap.putAll(paramsMapFromRequest);
         String params = toJsonOfDefault(paramsMap);
         // body
         RequestWrapper requestWrapper = (RequestWrapper) request;

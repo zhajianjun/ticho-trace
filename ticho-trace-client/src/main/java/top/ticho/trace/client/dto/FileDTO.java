@@ -25,7 +25,11 @@ public class FileDTO {
     @NotNull(message = "文件不能为空")
     private MultipartFile file;
 
-    @ApiModelProperty(value = "元数据信息", position = 30)
+    @ApiModelProperty(value = "文件列表", position = 30)
+    @NotNull(message = "文件列表不能为空")
+    private List<MultipartFile> files;
+
+    @ApiModelProperty(value = "元数据信息", position = 40)
     private List<String> metadatas;
 
 }

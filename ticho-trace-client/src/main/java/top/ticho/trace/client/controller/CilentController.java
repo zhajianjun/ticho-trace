@@ -17,6 +17,8 @@ import top.ticho.trace.client.dto.CityDTO;
 import top.ticho.trace.client.dto.FileDTO;
 import top.ticho.trace.client.dto.FileSimpleDTO;
 
+import java.util.List;
+
 /**
  * @author zhajianjun
  * @date 2023-03-27 12:34
@@ -32,7 +34,8 @@ public class CilentController {
     @ApiOperation(value = "文件上传", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Result<FileSimpleDTO> upload(FileDTO fileDTO) {
         ValidUtil.valid(fileDTO);
-        MultipartFile file = fileDTO.getFile();
+        List<MultipartFile> files = fileDTO.getFiles();
+        MultipartFile file = files.get(0);
         FileSimpleDTO fileSimpleDTO = new FileSimpleDTO();
         fileSimpleDTO.setFileId(fileDTO.getFileId());
         fileSimpleDTO.setFileName(file.getOriginalFilename());
