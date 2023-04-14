@@ -48,10 +48,10 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
-        startLocal.set(SystemClock.now());
-        if ((handler instanceof HandlerMethod)) {
+        if (!(handler instanceof HandlerMethod)) {
             return true;
         }
+        startLocal.set(SystemClock.now());
         Map<String, String> headersMap = getHeaders(request);
         String trace = traceProperty.getTrace();
         String appName = environment.getProperty("spring.application.name");
@@ -70,10 +70,10 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
     @Override
     public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler, Exception ex) {
         // @formatter:off
-        Long start = startLocal.get();
-        if (start == null) {
+        if (!(handler instanceof HandlerMethod)) {
             return;
         }
+        Long start = startLocal.get();
         String type = request.getMethod();
         String url = request.getRequestURI();
         String port = environment.getProperty("server.port");
@@ -123,7 +123,7 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
 
     @Override
     public int getOrder() {
-        return traceProperty.getOrdered();
+        return traceProperty.getOrder();
     }
 
 }

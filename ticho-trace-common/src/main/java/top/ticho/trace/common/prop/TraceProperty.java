@@ -27,6 +27,6 @@ public class TraceProperty {
     /** 是否推送链路信息 */
     private Boolean pushTrace = false;
     /** 拦截器排序 */
-    private Integer ordered = Integer.MAX_VALUE;
+    private Integer order = Integer.MIN_VALUE;
 
 }

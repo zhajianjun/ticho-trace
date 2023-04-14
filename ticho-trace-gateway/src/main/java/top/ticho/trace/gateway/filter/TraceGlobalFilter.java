@@ -212,7 +212,7 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return traceProperty.getOrdered();
+        return traceProperty.getOrder();
     }
 
 }
