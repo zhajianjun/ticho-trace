@@ -2,12 +2,9 @@ package top.ticho.trace.gateway.filter;
 
 import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.ttl.TransmittableThreadLocal;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -21,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
-import org.springframework.stereotype.Component;
+import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -29,7 +26,7 @@ import reactor.core.publisher.Mono;
 import top.ticho.trace.common.bean.HttpLogInfo;
 import top.ticho.trace.common.bean.TraceInfo;
 import top.ticho.trace.common.constant.LogConst;
-import top.ticho.trace.common.prop.TraceLogProperty;
+import top.ticho.trace.common.prop.TraceProperty;
 import top.ticho.trace.core.json.JsonUtil;
 import top.ticho.trace.core.push.TracePushContext;
 import top.ticho.trace.core.util.TraceUtil;
@@ -37,77 +34,41 @@ import top.ticho.trace.core.util.TraceUtil;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
+ * 链路全局过滤
  *
  *
  * @author zhajianjun
  * @date 2023-04-03 11:05
  */
 @Slf4j
-@Component
-@ConditionalOnProperty(value = "ticho.trace.enable", havingValue = "true", matchIfMissing = true)
 public class TraceGlobalFilter implements GlobalFilter, Ordered {
-    public static final String USER_AGENT = "User-Agent";
+    /** 本地ip列表 */
+    private static final List<String> localhosts = Stream.of("127.0.0.1", "0:0:0:0:0:0:0:1").collect(Collectors.toList());
+    /** 环境变量 */
+    private final Environment environment;
+    /** 链路配置 */
+    private final TraceProperty traceProperty;
 
-    private static final List<String> localhosts = new ArrayList<>();
-    private final TransmittableThreadLocal<HttpLogInfo> theadLocal = new TransmittableThreadLocal<>();
-
-    static{
-        localhosts.add("127.0.0.1");
-        localhosts.add("0:0:0:0:0:0:0:1");
+    public TraceGlobalFilter(TraceProperty traceProperty, Environment environment) {
+        this.environment = environment;
+        this.traceProperty = traceProperty;
     }
-
-    @Autowired
-    private Environment environment;
-
-    @Autowired
-    private TraceLogProperty traceLogProperty;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         // @formatter:off
         HttpLogInfo httpLogInfo = new HttpLogInfo();
-        return chain.filter(preHandle(exchange, httpLogInfo)).doFinally(signalType -> {
-            boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
-            String requestPrefixText = traceLogProperty.getReqPrefix();
-            String type = httpLogInfo.getType();
-            String url = httpLogInfo.getUrl();
-            Long consume = httpLogInfo.getConsume();
-            Integer status = httpLogInfo.getStatus();
-            String resBody = httpLogInfo.getResBody();
-            if (print) {
-                log.info("{} {} {} 请求结束, 状态={}, 耗时={}ms, 响应参数={}", requestPrefixText, type, url, status, consume, resBody);
-            }
-            TraceInfo traceInfo = TraceInfo.builder()
-                .traceId(MDC.get(LogConst.TRACE_ID_KEY))
-                .spanId(MDC.get(LogConst.SPAN_ID_KEY))
-                .appName(MDC.get(LogConst.APP_NAME_KEY))
-                .ip(MDC.get(LogConst.IP_KEY))
-                .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
-                .preIp(MDC.get(LogConst.PRE_IP_KEY))
-                .url(httpLogInfo.getUrl())
-                .port(httpLogInfo.getPort())
-                .method("")
-                .type(httpLogInfo.getType())
-                .status(httpLogInfo.getStatus())
-                .start(httpLogInfo.getStart())
-                .end(httpLogInfo.getEnd())
-                .consume(httpLogInfo.getConsume())
-                .build();
-            if (traceLogProperty.getPushTrace()) {
-                TracePushContext.pushTraceInfoAsync(traceLogProperty.getUrl(), traceInfo);
-            }
-            theadLocal.remove();
-            TraceUtil.complete();
-            // @formatter:on
-        });
+        return chain.filter(preHandle(exchange, httpLogInfo))
+            .doFinally(signalType -> complete(httpLogInfo));
+        // @formatter:on
     }
 
     public ServerWebExchange preHandle(ServerWebExchange exchange, HttpLogInfo httpLogInfo) {
@@ -124,7 +85,7 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         String params = JsonUtil.toJsonString(queryParams);
         String ip = localIp();
         String appName = environment.getProperty("spring.application.name");
-        String trace = traceLogProperty.getTrace();
+        String trace = traceProperty.getTrace();
         String type = serverHttpRequest.getMethodValue();
         String url = serverHttpRequest.getPath().toString();
         httpLogInfo.setUrl(url);
@@ -141,19 +102,34 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
             httpHeader.set(LogConst.PRE_APP_NAME_KEY, appName);
             httpHeader.set(LogConst.PRE_IP_KEY, ip);
         };
-        boolean print = Boolean.TRUE.equals(traceLogProperty.getPrint());
-        String requestPrefixText = traceLogProperty.getReqPrefix();
-        if (print) {
-            log.info("{} {} {} 请求开始, 请求参数={}, 请求体={}, 请求头={}", requestPrefixText, type, url, params, httpLogInfo.getReqBody(), headers);
-        }
         ServerHttpRequest newRequest = serverHttpRequest.mutate().headers(httpHeaders).build();
         ServerHttpResponse response = getResponse(exchange, httpLogInfo);
         return exchange.mutate().request(newRequest).response(response).build();
     }
 
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
+    private void complete(HttpLogInfo httpLogInfo) {
+        // @formatter:off
+        TraceInfo traceInfo = TraceInfo.builder()
+            .traceId(MDC.get(LogConst.TRACE_ID_KEY))
+            .spanId(MDC.get(LogConst.SPAN_ID_KEY))
+            .appName(MDC.get(LogConst.APP_NAME_KEY))
+            .ip(MDC.get(LogConst.IP_KEY))
+            .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
+            .preIp(MDC.get(LogConst.PRE_IP_KEY))
+            .url(httpLogInfo.getUrl())
+            .port(httpLogInfo.getPort())
+            .method("")
+            .type(httpLogInfo.getType())
+            .status(httpLogInfo.getStatus())
+            .start(httpLogInfo.getStart())
+            .end(httpLogInfo.getEnd())
+            .consume(httpLogInfo.getConsume())
+            .build();
+        if (traceProperty.getPushTrace()) {
+            TracePushContext.pushTraceInfoAsync(traceProperty.getUrl(), traceInfo);
+        }
+        TraceUtil.complete();
+        // @formatter:on
     }
 
     public ServerHttpResponse getResponse(ServerWebExchange exchange, HttpLogInfo httpLogInfo){
@@ -161,37 +137,40 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
         return new ServerHttpResponseDecorator(originalResponse) {
             @Override
-            public Mono<Void> writeWith(Publisher<? extends DataBuffer> body1) {
+            public Mono<Void> writeWith(@NonNull Publisher<? extends DataBuffer> body) {
                 HttpStatus statusCode = getStatusCode();
-                if (Objects.equals(statusCode, HttpStatus.OK) && body1 instanceof Flux) {
-                    Flux<? extends DataBuffer> fluxBody = Flux.from(body1);
+                // 响应状态码
+                httpLogInfo.setStatus(Optional.ofNullable(statusCode).map(HttpStatus::value).orElse(null));
+                if (Objects.equals(statusCode, HttpStatus.OK) && body instanceof Flux) {
+                    Flux<? extends DataBuffer> fluxBody = Flux.from(body);
                     return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
                         DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
                         DataBuffer join = dataBufferFactory.join(dataBuffers);
                         byte[] content = new byte[join.readableByteCount()];
                         join.read(content);
                         DataBufferUtils.release(join);
-                        String responseData = new String(content, StandardCharsets.UTF_8);
-                        httpLogInfo.setEnd(SystemClock.now());
-                        httpLogInfo.setResBody(responseData);
-                        httpLogInfo.setStatus(statusCode.value());
+                        //String responseData = new String(content, StandardCharsets.UTF_8);
+                        //httpLogInfo.setResBody(responseData);
                         originalResponse.getHeaders().setContentLength(content.length);
                         return bufferFactory.wrap(content);
                     }));
                 } else {
                     log.error("获取响应体数据 ：" + statusCode);
                 }
-                return super.writeWith(body1);
+                httpLogInfo.setEnd(SystemClock.now());
+                return super.writeWith(body);
             }
 
             @Override
-            public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body1) {
-                return writeWith(Flux.from(body1).flatMapSequential(p -> p));
+            @NonNull
+            public Mono<Void> writeAndFlushWith(@NonNull Publisher<? extends Publisher<? extends DataBuffer>> body) {
+                return writeWith(Flux.from(body).flatMapSequential(p -> p));
             }
         };
     }
 
     public static String preIp(ServerHttpRequest request) {
+        // @formatter:off
         HttpHeaders httpHeaders = request.getHeaders();
         String ip = httpHeaders.getFirst("x-forwarded-for");
         // Proxy-Client-IP 这个一般是经过apache http服务器的请求才会有，用apache http做代理时一般会加上Proxy-Client-IP请求头，而WL-Proxy-Client-IP是他的weblogic插件加上的头。
@@ -220,6 +199,7 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         }
         // 获取本机真正的ip地址
         return localIp();
+        // @formatter:on
     }
 
     public static String localIp() {
@@ -228,6 +208,11 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
         } catch (UnknownHostException e) {
             return null;
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return traceProperty.getOrdered();
     }
 
 }

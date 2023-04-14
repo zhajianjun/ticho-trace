@@ -11,6 +11,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * IP工具
@@ -23,12 +25,7 @@ public class IpUtil {
 
     public static final String USER_AGENT = "User-Agent";
 
-    private static final List<String> localhosts = new ArrayList<>();
-
-    static{
-        localhosts.add("127.0.0.1");
-        localhosts.add("0:0:0:0:0:0:0:1");
-    }
+    private static final List<String> localhosts = Stream.of("127.0.0.1", "0:0:0:0:0:0:0:1").collect(Collectors.toList());
 
     public static String preIp(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");

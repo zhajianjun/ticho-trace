@@ -1,4 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  top.ticho.trace.common.prop.TraceLogProperty,\
-  top.ticho.trace.spring.config.SpringTraceConfig
+  top.ticho.trace.spring.config.TraceBeanConfig,\
+  top.ticho.trace.spring.config.TraceMvcConfig
 

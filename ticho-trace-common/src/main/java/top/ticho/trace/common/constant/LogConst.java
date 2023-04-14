@@ -29,7 +29,7 @@ public class LogConst {
     public static final String TRACE_KEY = "traceKey";
     /** TRACE */
     public static final String TRACE = "trace";
-    /** 默认链路 */
+    /** 默认链路表达式 */
     public static final String DEFAULT_TRACE = "[${traceId}].[${spanId}]";
     /** MDC key */
     public static final String MDC_KEY = "mdc";
