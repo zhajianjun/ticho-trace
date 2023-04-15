@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  top.ticho.trace.gateway.config.TraceBeanConfig
+  com.ticho.trace.gateway.config.TraceBeanConfig
