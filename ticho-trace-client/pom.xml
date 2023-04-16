@@ -2,9 +2,8 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <groupId>com.ticho.trace</groupId>
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.ticho.trace</groupId>
     <artifactId>ticho-trace-client</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -39,7 +38,7 @@
             <dependency>
                 <groupId>com.ticho.boot</groupId>
                 <artifactId>ticho-dependencies</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
