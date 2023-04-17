@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * hutool json工具适配类
  *
  * @author zhajianjun
  * @date 2023-03-27 12:34

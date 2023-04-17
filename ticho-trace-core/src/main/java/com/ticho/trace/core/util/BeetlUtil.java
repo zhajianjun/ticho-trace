@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
+ * 模版引擎渲染工具类
  *
  * @author zhajianjun
  * @date 2021-10-23 0:11
@@ -19,10 +20,8 @@ import java.util.Map;
 @Slf4j
 public class BeetlUtil {
     private BeetlUtil() {
-
     }
 
-    public static final ResourceLoader<String> STRING_TEMPLATE_INSTANCE = new StringTemplateResourceLoader();
     public static GroupTemplate gt;
 
     static {
@@ -39,9 +38,16 @@ public class BeetlUtil {
         gt.setErrorHandler(new ReThrowConsoleErrorHandler());
     }
 
-    public static String render(String template, Map<String, ?> paras) {
+    /**
+     * 渲染
+     *
+     * @param template 模板表达式
+     * @param paramsMap 参数map
+     * @return {@link String}
+     */
+    public static String render(String template, Map<String, ?> paramsMap) {
         Template t = gt.getTemplate(template);
-        t.binding(paras);
+        t.binding(paramsMap);
         return t.render();
     }
 

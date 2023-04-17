@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
- *
+ * 链路工具类
  *
  * @author zhajianjun
  * @date 2023-03-27 12:34
@@ -25,8 +25,12 @@ public class TraceUtil {
 
     /** 下个跨度id的索引 */
     private static final TransmittableThreadLocal<AtomicInteger> NEXT_SPAN_INDEX_TL = new TransmittableThreadLocal<>();
-    private static final TransmittableThreadLocal<AtomicBoolean> SWITCH_TL = new TransmittableThreadLocal<>();
 
+    /**
+     * 下一个跨度id
+     *
+     * @return {@link String}
+     */
     public static String nextSpanId() {
         String currentSpanId = MDC.get(LogConst.SPAN_ID_KEY);
         int currentSpanIndex = NEXT_SPAN_INDEX_TL.get().incrementAndGet();
@@ -34,7 +38,7 @@ public class TraceUtil {
     }
 
     /**
-     * 准备
+     * 链路生成准备
      *
      * @param map map
      */
@@ -57,10 +61,10 @@ public class TraceUtil {
     }
 
     /**
-     * 准备
+     * 链路生成准备
      *
      * @param traceId 链路id
-     * @param spanId 跨度id0
+     * @param spanId 跨度id
      * @param appName 当前应用名称
      * @param ip 当前ip
      * @param preAppName 上个链路的应用名称
@@ -89,6 +93,9 @@ public class TraceUtil {
         render();
     }
 
+    /**
+     * 链路完成时处理
+     */
     public static void complete() {
         //移除MDC里的信息
         MDC.remove(LogConst.TRACE_KEY);
@@ -100,37 +107,42 @@ public class TraceUtil {
         MDC.remove(LogConst.PRE_IP_KEY);
     }
 
+    /**
+     * 更新trace表达式
+     */
+    public static void putTrace(String trace){
+        trace = nullDefault(trace, () -> LogConst.DEFAULT_TRACE);
+        MDC.put(LogConst.TRACE_KEY, trace);
+    }
+
+    /**
+     * 渲染trace表达式
+     */
     public static void render() {
         String traceKey = MDC.get(LogConst.TRACE_KEY);
         String trace = BeetlUtil.render(traceKey, MDC.getCopyOfContextMap());
         MDC.put(LogConst.TRACE, trace);
     }
 
+    /**
+     * 空值返回处理
+     *
+     * @param obj obj
+     * @return {@link String}
+     */
     public static String nullDefault(String obj) {
         return nullDefault(obj, () -> LogConst.UNKNOWN);
     }
 
+    /**
+     * 空值返回处理
+     *
+     * @param obj obj
+     * @param supplier 供应商
+     * @return {@link String}
+     */
     public static String nullDefault(String obj, Supplier<String> supplier) {
         return Optional.ofNullable(obj).filter(StrUtil::isNotBlank).orElseGet(supplier);
     }
-
-    public static boolean isOpen() {
-        AtomicBoolean atomicBoolean = SWITCH_TL.get();
-        if (atomicBoolean == null) {
-            atomicBoolean = new AtomicBoolean(false);
-            SWITCH_TL.set(atomicBoolean);
-        }
-        return atomicBoolean.get();
-    }
-
-    public static void isOpen(boolean isOpen) {
-        AtomicBoolean atomicBoolean = SWITCH_TL.get();
-        if (atomicBoolean == null) {
-            atomicBoolean = new AtomicBoolean(isOpen);
-            SWITCH_TL.set(atomicBoolean);
-        }
-        atomicBoolean.set(isOpen);
-    }
-
 
 }

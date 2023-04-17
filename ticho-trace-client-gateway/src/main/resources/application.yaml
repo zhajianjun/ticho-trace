@@ -33,9 +33,6 @@ management:
       exposure:
         include: "*" #开启所有接口
 
-
-
-
 ticho:
   trace:
     enable: true
