@@ -20,6 +20,9 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     /** 应用名称 */
     @Setter
     private String appName = LogConst.UNKNOWN;
+    /** 应用环境 */
+    @Setter
+    private String env = LogConst.UNKNOWN;
     /** 日志推送的url */
     @Setter
     private String url;
@@ -42,7 +45,7 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
         if (!pushLog) {
             return;
         }
-        this.logHandleContext = new LogHandleContext(appName, url, pushSize, flushInterval);
+        this.logHandleContext = new LogHandleContext(appName, env, url, pushSize, flushInterval);
         logHandleContext.start();
     }
 

@@ -79,9 +79,11 @@
     <springProperty scope="context" name="logUrl" source="ticho.trace.logUrl"/>
     <springProperty scope="context" name="pushLog" source="ticho.trace.pushLog"/>
     <springProperty scope="context" name="appName" source="spring.application.name"/>
+    <springProperty scope="context" name="env" source="spring.profiles.active"/>
 
     <appender name="ticho-log" class="com.ticho.trace.core.logback.DistributedLogAppender">
         <appName>${appName}</appName>
+        <env>${env}</env>
         <url>${logUrl}</url>
         <pushLog>${pushLog}</pushLog>
         <pushSize>50</pushSize>

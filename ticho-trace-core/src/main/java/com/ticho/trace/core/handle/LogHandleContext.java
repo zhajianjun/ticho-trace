@@ -26,6 +26,9 @@ import java.util.function.Consumer;
 public class LogHandleContext {
     /** 应用名称 */
     private final String appName;
+    /** 应用名称 */
+    private final String env;
+    /** Disruptor */
     private final Disruptor<LogInfo> disruptor;
     /** 日志序号，用于同一时刻日志的排序 */
     private final AtomicLong sequence;
@@ -36,8 +39,9 @@ public class LogHandleContext {
     /** 环形存储区 */
     private RingBuffer<LogInfo> ringBuffer;
 
-    public LogHandleContext(String appName, String url, int pushSize, long flushInterval) {
+    public LogHandleContext(String appName, String env, String url, int pushSize, long flushInterval) {
         this.appName = appName;
+        this.env = env;
         // 环形缓冲区大小，必须是2的幂次方
         int bufferSize = 1024;
         // 等待策略，超时
@@ -92,6 +96,7 @@ public class LogHandleContext {
             logInfo.setPreAppName(mdcMap.get(LogConst.PRE_APP_NAME_KEY));
             logInfo.setPreIp(mdcMap.get(LogConst.PRE_IP_KEY));
             logInfo.setSeq(currentSequence);
+            logInfo.setEnv(env);
         } finally {
             // 事件发布
             ringBuffer.publish(ringSeq);

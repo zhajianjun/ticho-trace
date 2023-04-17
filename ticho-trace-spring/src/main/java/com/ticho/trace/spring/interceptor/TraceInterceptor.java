@@ -77,6 +77,7 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
         String type = request.getMethod();
         String url = request.getRequestURI();
         String port = environment.getProperty("server.port");
+        String env = environment.getProperty("spring.profiles.active");
         long end = SystemClock.now();
         int status = response.getStatus();
         Long consume = end - start;
@@ -86,6 +87,7 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
             .traceId(MDC.get(LogConst.TRACE_ID_KEY))
             .spanId(MDC.get(LogConst.SPAN_ID_KEY))
             .appName(MDC.get(LogConst.APP_NAME_KEY))
+            .env(env)
             .ip(MDC.get(LogConst.IP_KEY))
             .preAppName(MDC.get(LogConst.PRE_APP_NAME_KEY))
             .preIp(MDC.get(LogConst.PRE_IP_KEY))
