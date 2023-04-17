@@ -57,6 +57,9 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     protected void append(ILoggingEvent event) {
+        if (!pushLog) {
+            return;
+        }
         if (event == null) {
             return;
         }
