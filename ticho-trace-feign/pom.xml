@@ -15,6 +15,12 @@
     <dependencies>
         <dependency>
             <groupId>com.ticho.trace</groupId>
+            <artifactId>ticho-trace-common</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ticho.trace</groupId>
             <artifactId>ticho-trace-core</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
