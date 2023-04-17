@@ -20,3 +20,12 @@ jasypt:
   encryptor:
     iv-generator-classname: org.jasypt.iv.NoIvGenerator
     algorithm: PBEWithMD5AndTripleDES
+
+logging:
+  config: classpath:logback-spring.xml
+
+ticho:
+  trace:
+    trace: '[${traceId}].[${spanId}]'
+  log:
+    print: true

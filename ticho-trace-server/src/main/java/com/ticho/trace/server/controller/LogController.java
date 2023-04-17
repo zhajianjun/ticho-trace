@@ -25,8 +25,9 @@ public class LogController {
     private LogService logService;
 
     @PostMapping("collect")
-    public Result<Integer> collect(@RequestBody List<LogInfo> logs) {
-        return Result.ok(logService.collect(logs));
+    public Result<Void> collect(@RequestBody List<LogInfo> logs) {
+        logService.collect(logs);
+        return Result.ok();
     }
 
 

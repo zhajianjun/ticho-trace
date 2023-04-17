@@ -17,8 +17,7 @@ public interface LogService {
      * 收集
      *
      * @param logs 日志
-     * @return int
      */
-    int collect(List<LogInfo> logs);
+    void collect(List<LogInfo> logs);
 
 }

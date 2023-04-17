@@ -19,6 +19,11 @@ spring:
             - Path=/client2/**
           filters:
             - StripPrefix= 1
+  profiles:
+    active: local
+
+logging:
+  config: classpath:logback-spring.xml
 
 management:
   endpoint:

@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: ticho-trace-client
+  profiles:
+    active: local
+
+logging:
+  config: classpath:logback-spring.xml
 
 ticho:
   swagger:
@@ -13,6 +18,8 @@ ticho:
     url: http://127.0.0.1:8000/trace/collect
     logUrl: http://127.0.0.1:8000/log/collect
     order: -1000
+    pushLog: true
+    pushTrace: true
   log:
     print: true
     order: -100

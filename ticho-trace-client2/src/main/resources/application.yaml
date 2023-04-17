@@ -4,7 +4,12 @@ server:
 spring:
   application:
     name: ticho-trace-client2
-    
+  profiles:
+    active: local
+
+logging:
+  config: classpath:logback-spring.xml
+
 ticho:
   swagger:
     enable: true
