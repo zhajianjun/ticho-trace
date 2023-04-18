@@ -1,6 +1,7 @@
 package com.ticho.trace.server.service;
 
-import com.ticho.trace.server.entity.TraceInfo;
+import com.ticho.trace.server.dto.TraceDTO;
+import com.ticho.trace.server.entity.Trace;
 
 import java.util.List;
 
@@ -15,16 +16,16 @@ public interface TraceService {
     /**
      * 收集
      *
-     * @param traceInfo 跟踪收集信息
+     * @param trace 跟踪收集信息
      */
-    void collect(TraceInfo traceInfo);
+    void collect(TraceDTO trace);
 
     /**
      * 通过traceId查询链路信息
      *
      * @param traceId 跟踪id
-     * @return {@link List}<{@link TraceInfo}>
+     * @return {@link List}<{@link TraceDTO}>
      */
-    List<TraceInfo> getByTraceId(String traceId);
+    List<TraceDTO> getByTraceId(String traceId);
 
 }

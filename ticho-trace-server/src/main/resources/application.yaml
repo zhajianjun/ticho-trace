@@ -2,6 +2,8 @@ server:
   port: 8000
 
 spring:
+  application:
+    name: trace-server
   profiles:
     active: @spring.active@
 
@@ -29,3 +31,5 @@ ticho:
     trace: '[${traceId}].[${spanId}]'
   log:
     print: true
+  swagger:
+    enable: true

@@ -2,7 +2,7 @@ package com.ticho.trace.server.mapper;
 
 import cn.easyes.core.conditions.interfaces.BaseEsMapper;
 import org.springframework.stereotype.Repository;
-import com.ticho.trace.server.entity.TraceInfo;
+import com.ticho.trace.server.entity.Trace;
 
 /**
  * 链路收集信息 mapper
@@ -11,5 +11,5 @@ import com.ticho.trace.server.entity.TraceInfo;
  * @date 2023-04-02 01:40:48
  */
 @Repository
-public interface TraceMapper extends BaseEsMapper<TraceInfo> {
+public interface TraceMapper extends BaseEsMapper<Trace> {
 }
