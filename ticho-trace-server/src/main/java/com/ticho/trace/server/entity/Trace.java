@@ -16,6 +16,8 @@ public class Trace {
     /** id */
     @IndexId(type = IdType.CUSTOMIZE)
     private String id;
+    /** 系统id */
+    private String systemId;
     /** 链路id */
     private String traceId;
     /** 跨度id */
