@@ -1,8 +1,8 @@
-package com.ticho.trace.server.mapper;
+package com.ticho.trace.server.infrastructure.mapper;
 
 import cn.easyes.core.conditions.interfaces.BaseEsMapper;
+import com.ticho.trace.server.infrastructure.entity.Trace;
 import org.springframework.stereotype.Repository;
-import com.ticho.trace.server.entity.Trace;
 
 /**
  * 链路收集信息 mapper

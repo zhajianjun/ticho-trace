@@ -1,4 +1,4 @@
-package com.ticho.trace.server.dto;
+package com.ticho.trace.server.interfaces.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

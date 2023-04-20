@@ -1,7 +1,6 @@
-package com.ticho.trace.server.service;
+package com.ticho.trace.server.application.service;
 
-import com.ticho.trace.server.dto.TraceDTO;
-import com.ticho.trace.server.entity.Trace;
+import com.ticho.trace.server.interfaces.dto.TraceDTO;
 
 import java.util.List;
 

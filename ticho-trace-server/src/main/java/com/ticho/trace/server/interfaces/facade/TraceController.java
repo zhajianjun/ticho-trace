@@ -1,10 +1,10 @@
-package com.ticho.trace.server.controller;
+package com.ticho.trace.server.interfaces.facade;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.ticho.boot.view.core.Result;
-import com.ticho.trace.server.dto.TraceDTO;
-import com.ticho.trace.server.service.TraceService;
+import com.ticho.trace.server.application.service.TraceService;
+import com.ticho.trace.server.interfaces.dto.TraceDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

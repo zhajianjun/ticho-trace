@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @date 2023-03-27 12:34
  */
 @SpringBootApplication
-@EsMapperScan("com.ticho.trace.server.mapper")
+@EsMapperScan("com.ticho.trace.server.infrastructure.mapper")
 public class ServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServerApplication.class, args);

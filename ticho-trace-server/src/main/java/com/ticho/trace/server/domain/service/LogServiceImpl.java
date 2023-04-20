@@ -1,4 +1,4 @@
-package com.ticho.trace.server.service.impl;
+package com.ticho.trace.server.domain.service;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
@@ -12,9 +12,9 @@ import com.ticho.boot.view.core.EsPageResult;
 import com.ticho.boot.view.util.Assert;
 import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.common.constant.LogConst;
-import com.ticho.trace.server.dto.LogDTO;
-import com.ticho.trace.server.query.LogQuery;
-import com.ticho.trace.server.service.LogService;
+import com.ticho.trace.server.application.service.LogService;
+import com.ticho.trace.server.interfaces.dto.LogDTO;
+import com.ticho.trace.server.interfaces.query.LogQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.index.query.BoolQueryBuilder;

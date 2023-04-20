@@ -1,4 +1,4 @@
-package com.ticho.trace.server.entity;
+package com.ticho.trace.server.infrastructure.entity;
 
 import cn.easyes.annotation.IndexId;
 import cn.easyes.annotation.rely.IdType;

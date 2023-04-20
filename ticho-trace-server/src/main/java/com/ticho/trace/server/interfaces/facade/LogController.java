@@ -1,13 +1,12 @@
-package com.ticho.trace.server.controller;
+package com.ticho.trace.server.interfaces.facade;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.ticho.boot.view.core.EsPageResult;
 import com.ticho.boot.view.core.Result;
-import com.ticho.trace.common.bean.LogInfo;
-import com.ticho.trace.server.dto.LogDTO;
-import com.ticho.trace.server.query.LogQuery;
-import com.ticho.trace.server.service.LogService;
+import com.ticho.trace.server.application.service.LogService;
+import com.ticho.trace.server.interfaces.dto.LogDTO;
+import com.ticho.trace.server.interfaces.query.LogQuery;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;

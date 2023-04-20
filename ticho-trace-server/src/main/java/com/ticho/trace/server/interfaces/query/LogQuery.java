@@ -1,4 +1,4 @@
-package com.ticho.trace.server.query;
+package com.ticho.trace.server.interfaces.query;
 
 import cn.hutool.core.date.DatePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;

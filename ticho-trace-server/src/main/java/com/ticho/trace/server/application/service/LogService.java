@@ -1,9 +1,8 @@
-package com.ticho.trace.server.service;
+package com.ticho.trace.server.application.service;
 
 import com.ticho.boot.view.core.EsPageResult;
-import com.ticho.trace.common.bean.LogInfo;
-import com.ticho.trace.server.dto.LogDTO;
-import com.ticho.trace.server.query.LogQuery;
+import com.ticho.trace.server.interfaces.dto.LogDTO;
+import com.ticho.trace.server.interfaces.query.LogQuery;
 
 import java.util.List;
 import java.util.Map;

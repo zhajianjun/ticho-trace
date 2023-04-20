@@ -1,10 +1,10 @@
-package com.ticho.trace.server.assembler;
+package com.ticho.trace.server.interfaces.assembler;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.StrUtil;
-import com.ticho.trace.server.dto.TraceDTO;
-import com.ticho.trace.server.entity.Trace;
+import com.ticho.trace.server.infrastructure.entity.Trace;
+import com.ticho.trace.server.interfaces.dto.TraceDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
