@@ -55,9 +55,6 @@ public class UserInfo implements Serializable {
     /** 备注信息 */
     private String remark;
 
-    /** 乐观锁;控制版本更改 */
-    private Long version;
-
     /** 创建人 */
     private String createBy;
 

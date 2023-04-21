@@ -73,7 +73,6 @@ public class UserInfoServiceImpl implements UserInfoService {
         wrapper.eq(Objects.nonNull(query.getLastTime()), UserInfo::getLastTime, query.getLastTime());
         wrapper.eq(Objects.nonNull(query.getStatus()), UserInfo::getStatus, query.getStatus());
         wrapper.eq(StrUtil.isNotBlank(query.getRemark()), UserInfo::getRemark, query.getRemark());
-        wrapper.eq(Objects.nonNull(query.getVersion()), UserInfo::getVersion, query.getVersion());
         wrapper.eq(StrUtil.isNotBlank(query.getCreateBy()), UserInfo::getCreateBy, query.getCreateBy());
         wrapper.eq(Objects.nonNull(query.getCreateTime()), UserInfo::getCreateTime, query.getCreateTime());
         wrapper.eq(StrUtil.isNotBlank(query.getUpdateBy()), UserInfo::getUpdateBy, query.getUpdateBy());
