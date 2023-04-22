@@ -1,6 +1,7 @@
 package com.ticho.trace.server.infrastructure.entity;
 
 import cn.easyes.annotation.IndexId;
+import cn.easyes.annotation.IndexName;
 import cn.easyes.annotation.rely.IdType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+@IndexName("user_info")
 public class UserInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
