@@ -4,8 +4,9 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.core.Result;
 import com.ticho.trace.server.application.service.UserInfoService;
-import com.ticho.trace.server.interfaces.dto.UserInfoDTO;
-import com.ticho.trace.server.interfaces.query.UserInfoQuery;
+import com.ticho.trace.server.interfaces.dto.UserDTO;
+import com.ticho.trace.server.interfaces.query.UserQuery;
+import com.ticho.trace.server.interfaces.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -28,9 +29,9 @@ import java.io.Serializable;
  * @date 2023-04-20 23:10
  */
 @RestController
-@RequestMapping("userInfo")
+@RequestMapping("user")
 @Api(tags = "用户信息")
-public class UserInfoController {
+public class UserController {
 
     @Autowired
     private UserInfoService userInfoService;
@@ -38,8 +39,8 @@ public class UserInfoController {
     @ApiOperation(value = "保存用户信息")
     @ApiOperationSupport(order = 10)
     @PostMapping
-    public Result<Void> save(@RequestBody UserInfoDTO userInfoDTO) {
-        userInfoService.save(userInfoDTO);
+    public Result<Void> save(@RequestBody UserDTO userDTO) {
+        userInfoService.save(userDTO);
         return Result.ok();
     }
 
@@ -55,8 +56,8 @@ public class UserInfoController {
     @ApiOperation(value = "修改用户信息")
     @ApiOperationSupport(order = 30)
     @PutMapping
-    public Result<Void> update(@RequestBody UserInfoDTO userInfoDTO) {
-        userInfoService.updateById(userInfoDTO);
+    public Result<Void> update(@RequestBody UserDTO userDTO) {
+        userInfoService.updateById(userDTO);
         return Result.ok();
     }
 
@@ -64,14 +65,14 @@ public class UserInfoController {
     @ApiOperationSupport(order = 40)
     @ApiImplicitParam(value = "编号", name = "id", required = true)
     @GetMapping
-    public Result<UserInfoDTO> getById(@RequestParam("id") Serializable id) {
+    public Result<UserVO> getById(@RequestParam("id") Serializable id) {
         return Result.ok(userInfoService.getById(id));
     }
 
     @ApiOperation(value = "分页查询用户信息")
     @ApiOperationSupport(order = 50)
     @GetMapping("page")
-    public Result<PageResult<UserInfoDTO>> page(UserInfoQuery query) {
+    public Result<PageResult<UserVO>> page(UserQuery query) {
         return Result.ok(userInfoService.page(query));
     }
 

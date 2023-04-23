@@ -1,6 +1,7 @@
-package com.ticho.trace.server.interfaces.dto;
+package com.ticho.trace.server.interfaces.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import cn.hutool.core.date.DatePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -14,8 +15,8 @@ import java.time.LocalDateTime;
  * @date 2023-04-18 14:45
  */
 @Data
-@ApiModel(value = "日志信息DTO")
-public class LogDTO {
+@ApiModel(value = "日志信息VO")
+public class LogVO {
 
     /** 链路id */
     @ApiModelProperty(value = "链路id", position = 10)
@@ -41,6 +42,10 @@ public class LogDTO {
     /** 日志级别 */
     @ApiModelProperty(value = "日志级别", position = 80)
     private String logLevel;
+    /** 日志时间 */
+    @ApiModelProperty(value = "日志时间", position = 90)
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN, timezone = "GMT+8")
+    private LocalDateTime dateTime;
     /** 日志时间戳 */
     @ApiModelProperty(value = "日志时间戳", position = 100)
     private Long dtTime;
@@ -59,10 +64,9 @@ public class LogDTO {
     /** 线程名称 */
     @ApiModelProperty(value = "线程名称", position = 150)
     private String threadName;
-
-
-    /** 日志时间:辅助字段 */
-    @JsonIgnore
-    private LocalDateTime dateTime;
+    /** 创建时间 */
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN, timezone = "GMT+8")
+    @ApiModelProperty(value = "创建时间", position = 160)
+    private LocalDateTime createTime;
 
 }

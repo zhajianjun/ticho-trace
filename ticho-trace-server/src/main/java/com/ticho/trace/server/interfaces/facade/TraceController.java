@@ -5,6 +5,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.ticho.boot.view.core.Result;
 import com.ticho.trace.server.application.service.TraceService;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
+import com.ticho.trace.server.interfaces.vo.TraceVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class TraceController {
     @GetMapping("getByTraceId")
     @ApiOperation(value = "链路查询")
     @ApiOperationSupport(order = 20)
-    public Result<List<TraceDTO>> getByTraceId(String traceId) {
+    public Result<List<TraceVO>> getByTraceId(String traceId) {
         return Result.ok(traceService.getByTraceId(traceId));
     }
 

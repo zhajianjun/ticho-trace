@@ -1,8 +1,15 @@
 package com.ticho.trace.server.infrastructure.entity;
 
+import cn.easyes.annotation.IndexField;
 import cn.easyes.annotation.IndexId;
+import cn.easyes.annotation.IndexName;
+import cn.easyes.annotation.rely.FieldType;
 import cn.easyes.annotation.rely.IdType;
+import cn.hutool.core.date.DatePattern;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * 链路信息DB对象
@@ -11,7 +18,8 @@ import lombok.Data;
  * @date 2023-04-02 01:40:22
  */
 @Data
-public class Trace {
+@IndexName("trace")
+public class TraceBO {
 
     /** id */
     @IndexId(type = IdType.CUSTOMIZE)
@@ -49,14 +57,18 @@ public class Trace {
     /* 请求结束时间戳 */
     private Long end;
     /* 请求开始时间 */
-    private String startTime;
+    @IndexField(fieldType = FieldType.DATE, dateFormat = DatePattern.NORM_DATETIME_MS_PATTERN)
+    @JSONField(format = DatePattern.NORM_DATETIME_MS_PATTERN)
+    private LocalDateTime startTime;
     /* 请求结束时间 */
-    private String endTime;
+    @IndexField(fieldType = FieldType.DATE, dateFormat = DatePattern.NORM_DATETIME_MS_PATTERN)
+    @JSONField(format = DatePattern.NORM_DATETIME_MS_PATTERN)
+    private LocalDateTime endTime;
     /* 耗时 */
     private Long consume;
-    /* 数据创建时间戳 */
-    private Long crtTime;
-    /* 请求开数据创建时间 */
-    private String createTime;
+    /** 创建时间 */
+    @IndexField(fieldType = FieldType.DATE, dateFormat = DatePattern.NORM_DATETIME_PATTERN)
+    @JSONField(format = DatePattern.NORM_DATETIME_PATTERN)
+    private LocalDateTime createTime;
 
 }

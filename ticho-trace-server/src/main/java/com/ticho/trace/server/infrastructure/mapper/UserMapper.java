@@ -1,7 +1,7 @@
 package com.ticho.trace.server.infrastructure.mapper;
 
 import cn.easyes.core.conditions.interfaces.BaseEsMapper;
-import com.ticho.trace.server.infrastructure.entity.UserInfo;
+import com.ticho.trace.server.infrastructure.entity.UserBO;
 import org.springframework.stereotype.Repository;
 
 
@@ -12,6 +12,6 @@ import org.springframework.stereotype.Repository;
  * @date 2023-04-20 23:10
  */
 @Repository
-public interface UserInfoMapper extends BaseEsMapper<UserInfo> {
+public interface UserMapper extends BaseEsMapper<UserBO> {
 
 }

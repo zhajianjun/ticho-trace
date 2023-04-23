@@ -1,8 +1,9 @@
 package com.ticho.trace.server.application.service;
 
 import com.ticho.boot.view.core.PageResult;
-import com.ticho.trace.server.interfaces.dto.UserInfoDTO;
-import com.ticho.trace.server.interfaces.query.UserInfoQuery;
+import com.ticho.trace.server.interfaces.dto.UserDTO;
+import com.ticho.trace.server.interfaces.query.UserQuery;
+import com.ticho.trace.server.interfaces.vo.UserVO;
 
 import java.io.Serializable;
 
@@ -16,9 +17,9 @@ public interface UserInfoService {
     /**
      * 保存用户信息
      *
-     * @param userInfoDTO 用户信息DTO 对象
+     * @param userDTO 用户信息DTO 对象
      */
-    void save(UserInfoDTO userInfoDTO);
+    void save(UserDTO userDTO);
 
     /**
      * 删除用户信息
@@ -30,25 +31,25 @@ public interface UserInfoService {
     /**
      * 修改用户信息
      *
-     * @param userInfoDTO 用户信息DTO 对象
+     * @param userDTO 用户信息DTO 对象
      */
-    void updateById(UserInfoDTO userInfoDTO);
+    void updateById(UserDTO userDTO);
 
     /**
      * 根据id查询用户信息
      *
      * @param id 主键
-     * @return {@link UserInfoDTO}
+     * @return {@link UserVO}
      */
-    UserInfoDTO getById(Serializable id);
+    UserVO getById(Serializable id);
 
     /**
      * 分页查询用户信息列表
      *
      * @param query 查询
-     * @return {@link PageResult}<{@link UserInfoDTO}>
+     * @return {@link PageResult}<{@link UserVO}>
      */
-    PageResult<UserInfoDTO> page(UserInfoQuery query);
+    PageResult<UserVO> page(UserQuery query);
 
 }
 

@@ -31,8 +31,6 @@ public class LogInfo {
     private String preIp;
     /** 日志级别 */
     private String logLevel;
-    /** 日志时间 */
-    private String dateTime;
     /** 日志时间戳 */
     private Long dtTime;
     /** 类名称 */

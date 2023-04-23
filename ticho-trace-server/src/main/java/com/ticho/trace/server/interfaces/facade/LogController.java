@@ -2,11 +2,12 @@ package com.ticho.trace.server.interfaces.facade;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
-import com.ticho.boot.view.core.EsPageResult;
+import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.core.Result;
 import com.ticho.trace.server.application.service.LogService;
 import com.ticho.trace.server.interfaces.dto.LogDTO;
 import com.ticho.trace.server.interfaces.query.LogQuery;
+import com.ticho.trace.server.interfaces.vo.LogVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 日志控制器
@@ -44,7 +44,7 @@ public class LogController {
     @PostMapping("page")
     @ApiOperation(value = "日志查询")
     @ApiOperationSupport(order = 20)
-    public Result<EsPageResult<Map<String, Object>>> page(@RequestBody LogQuery logQuery) {
+    public Result<PageResult<LogVO>> page(@RequestBody LogQuery logQuery) {
         return Result.ok(logService.page(logQuery));
     }
 

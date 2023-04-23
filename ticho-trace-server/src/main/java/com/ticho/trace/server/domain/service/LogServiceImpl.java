@@ -1,26 +1,25 @@
 package com.ticho.trace.server.domain.service;
 
+import cn.easyes.core.biz.EsPageInfo;
+import cn.easyes.core.conditions.LambdaEsQueryWrapper;
+import cn.easyes.core.toolkit.EsWrappers;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import com.ticho.boot.es.component.EsTemplate;
-import com.ticho.boot.es.query.EsQuery;
-import com.ticho.boot.json.util.JsonUtil;
 import com.ticho.boot.view.core.BizErrCode;
-import com.ticho.boot.view.core.EsPageResult;
+import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.util.Assert;
 import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.LogService;
+import com.ticho.trace.server.infrastructure.entity.LogBO;
+import com.ticho.trace.server.infrastructure.mapper.LogMapper;
+import com.ticho.trace.server.interfaces.assembler.LogAssembler;
 import com.ticho.trace.server.interfaces.dto.LogDTO;
 import com.ticho.trace.server.interfaces.query.LogQuery;
+import com.ticho.trace.server.interfaces.vo.LogVO;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,35 +45,52 @@ import java.util.stream.Collectors;
 public class LogServiceImpl implements LogService {
 
     @Autowired
-    private EsTemplate esTemplate;
+    private LogMapper logMapper;
 
     @Override
     public void collect(@RequestBody List<LogDTO> logs) {
         // @formatter:off
-        Map<String, List<Map<String, Object>>> collect = logs
+        // TODO systemId校验
+        Map<String, List<LogBO>> collect = logs
             .stream()
-            .filter(this::checkFormat)
+            .filter(this::checkDate)
             .collect(Collectors.groupingBy(this::index, Collectors.mapping(this::convert, Collectors.toList())));
-        collect.forEach((k, v) -> esTemplate.saveBatchForMap(k, v));
+        collect.forEach((k, v) -> logMapper.insertBatch(v, k));
         // @formatter:on
     }
 
     @Override
-    public EsPageResult<Map<String, Object>> page(LogQuery logQuery) {
+    public PageResult<LogVO> page(LogQuery logQuery) {
+        // @formatter:off
         ValidUtil.valid(logQuery);
         checkDate(logQuery);
-        List<String> indexs = getIndexs(logQuery);
-        QueryBuilder queryBuilder = getQueryBuilder(logQuery);
-        EsQuery<Map<String, Object>> query = new EsQuery<>();
-        query.setQueryBuilder(queryBuilder);
-        query.setPageSize(logQuery.getPageSize());
-        query.setPageNum(logQuery.getPageNum());
-        query.setIndexs(indexs);
-        // 显示的字段
-        query.setFields(null);
-        query.setSortFields(logQuery.getSortFields());
-        query.setSortOrders(logQuery.getSortOrders());
-        return esTemplate.pageForMap(query);
+        String[] indexs = getIndexs(logQuery);
+        LambdaEsQueryWrapper<LogBO> wrapper = EsWrappers.lambdaQuery(null);
+        wrapper.index(indexs);
+        LocalDateTime startDateTime = logQuery.getStartDateTime();
+        LocalDateTime endDateTime = logQuery.getEndDateTime();
+        long start = startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long end = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        wrapper.eq(StrUtil.isNotBlank(logQuery.getTraceId()), LogBO::getTraceId, logQuery.getTraceId());
+        wrapper.eq(StrUtil.isNotBlank(logQuery.getSpanId()), LogBO::getSpanId, logQuery.getSpanId());
+        wrapper.like(StrUtil.isNotBlank(logQuery.getAppName()), LogBO::getAppName, logQuery.getAppName());
+        wrapper.eq(StrUtil.isNotBlank(logQuery.getEnv()), LogBO::getEnv, logQuery.getEnv());
+        wrapper.eq(StrUtil.isNotBlank(logQuery.getIp()), LogBO::getIp, logQuery.getIp());
+        wrapper.like(StrUtil.isNotBlank(logQuery.getPreAppName()), LogBO::getPreAppName, logQuery.getPreAppName());
+        wrapper.eq(StrUtil.isNotBlank(logQuery.getPreIp()), LogBO::getPreIp, logQuery.getPreIp());
+        wrapper.eq(StrUtil.isNotBlank(logQuery.getLogLevel()), LogBO::getLogLevel, logQuery.getLogLevel());
+        wrapper.like(StrUtil.isNotBlank(logQuery.getClassName()), LogBO::getClassName, logQuery.getClassName());
+        wrapper.like(StrUtil.isNotBlank(logQuery.getMethod()), LogBO::getMethod, logQuery.getMethod());
+        wrapper.like(StrUtil.isNotBlank(logQuery.getContent()), LogBO::getContent, logQuery.getContent());
+        wrapper.ge(LogBO::getDtTime, start);
+        wrapper.le(LogBO::getDtTime, end);
+        EsPageInfo<LogBO> page = logMapper.pageQuery(wrapper, logQuery.getPageNum(), logQuery.getPageSize());
+        List<LogVO> logs = page.getList()
+            .stream()
+            .map(LogAssembler.INSTANCE::logToVO)
+            .collect(Collectors.toList());
+        return new PageResult<>(logQuery.getPageNum(), logQuery.getPageSize(), page.getTotal(), logs);
+        // @formatter:on
     }
 
     /**
@@ -83,14 +99,14 @@ public class LogServiceImpl implements LogService {
      * @param logQuery 日志查询
      * @return {@link List}<{@link String}>
      */
-    private List<String> getIndexs(LogQuery logQuery) {
+    private String[] getIndexs(LogQuery logQuery) {
         LocalDateTime startDateTime = logQuery.getStartDateTime();
         LocalDateTime endDateTime = logQuery.getEndDateTime();
         LocalDate startDate = startDateTime.toLocalDate();
         LocalDate endDate = endDateTime.toLocalDate();
         List<String> indexs = new ArrayList<>();
         addIndexs(startDate, endDate, indexs);
-        return indexs;
+        return indexs.toArray(new String[0]);
     }
 
     /**
@@ -127,61 +143,6 @@ public class LogServiceImpl implements LogService {
         addIndexs(startDate, endDate, indexs);
     }
 
-    private QueryBuilder getQueryBuilder(LogQuery logQuery) {
-        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        String traceId = logQuery.getTraceId();
-        String spanId = logQuery.getSpanId();
-        String appName = logQuery.getAppName();
-        String env = logQuery.getEnv();
-        String ip = logQuery.getIp();
-        String preAppName = logQuery.getPreAppName();
-        String preIp = logQuery.getPreIp();
-        String logLevel = logQuery.getLogLevel();
-        LocalDateTime startDateTime = logQuery.getStartDateTime();
-        LocalDateTime endDateTime = logQuery.getEndDateTime();
-        String className = logQuery.getClassName();
-        String method = logQuery.getMethod();
-        String content = logQuery.getContent();
-        if (StrUtil.isNotBlank(traceId)) {
-            queryBuilder.must(QueryBuilders.matchQuery("traceId", traceId));
-        }
-        if (StrUtil.isNotBlank(spanId)) {
-            queryBuilder.must(QueryBuilders.matchQuery("spanId", spanId));
-        }
-        if (StrUtil.isNotBlank(appName)) {
-            queryBuilder.must(QueryBuilders.matchPhraseQuery("appName", appName));
-        }
-        if (StrUtil.isNotBlank(env)) {
-            queryBuilder.must(QueryBuilders.matchQuery("env", env));
-        }
-        if (StrUtil.isNotBlank(ip)) {
-            queryBuilder.must(QueryBuilders.matchQuery("ip", ip));
-        }
-        if (StrUtil.isNotBlank(preAppName)) {
-            queryBuilder.must(QueryBuilders.matchPhraseQuery("preAppName", preAppName));
-        }
-        if (StrUtil.isNotBlank(preIp)) {
-            queryBuilder.must(QueryBuilders.matchQuery("preIp", preIp));
-        }
-        if (StrUtil.isNotBlank(logLevel)) {
-            queryBuilder.must(QueryBuilders.matchQuery("logLevel", logLevel));
-        }
-        if (StrUtil.isNotBlank(className)) {
-            queryBuilder.must(QueryBuilders.matchPhraseQuery("className", className));
-        }
-        if (StrUtil.isNotBlank(method)) {
-            queryBuilder.must(QueryBuilders.matchPhraseQuery("method", method));
-        }
-        if (StrUtil.isNotBlank(content)) {
-            queryBuilder.must(QueryBuilders.matchPhraseQuery("content", content));
-        }
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("dtTime");
-        rangeQueryBuilder.gte(startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-        rangeQueryBuilder.lte(endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-        queryBuilder.must(rangeQueryBuilder);
-        return queryBuilder;
-    }
-
     /**
      * 根据日志的时间获取索引
      *
@@ -191,9 +152,10 @@ public class LogServiceImpl implements LogService {
     public String index(LogDTO logDTO) {
         // @formatter:off
         Long dtTime = logDTO.getDtTime();
-        String dateTime = LocalDateTimeUtil.of(dtTime).format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_MS_PATTERN));
+        LocalDateTime dateTime = LocalDateTimeUtil.of(dtTime);
         logDTO.setDateTime(dateTime);
-        return parseIndex(dateTime.substring(0, 10));
+        String date = dateTime.toString().substring(0, 10);
+        return parseIndex(date);
         // @formatter:on
     }
 
@@ -201,14 +163,11 @@ public class LogServiceImpl implements LogService {
         return LogConst.LOG_INDEX_PREFIX + "_" + date;
     }
 
-    private Map<String, Object> convert(LogDTO logDTO) {
+    private LogBO convert(LogDTO logDTO) {
+        LogBO logBO = LogAssembler.INSTANCE.dtoToLog(logDTO);
         String id = IdUtil.getSnowflakeNextIdStr();
-        IndexRequest indexRequest = new IndexRequest();
-        indexRequest.id(id);
-        Map<String, Object> logMap = JsonUtil.toMap(logDTO);
-        // 移除mdc信息
-        logMap.remove(LogConst.MDC_KEY);
-        return logMap;
+        logBO.setId(id);
+        return logBO;
     }
 
     /**
@@ -217,7 +176,7 @@ public class LogServiceImpl implements LogService {
      * @param logDTO 日志
      * @return boolean
      */
-    private boolean checkFormat(LogDTO logDTO) {
+    private boolean checkDate(LogDTO logDTO) {
         // checkFormat
         Long dtTime = logDTO.getDtTime();
         if (dtTime == null) {

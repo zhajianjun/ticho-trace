@@ -10,7 +10,6 @@ import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 日志查询条件
@@ -66,11 +65,5 @@ public class LogQuery extends BasePageQuery {
     /** 内容 */
     @ApiModelProperty(value = "内容", position = 130)
     private String content;
-    /** 排序字段 */
-    @ApiModelProperty(value = "排序字段", position = 140)
-    private List<String> sortFields;
-    /** 升序还是降序，和sortField一一对应，默认asc */
-    @ApiModelProperty(value = "升序还是降序", notes = "asc升序,desc倒序", position = 150)
-    private List<String> sortOrders;
 
 }

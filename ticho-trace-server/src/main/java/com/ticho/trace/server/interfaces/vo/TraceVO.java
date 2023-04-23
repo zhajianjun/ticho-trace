@@ -1,18 +1,22 @@
-package com.ticho.trace.server.interfaces.dto;
+package com.ticho.trace.server.interfaces.vo;
 
+import cn.hutool.core.date.DatePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
- * 链路信息DTO
+ * 链路信息VO
  *
  * @author zhajianjun
  * @date 2023-04-18 14:18
  */
 @Data
-@ApiModel(value = "链路信息DTO")
-public class TraceDTO {
+@ApiModel(value = "链路信息VO")
+public class TraceVO {
 
     /** id */
     @ApiModelProperty(value = "id", position = 10)
@@ -63,13 +67,19 @@ public class TraceDTO {
     @ApiModelProperty(value = "请求结束时间戳", position = 160)
     private Long end;
     /* 请求开始时间 */
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN, timezone = "GMT+8")
     @ApiModelProperty(value = "请求开始时间", position = 170)
-    private String startTime;
+    private LocalDateTime startTime;
     /* 请求结束时间 */
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN, timezone = "GMT+8")
     @ApiModelProperty(value = "请求结束时间", position = 180)
-    private String endTime;
+    private LocalDateTime endTime;
     /* 耗时 */
-    @ApiModelProperty(value = "耗时", position = 170)
+    @ApiModelProperty(value = "耗时", position = 190)
     private Long consume;
+    /** 创建时间 */
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN, timezone = "GMT+8")
+    @ApiModelProperty(value = "创建时间", position = 200)
+    private LocalDateTime createTime;
 
 }
