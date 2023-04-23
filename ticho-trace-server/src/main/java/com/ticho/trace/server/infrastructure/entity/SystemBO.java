@@ -1,6 +1,7 @@
 package com.ticho.trace.server.infrastructure.entity;
 
 import cn.easyes.annotation.IndexField;
+import cn.easyes.annotation.IndexName;
 import cn.easyes.annotation.rely.FieldType;
 import cn.hutool.core.date.DatePattern;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
  * @date 2023-04-23 14:21
  */
 @Data
+@IndexName(value = "system", keepGlobalPrefix = true)
 public class SystemBO {
 
     /** 主键编号 */
