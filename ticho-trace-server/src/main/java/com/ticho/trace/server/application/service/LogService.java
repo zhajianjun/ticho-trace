@@ -1,13 +1,11 @@
 package com.ticho.trace.server.application.service;
 
-import com.ticho.boot.view.core.EsPageResult;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.trace.server.interfaces.dto.LogDTO;
 import com.ticho.trace.server.interfaces.query.LogQuery;
 import com.ticho.trace.server.interfaces.vo.LogVO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 日志服务 接口

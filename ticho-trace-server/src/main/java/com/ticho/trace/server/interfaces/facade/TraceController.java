@@ -26,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("trace")
 @Api(tags = "链路")
-@ApiSort(20)
+@ApiSort(40)
 public class TraceController {
     @Autowired
     private TraceService traceService;

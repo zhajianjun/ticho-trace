@@ -14,9 +14,6 @@ import lombok.Data;
 @ApiModel(value = "链路信息DTO")
 public class TraceDTO {
 
-    /** id */
-    @ApiModelProperty(value = "id", position = 10)
-    private String id;
     /** 链路id */
     @ApiModelProperty(value = "链路id", position = 20)
     private String traceId;
@@ -62,12 +59,6 @@ public class TraceDTO {
     /* 请求结束时间戳 */
     @ApiModelProperty(value = "请求结束时间戳", position = 160)
     private Long end;
-    /* 请求开始时间 */
-    @ApiModelProperty(value = "请求开始时间", position = 170)
-    private String startTime;
-    /* 请求结束时间 */
-    @ApiModelProperty(value = "请求结束时间", position = 180)
-    private String endTime;
     /* 耗时 */
     @ApiModelProperty(value = "耗时", position = 170)
     private Long consume;

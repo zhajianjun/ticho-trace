@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("log")
 @Api(tags = "日志")
-@ApiSort(10)
+@ApiSort(30)
 public class LogController {
 
     @Resource

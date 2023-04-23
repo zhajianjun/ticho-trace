@@ -4,10 +4,10 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.core.Result;
-import com.ticho.trace.server.application.service.UserInfoService;
-import com.ticho.trace.server.interfaces.dto.UserDTO;
-import com.ticho.trace.server.interfaces.query.UserQuery;
-import com.ticho.trace.server.interfaces.vo.UserVO;
+import com.ticho.trace.server.application.service.SystemService;
+import com.ticho.trace.server.interfaces.dto.SystemDTO;
+import com.ticho.trace.server.interfaces.query.SystemQuery;
+import com.ticho.trace.server.interfaces.vo.SystemVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -24,66 +24,58 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.Serializable;
 
 /**
- * 用户信息 控制器
+ * 系统信息
  *
  * @author zhajianjun
- * @date 2023-04-20 23:10
+ * @date 2023-04-23 20:56:10
  */
 @RestController
-@RequestMapping("user")
-@Api(tags = "用户信息")
-@ApiSort(10)
-public class UserController {
+@RequestMapping("system")
+@Api(tags = "系统信息")
+@ApiSort(20)
+public class SystemController {
 
     @Autowired
-    private UserInfoService userInfoService;
+    private SystemService systemService;
 
-    @ApiOperation(value = "保存用户信息")
+    @ApiOperation(value = "保存系统信息")
     @ApiOperationSupport(order = 10)
     @PostMapping
-    public Result<Void> save(@RequestBody UserDTO userDTO) {
-        userInfoService.save(userDTO);
+    public Result<Void> save(@RequestBody SystemDTO systemDTO) {
+        systemService.save(systemDTO);
         return Result.ok();
     }
 
-    @ApiOperation(value = "删除用户信息")
+    @ApiOperation(value = "删除系统信息")
     @ApiOperationSupport(order = 20)
     @ApiImplicitParam(value = "编号", name = "id", required = true)
     @DeleteMapping
     public Result<Void> removeById(@RequestParam("id") Serializable id) {
-        userInfoService.removeById(id);
+        systemService.removeById(id);
         return Result.ok();
     }
 
-    @ApiOperation(value = "修改用户信息")
+    @ApiOperation(value = "修改系统信息")
     @ApiOperationSupport(order = 30)
     @PutMapping
-    public Result<Void> update(@RequestBody UserDTO userDTO) {
-        userInfoService.updateById(userDTO);
+    public Result<Void> update(@RequestBody SystemDTO systemDTO) {
+        systemService.updateById(systemDTO);
         return Result.ok();
     }
 
-    @ApiOperation(value = "主键查询用户信息")
+    @ApiOperation(value = "主键查询系统信息")
     @ApiOperationSupport(order = 40)
     @ApiImplicitParam(value = "编号", name = "id", required = true)
     @GetMapping
-    public Result<UserVO> getById(@RequestParam("id") Serializable id) {
-        return Result.ok(userInfoService.getById(id));
+    public Result<SystemVO> getById(@RequestParam("id") Serializable id) {
+        return Result.ok(systemService.getById(id));
     }
 
-    @ApiOperation(value = "根据用户名查询用户信息")
-    @ApiOperationSupport(order = 40)
-    @ApiImplicitParam(value = "用户名", name = "username", required = true)
-    @GetMapping("getByUsername")
-    public Result<UserVO> getByUsername(@RequestParam("username") String username) {
-        return Result.ok(userInfoService.getByUsername(username));
-    }
-
-    @ApiOperation(value = "分页查询用户信息")
+    @ApiOperation(value = "分页查询系统信息")
     @ApiOperationSupport(order = 50)
     @GetMapping("page")
-    public Result<PageResult<UserVO>> page(UserQuery query) {
-        return Result.ok(userInfoService.page(query));
+    public Result<PageResult<SystemVO>> page(SystemQuery query) {
+        return Result.ok(systemService.page(query));
     }
 
 }

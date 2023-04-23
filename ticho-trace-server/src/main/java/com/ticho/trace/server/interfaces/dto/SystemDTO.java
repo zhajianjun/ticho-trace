@@ -1,5 +1,6 @@
 package com.ticho.trace.server.interfaces.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,11 +11,9 @@ import lombok.Data;
  * @date 2023-04-23 14:22
  */
 @Data
+@ApiModel(value = "系统信息DTO")
 public class SystemDTO {
 
-    /** 主键编号 */
-    @ApiModelProperty(name = "主键编号", position = 10)
-    private String id;
     /** 系统id */
     @ApiModelProperty(name = "系统id", position = 20)
     private String systemId;

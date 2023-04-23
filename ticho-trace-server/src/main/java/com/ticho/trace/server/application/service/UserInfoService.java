@@ -44,6 +44,14 @@ public interface UserInfoService {
     UserVO getById(Serializable id);
 
     /**
+     * 根据用户名查询用户信息
+     *
+     * @param username 用户名
+     * @return {@link UserVO}
+     */
+    UserVO getByUsername(String username);
+
+    /**
      * 分页查询用户信息列表
      *
      * @param query 查询

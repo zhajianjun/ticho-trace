@@ -70,6 +70,14 @@ public class UserServiceImpl implements UserInfoService {
     }
 
     @Override
+    public UserVO getByUsername(String username) {
+        LambdaEsQueryWrapper<UserBO> wrapper = EsWrappers.lambdaQuery(null);
+        wrapper.eq(UserBO::getUsername, username);
+        UserBO userBO = userMapper.selectOne(wrapper);
+        return UserAssembler.INSTANCE.entityToVo(userBO);
+    }
+
+    @Override
     public PageResult<UserVO> page(UserQuery query) {
         // @formatter:off
         query.checkPage();

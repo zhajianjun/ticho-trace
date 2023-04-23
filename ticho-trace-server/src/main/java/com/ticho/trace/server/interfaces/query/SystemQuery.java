@@ -1,9 +1,10 @@
 package com.ticho.trace.server.interfaces.query;
 
+import com.ticho.boot.view.core.BasePageQuery;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.io.Serializable;
 
 /**
  * 系统信息查询条件
@@ -12,7 +13,8 @@ import java.time.LocalDateTime;
  * @date 2023-04-23 14:22
  */
 @Data
-public class SystemQuery {
+public class SystemQuery extends BasePageQuery implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /** 主键编号 */
     @ApiModelProperty(name = "主键编号", position = 10)
@@ -32,17 +34,5 @@ public class SystemQuery {
     /** 备注信息 */
     @ApiModelProperty(name = "备注信息", position = 60)
     private String remark;
-    /** 创建人 */
-    @ApiModelProperty(name = "创建人", position = 70)
-    private String createBy;
-    /** 创建时间 */
-    @ApiModelProperty(name = "创建时间", position = 80)
-    private LocalDateTime createTime;
-    /** 更新人 */
-    @ApiModelProperty(name = "更新人", position = 90)
-    private String updateBy;
-    /** 更新时间 */
-    @ApiModelProperty(name = "更新时间", position = 100)
-    private LocalDateTime updateTime;
 
 }

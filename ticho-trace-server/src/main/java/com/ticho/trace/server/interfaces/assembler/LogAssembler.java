@@ -1,6 +1,5 @@
 package com.ticho.trace.server.interfaces.assembler;
 
-import cn.hutool.core.date.DatePattern;
 import com.ticho.trace.server.infrastructure.entity.LogBO;
 import com.ticho.trace.server.interfaces.dto.LogDTO;
 import com.ticho.trace.server.interfaces.vo.LogVO;
@@ -14,7 +13,7 @@ import org.mapstruct.factory.Mappers;
  * @author zhajianjun
  * @date 2023-04-23 14:44
  */
-@Mapper(imports = {LogAssembler.class})
+@Mapper
 public interface LogAssembler {
     LogAssembler INSTANCE = Mappers.getMapper(LogAssembler.class);
 
