@@ -1,5 +1,9 @@
 package com.ticho.trace.server.interfaces.dto;
 
+import cn.easyes.annotation.HighLight;
+import cn.easyes.annotation.IndexField;
+import cn.easyes.annotation.rely.Analyzer;
+import cn.easyes.annotation.rely.FieldType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -55,6 +59,8 @@ public class LogDTO {
     private Long seq;
     /** 内容 */
     @ApiModelProperty(value = "内容", position = 140)
+    @HighLight
+    @IndexField(fieldType = FieldType.TEXT, analyzer = Analyzer.IK_SMART, searchAnalyzer = Analyzer.IK_MAX_WORD)
     private String content;
     /** 线程名称 */
     @ApiModelProperty(value = "线程名称", position = 150)

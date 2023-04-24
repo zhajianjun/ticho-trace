@@ -13,7 +13,7 @@ import com.ticho.boot.view.core.HttpErrCode;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.util.Assert;
 import com.ticho.boot.web.util.valid.ValidUtil;
-import com.ticho.trace.server.application.service.UserInfoService;
+import com.ticho.trace.server.application.service.UserService;
 import com.ticho.trace.server.infrastructure.core.constant.CommConst;
 import com.ticho.trace.server.infrastructure.entity.UserBO;
 import com.ticho.trace.server.infrastructure.mapper.UserMapper;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service(BaseSecurityConst.LOAD_USER_TYPE_USERNAME)
-public class UserServiceImpl implements UserInfoService, LoadUserService {
+public class UserServiceImpl implements UserService, LoadUserService {
 
     @Autowired
     private UserMapper userMapper;

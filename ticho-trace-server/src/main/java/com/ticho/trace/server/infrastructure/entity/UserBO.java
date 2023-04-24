@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 用户信息
@@ -60,5 +61,7 @@ public class UserBO implements Serializable {
     @IndexField(fieldType = FieldType.DATE, dateFormat = DatePattern.NORM_DATETIME_PATTERN)
     @JSONField(format = DatePattern.NORM_DATETIME_PATTERN)
     private LocalDateTime updateTime;
+    /** 系统id列表 */
+    private List<String> systemIds;
 
 }

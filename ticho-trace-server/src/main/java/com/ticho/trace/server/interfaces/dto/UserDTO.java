@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 用户信息DTO
@@ -19,6 +20,10 @@ import java.io.Serializable;
 @ApiModel(value = "用户信息DTO")
 public class UserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    /** id */
+    @ApiModelProperty(value = "id", position = 10)
+    private String id;
 
     /** 账户;账户具有唯一性 */
     @ApiModelProperty(value = "账户;账户具有唯一性", position = 20)
@@ -48,5 +53,9 @@ public class UserDTO implements Serializable {
     /** 备注信息 */
     @ApiModelProperty(value = "备注信息", position = 110)
     private String remark;
+
+    /** 系统id列表 */
+    @ApiModelProperty(value = "系统id列表", position = 160)
+    private List<String> systemIds;
 
 }

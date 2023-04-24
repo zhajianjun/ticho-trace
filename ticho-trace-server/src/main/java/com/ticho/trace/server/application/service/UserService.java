@@ -14,7 +14,7 @@ import java.io.Serializable;
  * @author zhajianjun
  * @date 2023-04-20 23:10
  */
-public interface UserInfoService {
+public interface UserService {
 
     /**
      * 管理用户初始化

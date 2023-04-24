@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 用户信息VO
@@ -71,5 +72,8 @@ public class UserVO implements Serializable {
     @ApiModelProperty(value = "更新时间", position = 150)
     @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN, timezone = "GMT+8")
     private LocalDateTime updateTime;
+    /** 系统id列表 */
+    @ApiModelProperty(value = "系统id列表", position = 160)
+    private List<String> systemIds;
 
 }

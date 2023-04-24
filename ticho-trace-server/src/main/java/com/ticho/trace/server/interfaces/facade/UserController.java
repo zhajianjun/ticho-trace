@@ -5,7 +5,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.ticho.boot.security.annotation.IgnoreJwtCheck;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.core.Result;
-import com.ticho.trace.server.application.service.UserInfoService;
+import com.ticho.trace.server.application.service.UserService;
 import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
 import com.ticho.trace.server.interfaces.dto.UserDTO;
 import com.ticho.trace.server.interfaces.query.UserQuery;
@@ -38,14 +38,14 @@ import java.io.Serializable;
 public class UserController {
 
     @Autowired
-    private UserInfoService userInfoService;
+    private UserService userService;
 
     @IgnoreJwtCheck
     @ApiOperation(value = "管理员用户初始化")
     @ApiOperationSupport(order = 5)
     @PostMapping("adminUserInit")
     public Result<Void> adminUserInit(@RequestBody AdminUserDTO adminUserDTO) {
-        userInfoService.adminUserInit(adminUserDTO);
+        userService.adminUserInit(adminUserDTO);
         return Result.ok();
     }
 
@@ -53,7 +53,7 @@ public class UserController {
     @ApiOperationSupport(order = 10)
     @PostMapping
     public Result<Void> save(@RequestBody UserDTO userDTO) {
-        userInfoService.save(userDTO);
+        userService.save(userDTO);
         return Result.ok();
     }
 
@@ -62,7 +62,7 @@ public class UserController {
     @ApiImplicitParam(value = "编号", name = "id", required = true)
     @DeleteMapping
     public Result<Void> removeById(@RequestParam("id") Serializable id) {
-        userInfoService.removeById(id);
+        userService.removeById(id);
         return Result.ok();
     }
 
@@ -70,7 +70,7 @@ public class UserController {
     @ApiOperationSupport(order = 30)
     @PutMapping
     public Result<Void> update(@RequestBody UserDTO userDTO) {
-        userInfoService.updateById(userDTO);
+        userService.updateById(userDTO);
         return Result.ok();
     }
 
@@ -79,7 +79,7 @@ public class UserController {
     @ApiImplicitParam(value = "编号", name = "id", required = true)
     @GetMapping
     public Result<UserVO> getById(@RequestParam("id") Serializable id) {
-        return Result.ok(userInfoService.getById(id));
+        return Result.ok(userService.getById(id));
     }
 
     @ApiOperation(value = "根据用户名查询用户信息")
@@ -87,14 +87,14 @@ public class UserController {
     @ApiImplicitParam(value = "用户名", name = "username", required = true)
     @GetMapping("getByUsername")
     public Result<UserVO> getByUsername(@RequestParam("username") String username) {
-        return Result.ok(userInfoService.getByUsername(username));
+        return Result.ok(userService.getByUsername(username));
     }
 
     @ApiOperation(value = "分页查询用户信息")
     @ApiOperationSupport(order = 50)
     @GetMapping("page")
     public Result<PageResult<UserVO>> page(UserQuery query) {
-        return Result.ok(userInfoService.page(query));
+        return Result.ok(userService.page(query));
     }
 
 }
