@@ -2,9 +2,11 @@ package com.ticho.trace.server.interfaces.facade;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
+import com.ticho.boot.security.annotation.IgnoreJwtCheck;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.core.Result;
 import com.ticho.trace.server.application.service.UserInfoService;
+import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
 import com.ticho.trace.server.interfaces.dto.UserDTO;
 import com.ticho.trace.server.interfaces.query.UserQuery;
 import com.ticho.trace.server.interfaces.vo.UserVO;
@@ -37,6 +39,15 @@ public class UserController {
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @IgnoreJwtCheck
+    @ApiOperation(value = "管理员用户初始化")
+    @ApiOperationSupport(order = 5)
+    @PostMapping("adminUserInit")
+    public Result<Void> adminUserInit(@RequestBody AdminUserDTO adminUserDTO) {
+        userInfoService.adminUserInit(adminUserDTO);
+        return Result.ok();
+    }
 
     @ApiOperation(value = "保存用户信息")
     @ApiOperationSupport(order = 10)

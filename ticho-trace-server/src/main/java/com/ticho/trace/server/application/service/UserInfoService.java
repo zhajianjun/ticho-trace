@@ -1,6 +1,7 @@
 package com.ticho.trace.server.application.service;
 
 import com.ticho.boot.view.core.PageResult;
+import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
 import com.ticho.trace.server.interfaces.dto.UserDTO;
 import com.ticho.trace.server.interfaces.query.UserQuery;
 import com.ticho.trace.server.interfaces.vo.UserVO;
@@ -14,6 +15,14 @@ import java.io.Serializable;
  * @date 2023-04-20 23:10
  */
 public interface UserInfoService {
+
+    /**
+     * 管理用户初始化
+     *
+     * @param adminUserDTO 管理用户dto
+     */
+    void adminUserInit(AdminUserDTO adminUserDTO);
+
     /**
      * 保存用户信息
      *

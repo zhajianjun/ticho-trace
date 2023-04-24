@@ -1,8 +1,10 @@
 package com.ticho.trace.server;
 
 import cn.easyes.starter.register.EsMapperScan;
+import com.ticho.boot.security.annotation.EnableOauth2AuthServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 
 /**
@@ -13,6 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @EsMapperScan("com.ticho.trace.server.infrastructure.mapper")
+@EnableOauth2AuthServer
+@EnableAsync
 public class ServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServerApplication.class, args);
