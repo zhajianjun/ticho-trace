@@ -1,20 +1,17 @@
 package com.ticho.trace.server.domain.service;
 
 import cn.easyes.core.biz.EsPageInfo;
-import cn.easyes.core.conditions.LambdaEsQueryWrapper;
-import cn.easyes.core.toolkit.EsWrappers;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
 import com.ticho.boot.view.core.BizErrCode;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.util.Assert;
 import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.LogService;
+import com.ticho.trace.server.domain.repository.LogRepository;
 import com.ticho.trace.server.infrastructure.entity.LogBO;
-import com.ticho.trace.server.infrastructure.mapper.LogMapper;
 import com.ticho.trace.server.interfaces.assembler.LogAssembler;
 import com.ticho.trace.server.interfaces.dto.LogDTO;
 import com.ticho.trace.server.interfaces.query.LogQuery;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -45,7 +41,7 @@ import java.util.stream.Collectors;
 public class LogServiceImpl implements LogService {
 
     @Autowired
-    private LogMapper logMapper;
+    private LogRepository logRepository;
 
     @Override
     public void collect(@RequestBody List<LogDTO> logs) {
@@ -55,7 +51,7 @@ public class LogServiceImpl implements LogService {
             .stream()
             .filter(this::checkDate)
             .collect(Collectors.groupingBy(this::index, Collectors.mapping(this::convert, Collectors.toList())));
-        collect.forEach((k, v) -> logMapper.insertBatch(v, k));
+        collect.forEach((k, v) -> logRepository.saveBatch(v, k));
         // @formatter:on
     }
 
@@ -65,26 +61,7 @@ public class LogServiceImpl implements LogService {
         ValidUtil.valid(logQuery);
         checkDate(logQuery);
         String[] indexs = getIndexs(logQuery);
-        LambdaEsQueryWrapper<LogBO> wrapper = EsWrappers.lambdaQuery(null);
-        wrapper.index(indexs);
-        LocalDateTime startDateTime = logQuery.getStartDateTime();
-        LocalDateTime endDateTime = logQuery.getEndDateTime();
-        long start = startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        long end = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        wrapper.eq(StrUtil.isNotBlank(logQuery.getTraceId()), LogBO::getTraceId, logQuery.getTraceId());
-        wrapper.eq(StrUtil.isNotBlank(logQuery.getSpanId()), LogBO::getSpanId, logQuery.getSpanId());
-        wrapper.like(StrUtil.isNotBlank(logQuery.getAppName()), LogBO::getAppName, logQuery.getAppName());
-        wrapper.eq(StrUtil.isNotBlank(logQuery.getEnv()), LogBO::getEnv, logQuery.getEnv());
-        wrapper.eq(StrUtil.isNotBlank(logQuery.getIp()), LogBO::getIp, logQuery.getIp());
-        wrapper.like(StrUtil.isNotBlank(logQuery.getPreAppName()), LogBO::getPreAppName, logQuery.getPreAppName());
-        wrapper.eq(StrUtil.isNotBlank(logQuery.getPreIp()), LogBO::getPreIp, logQuery.getPreIp());
-        wrapper.eq(StrUtil.isNotBlank(logQuery.getLogLevel()), LogBO::getLogLevel, logQuery.getLogLevel());
-        wrapper.like(StrUtil.isNotBlank(logQuery.getClassName()), LogBO::getClassName, logQuery.getClassName());
-        wrapper.like(StrUtil.isNotBlank(logQuery.getMethod()), LogBO::getMethod, logQuery.getMethod());
-        wrapper.like(StrUtil.isNotBlank(logQuery.getContent()), LogBO::getContent, logQuery.getContent());
-        wrapper.ge(LogBO::getDtTime, start);
-        wrapper.le(LogBO::getDtTime, end);
-        EsPageInfo<LogBO> page = logMapper.pageQuery(wrapper, logQuery.getPageNum(), logQuery.getPageSize());
+        EsPageInfo<LogBO> page = logRepository.page(logQuery, indexs);
         List<LogVO> logs = page.getList()
             .stream()
             .map(LogAssembler.INSTANCE::logToVO)
