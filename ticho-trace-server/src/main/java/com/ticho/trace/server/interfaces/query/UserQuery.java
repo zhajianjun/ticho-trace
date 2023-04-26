@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 用户信息查询条件
@@ -61,5 +62,9 @@ public class UserQuery extends BasePageQuery implements Serializable {
     /** 备注信息 */
     @ApiModelProperty(value = "备注信息", position = 110)
     private String remark;
+
+    /** 系统id列表 */
+    @ApiModelProperty(value = "系统id列表", position = 120)
+    private List<String> systemIds;
 
 }
