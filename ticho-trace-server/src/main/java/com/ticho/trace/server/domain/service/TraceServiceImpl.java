@@ -1,19 +1,15 @@
 package com.ticho.trace.server.domain.service;
 
-import cn.easyes.core.biz.OrderByParam;
-import cn.easyes.core.conditions.LambdaEsQueryWrapper;
-import cn.easyes.core.toolkit.EsWrappers;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.TraceService;
+import com.ticho.trace.server.domain.repository.TraceRepository;
 import com.ticho.trace.server.infrastructure.entity.TraceBO;
-import com.ticho.trace.server.infrastructure.mapper.TraceMapper;
 import com.ticho.trace.server.interfaces.assembler.TraceAssembler;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
 import com.ticho.trace.server.interfaces.vo.TraceVO;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +29,7 @@ import java.util.stream.Collectors;
 public class TraceServiceImpl implements TraceService {
 
     @Autowired
-    private TraceMapper traceMapper;
+    private TraceRepository traceRepository;
 
     @Override
     public void collect(TraceDTO traceDto) {
@@ -48,7 +44,7 @@ public class TraceServiceImpl implements TraceService {
         String id = IdUtil.getSnowflakeNextIdStr();
         trace.setId(id);
         trace.setCreateTime(LocalDateTime.now());
-        traceMapper.insert(trace, indexName);
+        traceRepository.save(trace, indexName);
     }
 
 
@@ -57,13 +53,7 @@ public class TraceServiceImpl implements TraceService {
         if (StrUtil.isBlank(traceId)) {
             return Collections.emptyList();
         }
-        LambdaEsQueryWrapper<TraceBO> wrapper = EsWrappers.lambdaQuery(TraceBO.class);
-        wrapper.index(LogConst.TRACE_INDEX_PREFIX + "*");
-        wrapper.eq(TraceBO::getTraceId, traceId);
-        OrderByParam orderByParam = new OrderByParam();
-        orderByParam.setSort(SortOrder.DESC.name());
-        orderByParam.setOrder(LogConst.SPAN_ID_KEY + ".keyword");
-        return traceMapper.selectList(wrapper)
+        return traceRepository.selectByTraceId(traceId)
             .stream()
             .map(TraceAssembler.INSTANCE::traceToVo)
             .collect(Collectors.toList());
