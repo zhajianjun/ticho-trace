@@ -5,6 +5,9 @@ import com.ticho.boot.es.service.BaseEsService;
 import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.interfaces.query.SystemQuery;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * 系统信息 repository接口
  *
@@ -47,5 +50,13 @@ public interface SystemRepository extends BaseEsService<SystemBO> {
      * @return {@link EsPageInfo}<{@link SystemBO}>
      */
     EsPageInfo<SystemBO> page(SystemQuery query, String... indexNames);
+
+    /**
+     * 根据系统id列表查询
+     *
+     * @param systemIds ids系统
+     * @return {@link List}<{@link SystemBO}>
+     */
+    List<SystemBO> listBySystemIds(Collection<String> systemIds);
 
 }

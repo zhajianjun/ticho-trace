@@ -17,22 +17,22 @@ public class SystemQuery extends BasePageQuery implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** 主键编号 */
-    @ApiModelProperty(name = "主键编号", position = 10)
+    @ApiModelProperty(value = "主键编号", position = 10)
     private String id;
     /** 系统id */
-    @ApiModelProperty(name = "系统id", position = 20)
+    @ApiModelProperty(value = "系统id", position = 20)
     private String systemId;
     /** 系统名称 */
-    @ApiModelProperty(name = "系统名称", position = 30)
+    @ApiModelProperty(value = "系统名称", position = 30)
     private String systemName;
     /** 秘钥 */
-    @ApiModelProperty(name = "秘钥", position = 40)
+    @ApiModelProperty(value = "秘钥", position = 40)
     private String secret;
     /** 系统状态;1-正常,2-未激活,3-已锁定,4-已注销 */
-    @ApiModelProperty(name = "系统状态", notes = "1-正常,2-未激活,3-已锁定,4-已注销", position = 50)
+    @ApiModelProperty(value = "系统状态", notes = "1-正常,2-未激活,3-已锁定,4-已注销", position = 50)
     private Integer status;
     /** 备注信息 */
-    @ApiModelProperty(name = "备注信息", position = 60)
+    @ApiModelProperty(value = "备注信息", position = 60)
     private String remark;
 
 }

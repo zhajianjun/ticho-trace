@@ -1,8 +1,10 @@
 package com.ticho.trace.server.infrastructure.entity;
 
 import cn.easyes.annotation.IndexField;
+import cn.easyes.annotation.IndexId;
 import cn.easyes.annotation.IndexName;
 import cn.easyes.annotation.rely.FieldType;
+import cn.easyes.annotation.rely.IdType;
 import cn.hutool.core.date.DatePattern;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
@@ -19,7 +21,8 @@ import java.time.LocalDateTime;
 @IndexName(value = "system", keepGlobalPrefix = true)
 public class SystemBO {
 
-    /** 主键编号 */
+    /** id */
+    @IndexId(type = IdType.CUSTOMIZE)
     private String id;
     /** 系统id */
     private String systemId;

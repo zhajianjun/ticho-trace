@@ -1,6 +1,7 @@
 package com.ticho.trace.server.domain.service;
 
 import cn.easyes.core.biz.EsPageInfo;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ticho.boot.view.core.BizErrCode;
@@ -9,9 +10,11 @@ import com.ticho.boot.view.util.Assert;
 import com.ticho.boot.web.util.valid.ValidGroup;
 import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.server.application.service.UserService;
+import com.ticho.trace.server.domain.repository.SystemRepository;
 import com.ticho.trace.server.domain.repository.UserRepository;
 import com.ticho.trace.server.infrastructure.core.constant.CommConst;
 import com.ticho.trace.server.infrastructure.core.enums.UserStatus;
+import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.infrastructure.entity.UserBO;
 import com.ticho.trace.server.interfaces.assembler.UserAssembler;
 import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
@@ -25,8 +28,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +44,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SystemRepository systemRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -72,6 +78,22 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userBO);
     }
 
+    public void checkSystemInfo(Collection<String> systemIds) {
+        // @formatter:off
+        if (CollUtil.isEmpty(systemIds)) {
+            return;
+        }
+        List<SystemBO> systemBos = systemRepository.listBySystemIds(systemIds);
+        List<String> systemIdsDb = systemBos.stream().map(SystemBO::getSystemId).distinct().collect(Collectors.toList());
+        String notMatchSyetemIds = systemIds
+            .stream()
+            .distinct()
+            .filter(x-> !systemIdsDb.contains(x))
+            .collect(Collectors.joining(","));
+        Assert.isBlank(notMatchSyetemIds, BizErrCode.FAIL, String.format("编号[%s]的系统信息不存在", notMatchSyetemIds));
+        // @formatter:on
+    }
+
     @Override
     public void save(UserDTO userDTO) {
         ValidUtil.valid(userDTO, ValidGroup.Add.class);
@@ -79,6 +101,7 @@ public class UserServiceImpl implements UserService {
         String password = userDTO.getPassword();
         UserBO select = userRepository.getByUsername(username);
         Assert.isNull(select, BizErrCode.FAIL, "用户已存在");
+        checkSystemInfo(userDTO.getSystemIds());
         String encode = passwordEncoder.encode(password);
         UserBO userBO = UserAssembler.INSTANCE.dtoToEntity(userDTO);
         LocalDateTime now = LocalDateTime.now();
@@ -103,6 +126,7 @@ public class UserServiceImpl implements UserService {
         String id = userDTO.getId();
         UserBO byId = userRepository.getById(id);
         Assert.isNotNull(byId, BizErrCode.FAIL, "用户不存在");
+        checkSystemInfo(userDTO.getSystemIds());
         UserBO userBO = UserAssembler.INSTANCE.dtoToEntity(userDTO);
         // 账户不可更改
         userBO.setUsername(null);

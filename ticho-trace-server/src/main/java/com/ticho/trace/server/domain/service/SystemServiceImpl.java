@@ -46,7 +46,7 @@ public class SystemServiceImpl implements SystemService {
         SystemBO systemBO = SystemAssembler.INSTANCE.dtoToSystem(systemDTO);
         LocalDateTime now = LocalDateTime.now();
         systemBO.setId(IdUtil.getSnowflakeNextIdStr());
-        systemBO.setSecret(IdUtil.getSnowflakeNextIdStr());
+        systemBO.setSecret(systemBO.getId());
         systemBO.setStatus(UserStatus.NORMAL.code());
         systemBO.setCreateBy(null);
         systemBO.setCreateTime(now);

@@ -4,6 +4,7 @@ import cn.easyes.core.biz.EsPageInfo;
 import cn.easyes.core.conditions.LambdaEsQueryWrapper;
 import cn.easyes.core.conditions.LambdaEsUpdateWrapper;
 import cn.easyes.core.toolkit.EsWrappers;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ticho.boot.es.service.impl.BaseEsServiceImpl;
 import com.ticho.trace.server.domain.repository.SystemRepository;
@@ -13,6 +14,9 @@ import com.ticho.trace.server.interfaces.query.SystemQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -65,6 +69,16 @@ public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, System
         wrapper.like(StrUtil.isNotBlank(query.getRemark()), SystemBO::getRemark, query.getRemark());
         wrapper.index(indexNames);
         return baseEsMapper.pageQuery(wrapper, query.getPageNum(), query.getPageSize());
+    }
+
+    @Override
+    public List<SystemBO> listBySystemIds(Collection<String> systemIds) {
+        if (CollUtil.isEmpty(systemIds)) {
+            return Collections.emptyList();
+        }
+        LambdaEsQueryWrapper<SystemBO> wrapper = EsWrappers.lambdaQuery(null);
+        wrapper.in(SystemBO::getSystemId, systemIds);
+        return baseEsMapper.selectList(wrapper);
     }
 
 }
