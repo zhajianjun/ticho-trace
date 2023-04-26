@@ -10,6 +10,7 @@ import com.ticho.trace.server.interfaces.dto.LogDTO;
 import com.ticho.trace.server.interfaces.query.LogQuery;
 import com.ticho.trace.server.interfaces.vo.LogVO;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +38,7 @@ public class LogController {
     @IgnoreJwtCheck
     @PostMapping("collect")
     @ApiOperation(value = "日志收集")
+    @ApiImplicitParam(value = "秘钥信息", name = "secret", required = true, paramType = "header")
     @ApiOperationSupport(order = 10)
     public Result<Void> collect(@RequestBody List<LogDTO> logs) {
         logService.collect(logs);

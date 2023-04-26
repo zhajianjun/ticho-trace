@@ -18,4 +18,6 @@ public class CommConst {
 
     public static final String USER_PERM_KEY = "user";
 
+    public static final String SECRET_KEY = "secret";
+
 }

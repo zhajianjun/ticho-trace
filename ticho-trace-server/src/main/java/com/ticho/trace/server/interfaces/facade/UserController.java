@@ -41,7 +41,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PreAuthorize("@user.hasPerms('admin')")
     @IgnoreJwtCheck
     @ApiOperation(value = "管理员用户初始化")
     @ApiOperationSupport(order = 5)

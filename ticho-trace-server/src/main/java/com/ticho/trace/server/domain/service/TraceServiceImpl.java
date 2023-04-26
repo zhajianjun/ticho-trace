@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.TraceService;
 import com.ticho.trace.server.domain.repository.TraceRepository;
+import com.ticho.trace.server.domain.service.handle.SecretHandle;
 import com.ticho.trace.server.infrastructure.entity.TraceBO;
 import com.ticho.trace.server.interfaces.assembler.TraceAssembler;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
@@ -26,24 +27,25 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class TraceServiceImpl implements TraceService {
+public class TraceServiceImpl extends SecretHandle implements TraceService {
 
     @Autowired
     private TraceRepository traceRepository;
 
     @Override
     public void collect(TraceDTO traceDto) {
+        String systemId = getSystemIdAndCheck();
         if (traceDto.getStart() == null) {
             log.warn("链路格式异常，start开始时间戳不存在");
             return;
         }
-        // TODO systemId校验
         TraceBO trace = TraceAssembler.INSTANCE.dtoToTrace(traceDto);
         LocalDateTime startTime = trace.getStartTime();
         String indexName = LogConst.TRACE_INDEX_PREFIX + "_" + startTime.toString().substring(0, 10);
         String id = IdUtil.getSnowflakeNextIdStr();
         trace.setId(id);
         trace.setCreateTime(LocalDateTime.now());
+        trace.setSystemId(systemId);
         traceRepository.save(trace, indexName);
     }
 

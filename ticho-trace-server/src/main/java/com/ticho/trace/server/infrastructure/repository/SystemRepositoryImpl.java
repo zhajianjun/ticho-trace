@@ -6,18 +6,28 @@ import cn.easyes.core.conditions.LambdaEsUpdateWrapper;
 import cn.easyes.core.toolkit.EsWrappers;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ticho.boot.es.service.impl.BaseEsServiceImpl;
 import com.ticho.trace.server.domain.repository.SystemRepository;
 import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.infrastructure.mapper.SystemMapper;
 import com.ticho.trace.server.interfaces.query.SystemQuery;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * 系统信息 repository实现
@@ -29,6 +39,41 @@ import java.util.Objects;
 @Slf4j
 public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, SystemBO> implements SystemRepository {
 
+    private Cache<String, SystemBO> systemCache = null;
+
+    @Qualifier("asyncTaskExecutor")
+    @Autowired
+    private Executor executor;
+
+    @PostConstruct
+    public void init() {
+        // @formatter:off
+        systemCache = Caffeine.newBuilder()
+            //初始容量
+            .initialCapacity(16)
+            // 最大长度
+            .maximumSize(50)
+            // 打开统计功能
+            .recordStats()
+            // 设置自定义过期
+            // 设置固定过期 失效后同步加载缓存，阻塞机制获取缓存
+            //.expireAfterWrite(Duration.ofMinutes(1))
+            // 设置固定过期 失效后异步加载，其它线程任然获取旧值
+            .refreshAfterWrite(Duration.ofMinutes(30))
+            // 缓存写入删除回调 同步
+            //.writer(new DefaultCacheWriter())
+            // 缓存移除监听 异步
+            .removalListener((key, value, removalCause) -> log.info("缓存移除监听, 移除的key = {}, value = {}, cause = {}", key, value, removalCause))
+            // 异步线程池
+            .executor(executor)
+            .build(new CacheLoader<String, SystemBO>() {
+                @Override
+                public @Nullable SystemBO load(@NonNull String secret) {
+                    return getBySecret(secret);
+                }
+            });
+        // @formatter:on
+    }
 
     @Override
     public boolean updateStatusById(String id, Integer status) {
@@ -56,6 +101,10 @@ public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, System
         LambdaEsQueryWrapper<SystemBO> wrapper = EsWrappers.lambdaQuery(null);
         wrapper.eq(SystemBO::getSecret, secret);
         return baseEsMapper.selectOne(wrapper);
+    }
+
+    public SystemBO getCacheBySecret(String secret) {
+        return systemCache.getIfPresent(secret);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.ticho.trace.server.interfaces.query.SystemQuery;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 系统信息 repository接口
@@ -40,6 +41,14 @@ public interface SystemRepository extends BaseEsService<SystemBO> {
      * @return {@link SystemBO}
      */
     SystemBO getBySecret(String secret);
+
+    /**
+     * 根据秘钥查询
+     *
+     * @param secret 秘钥
+     * @return {@link SystemBO}
+     */
+    SystemBO getCacheBySecret(String secret);
 
     /**
      * 根据条件查询query列表

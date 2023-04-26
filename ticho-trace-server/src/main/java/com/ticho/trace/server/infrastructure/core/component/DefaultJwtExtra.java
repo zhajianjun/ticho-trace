@@ -1,7 +1,6 @@
 package com.ticho.trace.server.infrastructure.core.component;
 
 import com.ticho.boot.security.handle.jwt.JwtExtra;
-import com.ticho.boot.view.core.BaseSecurityUser;
 import com.ticho.trace.server.interfaces.dto.SecurityUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +23,7 @@ public class DefaultJwtExtra implements JwtExtra {
         Map<String, Object> extMap = new HashMap<>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
-        if (principal instanceof BaseSecurityUser) {
+        if (principal instanceof SecurityUser) {
             SecurityUser securityUser = (SecurityUser) principal;
             extMap.put("status", securityUser.getStatus());
         }

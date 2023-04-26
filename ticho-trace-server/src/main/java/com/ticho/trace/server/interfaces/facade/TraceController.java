@@ -8,6 +8,7 @@ import com.ticho.trace.server.application.service.TraceService;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
 import com.ticho.trace.server.interfaces.vo.TraceVO;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,9 +36,11 @@ public class TraceController {
     @IgnoreJwtCheck
     @PostMapping("collect")
     @ApiOperation(value = "链路收集")
+    @ApiImplicitParam(value = "秘钥信息", name = "secret", required = true, paramType = "header")
     @ApiOperationSupport(order = 10)
-    public void collect(@RequestBody TraceDTO traceDto) {
+    public Result<Void> collect(@RequestBody TraceDTO traceDto) {
         traceService.collect(traceDto);
+        return Result.ok();
     }
 
     @GetMapping("getByTraceId")

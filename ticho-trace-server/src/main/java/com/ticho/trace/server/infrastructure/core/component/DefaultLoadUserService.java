@@ -8,6 +8,7 @@ import com.ticho.boot.view.util.Assert;
 import com.ticho.trace.server.domain.repository.UserRepository;
 import com.ticho.trace.server.infrastructure.core.enums.UserStatus;
 import com.ticho.trace.server.infrastructure.entity.UserBO;
+import com.ticho.trace.server.interfaces.dto.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,10 +37,11 @@ public class DefaultLoadUserService implements LoadUserService {
         String message = UserStatus.getByCode(status);
         boolean normal = Objects.equals(status, UserStatus.NORMAL.code());
         Assert.isTrue(normal, HttpErrCode.NOT_LOGIN, String.format("用户%s", message));
-        BaseSecurityUser securityUser = new BaseSecurityUser();
+        SecurityUser securityUser = new SecurityUser();
         securityUser.setUsername(username);
         securityUser.setPassword(user.getPassword());
-        securityUser.setRoles(Collections.singletonList(""));
+        securityUser.setStatus(user.getStatus());
+        securityUser.setRoles(Collections.singletonList("admin"));
         return securityUser;
     }
 

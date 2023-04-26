@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -22,8 +23,12 @@ import java.time.LocalDateTime;
 @ApiModel(value = "日志查询条件")
 public class LogQuery extends BasePageQuery {
 
+    /** 系统id */
+    @NotBlank(message = "系统id不能为空")
+    @ApiModelProperty(value = "系统id", position = 10)
+    private String systemId;
     /** 链路id */
-    @ApiModelProperty(value = "链路id", position = 10)
+    @ApiModelProperty(value = "链路id", position = 15)
     private String traceId;
     /** 跨度id */
     @ApiModelProperty(value = "跨度id", position = 20)

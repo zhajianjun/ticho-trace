@@ -11,6 +11,7 @@ import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.LogService;
 import com.ticho.trace.server.domain.repository.LogRepository;
+import com.ticho.trace.server.domain.service.handle.SecretHandle;
 import com.ticho.trace.server.infrastructure.entity.LogBO;
 import com.ticho.trace.server.interfaces.assembler.LogAssembler;
 import com.ticho.trace.server.interfaces.dto.LogDTO;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class LogServiceImpl implements LogService {
+public class LogServiceImpl extends SecretHandle implements LogService {
 
     @Autowired
     private LogRepository logRepository;
@@ -46,11 +47,11 @@ public class LogServiceImpl implements LogService {
     @Override
     public void collect(@RequestBody List<LogDTO> logs) {
         // @formatter:off
-        // TODO systemId校验
+        String systemId = getSystemIdAndCheck();
         Map<String, List<LogBO>> collect = logs
             .stream()
             .filter(this::checkDate)
-            .collect(Collectors.groupingBy(this::index, Collectors.mapping(this::convert, Collectors.toList())));
+            .collect(Collectors.groupingBy(x-> index(x, systemId), Collectors.mapping(this::convert, Collectors.toList())));
         collect.forEach((k, v) -> logRepository.saveBatch(v, k));
         // @formatter:on
     }
@@ -80,9 +81,10 @@ public class LogServiceImpl implements LogService {
         LocalDateTime startDateTime = logQuery.getStartDateTime();
         LocalDateTime endDateTime = logQuery.getEndDateTime();
         LocalDate startDate = startDateTime.toLocalDate();
+        String systemId = logQuery.getSystemId();
         LocalDate endDate = endDateTime.toLocalDate();
         List<String> indexs = new ArrayList<>();
-        addIndexs(startDate, endDate, indexs);
+        addIndexs(startDate, endDate, systemId, indexs);
         return indexs.toArray(new String[0]);
     }
 
@@ -108,36 +110,39 @@ public class LogServiceImpl implements LogService {
      *
      * @param startDate 开始日期
      * @param endDate 结束日期
+     * @param systemId 系统id
      * @param indexs 索引
      */
-    public void addIndexs(LocalDate startDate, LocalDate endDate, List<String> indexs) {
+    public void addIndexs(LocalDate startDate, LocalDate endDate, String systemId, List<String> indexs) {
         if (startDate.isAfter(endDate)) {
             return;
         }
         String date = startDate.format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATE_PATTERN)) + "*";
-        indexs.add(parseIndex(date));
+        indexs.add(parseIndex(systemId, date));
         startDate = startDate.plusDays(1);
-        addIndexs(startDate, endDate, indexs);
+        addIndexs(startDate, endDate, systemId, indexs);
     }
 
     /**
      * 根据日志的时间获取索引
      *
      * @param logDTO 日志信息
+     * @param systemId 系统id
      * @return {@link String}
      */
-    public String index(LogDTO logDTO) {
+    public String index(LogDTO logDTO, String systemId) {
         // @formatter:off
         Long dtTime = logDTO.getDtTime();
         LocalDateTime dateTime = LocalDateTimeUtil.of(dtTime);
         logDTO.setDateTime(dateTime);
         String date = dateTime.toString().substring(0, 10);
-        return parseIndex(date);
+        return parseIndex(systemId, date);
         // @formatter:on
     }
 
-    public String parseIndex(String date) {
-        return LogConst.LOG_INDEX_PREFIX + "_" + date;
+    public String parseIndex(String systemId, String date) {
+        String s = "_";
+        return LogConst.LOG_INDEX_PREFIX + s + systemId + s + date;
     }
 
     private LogBO convert(LogDTO logDTO) {
