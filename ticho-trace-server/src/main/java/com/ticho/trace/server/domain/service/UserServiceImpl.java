@@ -3,17 +3,15 @@ package com.ticho.trace.server.domain.service;
 import cn.easyes.core.biz.EsPageInfo;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import com.ticho.boot.security.constant.BaseSecurityConst;
-import com.ticho.boot.security.handle.load.LoadUserService;
-import com.ticho.boot.view.core.BaseSecurityUser;
 import com.ticho.boot.view.core.BizErrCode;
-import com.ticho.boot.view.core.HttpErrCode;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.util.Assert;
+import com.ticho.boot.web.util.valid.ValidGroup;
 import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.server.application.service.UserService;
 import com.ticho.trace.server.domain.repository.UserRepository;
 import com.ticho.trace.server.infrastructure.core.constant.CommConst;
+import com.ticho.trace.server.infrastructure.core.enums.UserStatus;
 import com.ticho.trace.server.infrastructure.entity.UserBO;
 import com.ticho.trace.server.interfaces.assembler.UserAssembler;
 import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
@@ -27,8 +25,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -38,8 +36,8 @@ import java.util.stream.Collectors;
  * @date 2023-04-20 23:10
  */
 @Slf4j
-@Service(BaseSecurityConst.LOAD_USER_TYPE_USERNAME)
-public class UserServiceImpl implements UserService, LoadUserService {
+@Service
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -50,7 +48,7 @@ public class UserServiceImpl implements UserService, LoadUserService {
     @Override
     public void adminUserInit(AdminUserDTO adminUserDTO) {
         ValidUtil.valid(adminUserDTO);
-        UserBO select = userRepository.selectByUsername(CommConst.ADMIN_USERNAME);
+        UserBO select = userRepository.getByUsername(CommConst.ADMIN_USERNAME);
         Assert.isNull(select, BizErrCode.FAIL, "管理员用户已存在");
         String password = adminUserDTO.getPassword();
         String realname = adminUserDTO.getRealname();
@@ -76,10 +74,17 @@ public class UserServiceImpl implements UserService, LoadUserService {
 
     @Override
     public void save(UserDTO userDTO) {
+        ValidUtil.valid(userDTO, ValidGroup.Add.class);
+        String username = userDTO.getUsername();
+        String password = userDTO.getPassword();
+        UserBO select = userRepository.getByUsername(username);
+        Assert.isNull(select, BizErrCode.FAIL, "用户已存在");
+        String encode = passwordEncoder.encode(password);
         UserBO userBO = UserAssembler.INSTANCE.dtoToEntity(userDTO);
-        // TODO
         LocalDateTime now = LocalDateTime.now();
         userBO.setId(IdUtil.getSnowflakeNextIdStr());
+        userBO.setPassword(encode);
+        userBO.setStatus(UserStatus.NORMAL.code());
         userBO.setCreateBy(null);
         userBO.setCreateTime(now);
         userBO.setUpdateBy(null);
@@ -94,7 +99,13 @@ public class UserServiceImpl implements UserService, LoadUserService {
 
     @Override
     public void updateById(UserDTO userDTO) {
+        ValidUtil.valid(userDTO, ValidGroup.Upd.class);
+        String id = userDTO.getId();
+        UserBO byId = userRepository.getById(id);
+        Assert.isNotNull(byId, BizErrCode.FAIL, "用户不存在");
         UserBO userBO = UserAssembler.INSTANCE.dtoToEntity(userDTO);
+        // 账户不可更改
+        userBO.setUsername(null);
         LocalDateTime now = LocalDateTime.now();
         userBO.setUpdateBy(null);
         userBO.setCreateTime(now);
@@ -109,7 +120,7 @@ public class UserServiceImpl implements UserService, LoadUserService {
 
     @Override
     public UserVO getByUsername(String username) {
-        UserBO userBO = userRepository.selectByUsername(username);
+        UserBO userBO = userRepository.getByUsername(username);
         return UserAssembler.INSTANCE.entityToVo(userBO);
     }
 
@@ -124,19 +135,6 @@ public class UserServiceImpl implements UserService, LoadUserService {
             .collect(Collectors.toList());
         return new PageResult<>(query.getPageNum(), query.getPageSize(), page.getTotal(), userDTOS);
         // @formatter:on
-    }
-
-    @Override
-    public BaseSecurityUser load(String username) {
-        // @formatter:off
-        // 用户信息校验
-        UserBO user = userRepository.selectByUsername(username);
-        Assert.isNotNull(user, HttpErrCode.NOT_LOGIN, "用户或者密码不正确");
-        BaseSecurityUser securityUser = new BaseSecurityUser();
-        securityUser.setUsername(username);
-        securityUser.setPassword(user.getPassword());
-        securityUser.setRoles(Collections.singletonList("admin"));
-        return securityUser;
     }
 
 }

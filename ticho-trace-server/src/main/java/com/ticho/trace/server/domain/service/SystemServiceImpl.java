@@ -5,8 +5,11 @@ import cn.hutool.core.util.IdUtil;
 import com.ticho.boot.view.core.BizErrCode;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.util.Assert;
+import com.ticho.boot.web.util.valid.ValidGroup;
+import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.server.application.service.SystemService;
 import com.ticho.trace.server.domain.repository.SystemRepository;
+import com.ticho.trace.server.infrastructure.core.enums.UserStatus;
 import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.interfaces.assembler.SystemAssembler;
 import com.ticho.trace.server.interfaces.dto.SystemDTO;
@@ -36,9 +39,15 @@ public class SystemServiceImpl implements SystemService {
 
     @Override
     public void save(SystemDTO systemDTO) {
+        ValidUtil.valid(systemDTO, ValidGroup.Add.class);
+        String systemId = systemDTO.getSystemId();
+        SystemBO select = systemRepository.getBySystemId(systemId);
+        Assert.isNull(select, BizErrCode.FAIL, "系统已存在");
         SystemBO systemBO = SystemAssembler.INSTANCE.dtoToSystem(systemDTO);
         LocalDateTime now = LocalDateTime.now();
         systemBO.setId(IdUtil.getSnowflakeNextIdStr());
+        systemBO.setSecret(IdUtil.getSnowflakeNextIdStr());
+        systemBO.setStatus(UserStatus.NORMAL.code());
         systemBO.setCreateBy(null);
         systemBO.setCreateTime(now);
         systemBO.setUpdateBy(null);
@@ -47,13 +56,18 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
-    public void removeById(Serializable id) {
-        Assert.isTrue(systemRepository.removeById(id), BizErrCode.FAIL, "删除失败");
+    public void updateStatusById(String id, Integer status) {
+        Assert.isTrue(systemRepository.updateStatusById(id, status), BizErrCode.FAIL, "删除失败");
     }
 
     @Override
     public void updateById(SystemDTO systemDTO) {
+        ValidUtil.valid(systemDTO, ValidGroup.Upd.class);
+        String id = systemDTO.getId();
+        SystemBO byId = systemRepository.getById(id);
+        Assert.isNotNull(byId, BizErrCode.FAIL, "用户不存在");
         SystemBO systemBO = SystemAssembler.INSTANCE.dtoToSystem(systemDTO);
+        systemBO.setSystemId(null);
         LocalDateTime now = LocalDateTime.now();
         systemBO.setUpdateBy(null);
         systemBO.setCreateTime(now);
@@ -78,6 +92,5 @@ public class SystemServiceImpl implements SystemService {
         return new PageResult<>(query.getPageNum(), query.getPageSize(), page.getTotal(), systemDTOS);
         // @formatter:on
     }
-
 
 }

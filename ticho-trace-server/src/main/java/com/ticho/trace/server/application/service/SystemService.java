@@ -23,11 +23,12 @@ public interface SystemService {
     void save(SystemDTO systemDTO);
 
     /**
-     * 删除系统信息
+     * 系统信息状态更改
      *
-     * @param id 主键
+     * @param id id
+     * @param status 状态
      */
-    void removeById(Serializable id);
+    void updateStatusById(String id, Integer status);
 
     /**
      * 修改系统信息

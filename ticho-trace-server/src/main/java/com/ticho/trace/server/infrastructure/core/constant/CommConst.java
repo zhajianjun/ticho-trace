@@ -16,4 +16,6 @@ public class CommConst {
 
     public static final String ADMIN_REALNAME = "管理员";
 
+    public static final String USER_PERM_KEY = "user";
+
 }

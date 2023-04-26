@@ -1,11 +1,13 @@
 package com.ticho.trace.server.interfaces.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ticho.boot.web.util.valid.ValidGroup;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.List;
 
@@ -22,14 +24,17 @@ public class UserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** id */
+    @NotBlank(message = "id不能为空", groups = ValidGroup.Upd.class)
     @ApiModelProperty(value = "id", position = 10)
     private String id;
 
     /** 账户;账户具有唯一性 */
+    @NotBlank(message = "用户名不能为空", groups = ValidGroup.Add.class)
     @ApiModelProperty(value = "账户;账户具有唯一性", position = 20)
     private String username;
 
     /** 密码 */
+    @NotBlank(message = "密码不能为空", groups = ValidGroup.Add.class)
     @ApiModelProperty(value = "密码", position = 30)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

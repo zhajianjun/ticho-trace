@@ -10,8 +10,10 @@ import com.ticho.trace.server.interfaces.query.SystemQuery;
 import com.ticho.trace.server.interfaces.vo.SystemVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +40,7 @@ public class SystemController {
     @Autowired
     private SystemService systemService;
 
+    @PreAuthorize("@user.hasPerms('admin')")
     @ApiOperation(value = "保存系统信息")
     @ApiOperationSupport(order = 10)
     @PostMapping
@@ -46,15 +49,22 @@ public class SystemController {
         return Result.ok();
     }
 
-    @ApiOperation(value = "删除系统信息")
+    // @formatter:off
+    @PreAuthorize("@user.hasPerms('admin')")
+    @ApiOperation(value = "系统信息状态更改")
     @ApiOperationSupport(order = 20)
-    @ApiImplicitParam(value = "编号", name = "id", required = true)
+    @ApiImplicitParams({
+        @ApiImplicitParam(value = "编号", name = "id", required = true),
+        @ApiImplicitParam(value = "状态", name = "status", required = true),
+    })
     @DeleteMapping
-    public Result<Void> removeById(@RequestParam("id") Serializable id) {
-        systemService.removeById(id);
+    public Result<Void> removeById(@RequestParam("id") String id, @RequestParam("status") Integer status) {
+        systemService.updateStatusById(id, status);
         return Result.ok();
     }
+    // @formatter:off
 
+    @PreAuthorize("@user.hasPerms('admin')")
     @ApiOperation(value = "修改系统信息")
     @ApiOperationSupport(order = 30)
     @PutMapping
@@ -62,6 +72,7 @@ public class SystemController {
         systemService.updateById(systemDTO);
         return Result.ok();
     }
+
 
     @ApiOperation(value = "主键查询系统信息")
     @ApiOperationSupport(order = 40)

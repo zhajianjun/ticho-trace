@@ -1,8 +1,11 @@
 package com.ticho.trace.server.interfaces.dto;
 
+import com.ticho.boot.web.util.valid.ValidGroup;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * 系统信息DTO
@@ -14,10 +17,16 @@ import lombok.Data;
 @ApiModel(value = "系统信息DTO")
 public class SystemDTO {
 
+    /** id */
+    @NotBlank(message = "id不能为空", groups = ValidGroup.Upd.class)
+    @ApiModelProperty(name = "id", position = 10)
+    private String id;
     /** 系统id */
+    @NotBlank(message = "系统id不能为空", groups = ValidGroup.Add.class)
     @ApiModelProperty(name = "系统id", position = 20)
     private String systemId;
     /** 系统名称 */
+    @NotBlank(message = "系统id不能为空", groups = ValidGroup.Add.class)
     @ApiModelProperty(name = "系统名称", position = 30)
     private String systemName;
     /** 秘钥 */

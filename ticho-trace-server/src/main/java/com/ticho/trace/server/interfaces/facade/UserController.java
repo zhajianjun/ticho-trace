@@ -14,6 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +41,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @PreAuthorize("@user.hasPerms('admin')")
     @IgnoreJwtCheck
     @ApiOperation(value = "管理员用户初始化")
     @ApiOperationSupport(order = 5)
@@ -49,6 +51,7 @@ public class UserController {
         return Result.ok();
     }
 
+    @PreAuthorize("@user.hasPerms('admin')")
     @ApiOperation(value = "保存用户信息")
     @ApiOperationSupport(order = 10)
     @PostMapping
@@ -57,6 +60,7 @@ public class UserController {
         return Result.ok();
     }
 
+    @PreAuthorize("@user.hasPerms('admin')")
     @ApiOperation(value = "删除用户信息")
     @ApiOperationSupport(order = 20)
     @ApiImplicitParam(value = "编号", name = "id", required = true)
@@ -66,6 +70,7 @@ public class UserController {
         return Result.ok();
     }
 
+    @PreAuthorize("@user.hasPerms('admin')")
     @ApiOperation(value = "修改用户信息")
     @ApiOperationSupport(order = 30)
     @PutMapping

@@ -2,6 +2,7 @@ package com.ticho.trace.server.interfaces.facade;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
+import com.ticho.boot.security.annotation.IgnoreJwtCheck;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.core.Result;
 import com.ticho.trace.server.application.service.LogService;
@@ -33,6 +34,7 @@ public class LogController {
     @Resource
     private LogService logService;
 
+    @IgnoreJwtCheck
     @PostMapping("collect")
     @ApiOperation(value = "日志收集")
     @ApiOperationSupport(order = 10)

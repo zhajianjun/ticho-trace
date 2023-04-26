@@ -2,6 +2,7 @@ package com.ticho.trace.server.interfaces.facade;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
+import com.ticho.boot.security.annotation.IgnoreJwtCheck;
 import com.ticho.boot.view.core.Result;
 import com.ticho.trace.server.application.service.TraceService;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
@@ -31,6 +32,7 @@ public class TraceController {
     @Autowired
     private TraceService traceService;
 
+    @IgnoreJwtCheck
     @PostMapping("collect")
     @ApiOperation(value = "链路收集")
     @ApiOperationSupport(order = 10)

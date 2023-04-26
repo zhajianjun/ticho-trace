@@ -48,7 +48,7 @@ public class UserRepositoryImpl extends BaseEsServiceImpl<UserMapper, UserBO> im
     }
 
     @Override
-    public UserBO selectByUsername(String username) {
+    public UserBO getByUsername(String username) {
         if (StrUtil.isBlank(username)) {
             return null;
         }

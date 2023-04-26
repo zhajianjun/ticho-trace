@@ -14,6 +14,31 @@ import com.ticho.trace.server.interfaces.query.SystemQuery;
 public interface SystemRepository extends BaseEsService<SystemBO> {
 
     /**
+     * 通过id更新状态
+     *
+     * @param id id
+     * @param status 状态
+     * @return boolean
+     */
+    boolean updateStatusById(String id, Integer status);
+
+    /**
+     * 根据系统id查询
+     *
+     * @param systemId 系统id
+     * @return {@link SystemBO}
+     */
+    SystemBO getBySystemId(String systemId);
+
+    /**
+     * 根据秘钥查询
+     *
+     * @param secret 秘钥
+     * @return {@link SystemBO}
+     */
+    SystemBO getBySecret(String secret);
+
+    /**
      * 根据条件查询query列表
      *
      * @param query 查询条件

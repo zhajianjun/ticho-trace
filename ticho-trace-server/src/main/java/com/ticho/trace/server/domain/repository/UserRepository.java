@@ -29,7 +29,7 @@ public interface UserRepository extends BaseEsService<UserBO> {
      * @param username 用户名
      * @return {@link UserBO}
      */
-    UserBO selectByUsername(String username);
+    UserBO getByUsername(String username);
 
 }
 
