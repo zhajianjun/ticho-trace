@@ -55,6 +55,7 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
         if (StrUtil.isBlank(traceId)) {
             return Collections.emptyList();
         }
+        // TODO systemName 系统名称查询
         return traceRepository.selectByTraceId(traceId)
             .stream()
             .map(TraceAssembler.INSTANCE::traceToVo)

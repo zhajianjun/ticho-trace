@@ -18,9 +18,15 @@ import java.time.LocalDateTime;
 @ApiModel(value = "链路信息VO")
 public class TraceVO {
 
-    /** id */
-    @ApiModelProperty(value = "id", position = 10)
+    /** 主键编号 */
+    @ApiModelProperty(value = "主键编号", position = 10)
     private String id;
+    /** 系统id */
+    @ApiModelProperty(value = "系统id", position = 15)
+    private String systemId;
+    /** 系统名称 */
+    @ApiModelProperty(value = "系统名称", position = 15)
+    private String systemName;
     /** 链路id */
     @ApiModelProperty(value = "链路id", position = 20)
     private String traceId;
