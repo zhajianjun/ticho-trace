@@ -20,6 +20,8 @@ ticho:
     order: -1000
     pushLog: true
     pushTrace: true
+    secret: 1651402954198106112
+    ant-patterns: ["/health"]
   log:
     print: true
     order: -100
