@@ -39,7 +39,7 @@ public class LogHandleContext {
     /** 环形存储区 */
     private RingBuffer<LogInfo> ringBuffer;
 
-    public LogHandleContext(String appName, String env, String url, int pushSize, long flushInterval) {
+    public LogHandleContext(String appName, String env, String url, String secret, int pushSize, long flushInterval) {
         this.appName = appName;
         this.env = env;
         // 环形缓冲区大小，必须是2的幂次方
@@ -54,7 +54,7 @@ public class LogHandleContext {
         ProducerType producerType = ProducerType.MULTI;
         this.disruptor = new Disruptor<>(eventFactory, bufferSize, threadFactory, producerType, waitStrategy);
         // 初始化日志事件监听处理器
-        this.logEventListen = new LogEventListen(url, pushSize, flushInterval, threadFactory);
+        this.logEventListen = new LogEventListen(url, secret, pushSize, flushInterval, threadFactory);
         // 注册事件消费者
         disruptor.handleEventsWith(logEventListen);
         this.sequence = new AtomicLong();

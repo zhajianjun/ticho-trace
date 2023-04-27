@@ -82,7 +82,7 @@ public class TraceUtil {
         MDC.put(LogConst.TRACE_KEY, trace);
         MDC.put(LogConst.TRACE_ID_KEY, traceId);
         if (StrUtil.isBlank(spanId)) {
-            spanId = "0";
+            spanId = LogConst.FIRST_SPAN_ID;
         }
         NEXT_SPAN_INDEX_TL.set(new AtomicInteger(0));
         MDC.put(LogConst.SPAN_ID_KEY, spanId);

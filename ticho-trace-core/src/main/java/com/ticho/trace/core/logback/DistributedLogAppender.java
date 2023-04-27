@@ -26,6 +26,9 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
     /** 日志推送的url */
     @Setter
     private String url;
+    /** 日志推送的秘钥 */
+    @Setter
+    private String secret;
     /** 批量推送的日志数量，达到一定数量则进行推送日志 */
     @Setter
     private int pushSize = 100;
@@ -45,7 +48,7 @@ public class DistributedLogAppender extends AppenderBase<ILoggingEvent> {
         if (!pushLog) {
             return;
         }
-        this.logHandleContext = new LogHandleContext(appName, env, url, pushSize, flushInterval);
+        this.logHandleContext = new LogHandleContext(appName, env, url, secret, pushSize, flushInterval);
         logHandleContext.start();
     }
 

@@ -1,5 +1,6 @@
 package com.ticho.trace.core.push.adapter;
 
+import com.ticho.trace.common.constant.LogConst;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -21,14 +22,20 @@ public class OkHttpPushAdapter implements PushAdapter {
     private final OkHttpClient httpClient = new OkHttpClient.Builder().build();
 
     @Override
-    public void push(String url, Object data) {
+    public void push(String url, String secret, Object data) {
+        // @formatter:off
         String json = JsonUtil.toJsonString(data);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);
-        Request request = new Request.Builder().url(url).post(requestBody).build();
+        Request request = new Request.Builder()
+            .url(url)
+            .addHeader(LogConst.SECRET_KEY, secret)
+            .post(requestBody)
+            .build();
         try (Response execute = httpClient.newCall(request).execute()) {
         } catch (IOException e) {
             System.err.printf("[%s] okhttp Failed to push data to %s error:%s%n", Thread.currentThread().getName(), url, e.getMessage());
         }
+        // @formatter:on
     }
 
 

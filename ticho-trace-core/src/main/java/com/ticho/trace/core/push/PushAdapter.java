@@ -12,8 +12,9 @@ public interface PushAdapter {
      * 推送
      *
      * @param url url
+     * @param secret 秘钥
      * @param data 数据
      */
-    void push(String url, Object data);
+    void push(String url, String secret, Object data);
 
 }

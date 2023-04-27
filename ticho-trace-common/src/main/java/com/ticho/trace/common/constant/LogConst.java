@@ -15,6 +15,8 @@ public class LogConst {
     public static final String TRACE_ID_KEY = "traceId";
     /** 跨度id key */
     public static final String SPAN_ID_KEY = "spanId";
+    /** 第一个跨度id */
+    public static final String FIRST_SPAN_ID = "0";
     /** 当前应用名称 key */
     public static final String APP_NAME_KEY = "appName";
     /** 当前ip key */
@@ -31,8 +33,8 @@ public class LogConst {
     public static final String TRACE = "trace";
     /** 默认链路表达式 */
     public static final String DEFAULT_TRACE = "[${traceId}].[${spanId}]";
-    /** MDC key */
-    public static final String MDC_KEY = "mdc";
+    /** secret key */
+    public static final String SECRET_KEY = "secret";
     /** 日志索引前缀 */
     public static final String LOG_INDEX_PREFIX = "log";
     /** 链路索引前缀 */

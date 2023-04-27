@@ -3,6 +3,9 @@ package com.ticho.trace.common.prop;
 import lombok.Data;
 import com.ticho.trace.common.constant.LogConst;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 链路配置
  *
@@ -26,6 +29,8 @@ public class TraceProperty {
     private Boolean pushLog = false;
     /** 是否推送链路信息 */
     private Boolean pushTrace = false;
+    /** 链路过滤地址 */
+    private List<String> antPatterns = new ArrayList<>();
     /** 拦截器排序 */
     private Integer order = Integer.MIN_VALUE + 1000;
 

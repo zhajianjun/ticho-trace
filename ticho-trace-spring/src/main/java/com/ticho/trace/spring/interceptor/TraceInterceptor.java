@@ -2,25 +2,29 @@ package com.ticho.trace.spring.interceptor;
 
 import cn.hutool.core.date.SystemClock;
 import com.alibaba.ttl.TransmittableThreadLocal;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
-import org.springframework.core.Ordered;
-import org.springframework.core.env.Environment;
-import org.springframework.lang.NonNull;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.HandlerInterceptor;
 import com.ticho.trace.common.bean.TraceInfo;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.common.prop.TraceProperty;
 import com.ticho.trace.core.push.TracePushContext;
 import com.ticho.trace.core.util.TraceUtil;
 import com.ticho.trace.spring.util.IpUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
+import org.springframework.core.Ordered;
+import org.springframework.core.env.Environment;
+import org.springframework.lang.NonNull;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * 链路拦截器
@@ -37,6 +41,8 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
     private final TraceProperty traceProperty;
     /** 环境变量 */
     private final Environment environment;
+    /** url地址匹配 */
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     public TraceInterceptor(TraceProperty traceProperty, Environment environment) {
         this.startLocal = new TransmittableThreadLocal<>();
@@ -81,7 +87,6 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
         long end = SystemClock.now();
         int status = response.getStatus();
         Long consume = end - start;
-        String traceUrl = traceProperty.getUrl();
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         TraceInfo traceInfo = TraceInfo.builder()
             .traceId(MDC.get(LogConst.TRACE_ID_KEY))
@@ -100,13 +105,12 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
             .end(end)
             .consume(consume)
             .build();
-        if (traceProperty.getPushTrace()) {
-            TracePushContext.pushTraceInfoAsync(traceUrl, traceInfo);
-        }
+        TracePushContext.asyncPushTrace(traceProperty, traceInfo);
         TraceUtil.complete();
         startLocal.remove();
         // @formatter:on
     }
+
 
 
     public Map<String, String> getHeaders(HttpServletRequest request) {

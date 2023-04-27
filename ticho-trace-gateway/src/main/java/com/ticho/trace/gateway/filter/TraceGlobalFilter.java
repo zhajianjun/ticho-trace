@@ -2,6 +2,13 @@ package com.ticho.trace.gateway.filter;
 
 import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.StrUtil;
+import com.ticho.trace.common.bean.HttpLogInfo;
+import com.ticho.trace.common.bean.TraceInfo;
+import com.ticho.trace.common.constant.LogConst;
+import com.ticho.trace.common.prop.TraceProperty;
+import com.ticho.trace.core.json.JsonUtil;
+import com.ticho.trace.core.push.TracePushContext;
+import com.ticho.trace.core.util.TraceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.slf4j.MDC;
@@ -23,13 +30,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import com.ticho.trace.common.bean.HttpLogInfo;
-import com.ticho.trace.common.bean.TraceInfo;
-import com.ticho.trace.common.constant.LogConst;
-import com.ticho.trace.common.prop.TraceProperty;
-import com.ticho.trace.core.json.JsonUtil;
-import com.ticho.trace.core.push.TracePushContext;
-import com.ticho.trace.core.util.TraceUtil;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -37,6 +37,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -125,14 +126,12 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
             .end(httpLogInfo.getEnd())
             .consume(httpLogInfo.getConsume())
             .build();
-        if (traceProperty.getPushTrace()) {
-            TracePushContext.pushTraceInfoAsync(traceProperty.getUrl(), traceInfo);
-        }
         TraceUtil.complete();
+        TracePushContext.asyncPushTrace(traceProperty, traceInfo);
         // @formatter:on
     }
 
-    public ServerHttpResponse getResponse(ServerWebExchange exchange, HttpLogInfo httpLogInfo){
+    public ServerHttpResponse getResponse(ServerWebExchange exchange, HttpLogInfo httpLogInfo) {
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
         return new ServerHttpResponseDecorator(originalResponse) {

@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LogEventListen implements EventHandler<LogInfo> {
     // 推送地址
     private final String url;
+    /** 日志推送的秘钥 */
+    private final String secret;
     // 批次数据缓存
     private final List<LogInfo> logInfos = new ArrayList<>();
     // 批次大小
@@ -35,8 +37,9 @@ public class LogEventListen implements EventHandler<LogInfo> {
     // 定时任务逻辑是否执行
     private final AtomicBoolean taskExecute = new AtomicBoolean(false);
 
-    public LogEventListen(String url, int batchSize, long flushInterval, ThreadFactory threadFactory) {
+    public LogEventListen(String url, String secret, int batchSize, long flushInterval, ThreadFactory threadFactory) {
         this.url = url;
+        this.secret = secret;
         this.batchSize = batchSize;
         this.flushInterval = flushInterval;
         this.executorService = Executors.newSingleThreadScheduledExecutor(threadFactory);
@@ -66,7 +69,7 @@ public class LogEventListen implements EventHandler<LogInfo> {
      */
     private synchronized void execute() {
         if (!logInfos.isEmpty()) {
-            TracePushContext.pushLogInfo(url, logInfos);
+            TracePushContext.pushLogInfo(url, secret, logInfos);
             // 清空批次缓存
             logInfos.clear();
             lastTime = SystemClock.now();
