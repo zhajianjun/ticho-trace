@@ -81,6 +81,12 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
+    public SystemVO getCacheBySecret(String secret) {
+        SystemBO systemBO = systemRepository.getCacheBySecret(secret);
+        return SystemAssembler.INSTANCE.systemToVO(systemBO);
+    }
+
+    @Override
     public PageResult<SystemVO> page(SystemQuery query) {
         // @formatter:off
         query.checkPage();

@@ -56,10 +56,12 @@ public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, System
             // 打开统计功能
             .recordStats()
             // 设置自定义过期
+            // 设置固定过期 在最后一次访问或者写入后开始计时，在指定的时间后过期。假如一直有请求访问该key，那么这个缓存将一直不会过期。
+            .expireAfterAccess(Duration.ofMinutes(30))
             // 设置固定过期 失效后同步加载缓存，阻塞机制获取缓存
-            //.expireAfterWrite(Duration.ofMinutes(1))
+            //.expireAfterWrite(Duration.ofMinutes(30))
             // 设置固定过期 失效后异步加载，其它线程任然获取旧值
-            .refreshAfterWrite(Duration.ofMinutes(30))
+            //.refreshAfterWrite(Duration.ofMinutes(30))
             // 缓存写入删除回调 同步
             //.writer(new DefaultCacheWriter())
             // 缓存移除监听 异步
@@ -104,7 +106,7 @@ public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, System
     }
 
     public SystemBO getCacheBySecret(String secret) {
-        return systemCache.getIfPresent(secret);
+        return systemCache.get(secret, this::getBySecret);
     }
 
     @Override

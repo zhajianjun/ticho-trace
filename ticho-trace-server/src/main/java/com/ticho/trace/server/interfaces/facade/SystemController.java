@@ -73,7 +73,6 @@ public class SystemController {
         return Result.ok();
     }
 
-
     @ApiOperation(value = "主键查询系统信息")
     @ApiOperationSupport(order = 40)
     @ApiImplicitParam(value = "编号", name = "id", required = true)
@@ -82,8 +81,16 @@ public class SystemController {
         return Result.ok(systemService.getById(id));
     }
 
-    @ApiOperation(value = "分页查询系统信息")
+    @ApiOperation(value = "秘钥查询系统信息")
     @ApiOperationSupport(order = 50)
+    @ApiImplicitParam(value = "秘钥", name = "secret", required = true)
+    @GetMapping("getBySecret")
+    public Result<SystemVO> getCacheBySecret(@RequestParam("secret") String secret) {
+        return Result.ok(systemService.getCacheBySecret(secret));
+    }
+
+    @ApiOperation(value = "分页查询系统信息")
+    @ApiOperationSupport(order = 60)
     @GetMapping("page")
     public Result<PageResult<SystemVO>> page(SystemQuery query) {
         return Result.ok(systemService.page(query));

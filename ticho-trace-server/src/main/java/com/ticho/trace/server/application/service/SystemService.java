@@ -46,6 +46,14 @@ public interface SystemService {
     SystemVO getById(Serializable id);
 
     /**
+     * 根据秘钥查询系统信息
+     *
+     * @param secret 秘钥
+     * @return {@link SystemVO}
+     */
+    SystemVO getCacheBySecret(String secret);
+
+    /**
      * 分页查询系统信息列表
      *
      * @param query 查询
