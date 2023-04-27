@@ -26,8 +26,11 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 系统信息 repository实现
@@ -78,10 +81,18 @@ public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, System
     }
 
     @Override
-    public boolean updateStatusById(String id, Integer status) {
+    public boolean updateStatus(String systemId, Integer status) {
         LambdaEsUpdateWrapper<SystemBO> wrapper = EsWrappers.lambdaUpdate(null);
-        wrapper.eq(SystemBO::getId, id);
+        wrapper.eq(SystemBO::getSystemId, systemId);
         wrapper.set(SystemBO::getStatus, status);
+        return baseEsMapper.update(null, wrapper) > 0;
+    }
+
+    @Override
+    public boolean updateSecret(String systemId, String secret) {
+        LambdaEsUpdateWrapper<SystemBO> wrapper = EsWrappers.lambdaUpdate(null);
+        wrapper.eq(SystemBO::getSystemId, systemId);
+        wrapper.set(SystemBO::getSecret, secret);
         return baseEsMapper.update(null, wrapper) > 0;
     }
 
@@ -130,6 +141,15 @@ public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, System
         LambdaEsQueryWrapper<SystemBO> wrapper = EsWrappers.lambdaQuery(null);
         wrapper.in(SystemBO::getSystemId, systemIds);
         return baseEsMapper.selectList(wrapper);
+    }
+
+    @Override
+    public Map<String, SystemBO> getMapBySystemIds(Collection<String> systemIds) {
+        // @formatter:off
+        return listBySystemIds(systemIds)
+            .stream()
+            .collect(Collectors.toMap(SystemBO::getSystemId, Function.identity()));
+        // @formatter:on
     }
 
 }

@@ -28,7 +28,7 @@ logging:
 
 ticho:
   trace:
-    trace: '[${traceId}].[${spanId}]'
+    trace: '[${traceId}]'
   log:
     print: true
     ant-patterns: ["/swagger-resources/**", "/health"]

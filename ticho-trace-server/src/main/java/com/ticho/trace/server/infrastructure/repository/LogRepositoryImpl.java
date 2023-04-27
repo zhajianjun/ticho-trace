@@ -43,7 +43,7 @@ public class LogRepositoryImpl extends BaseEsServiceImpl<LogMapper, LogBO> imple
         wrapper.eq(StrUtil.isNotBlank(logQuery.getLogLevel()), LogBO::getLogLevel, logQuery.getLogLevel());
         wrapper.like(StrUtil.isNotBlank(logQuery.getClassName()), LogBO::getClassName, logQuery.getClassName());
         wrapper.like(StrUtil.isNotBlank(logQuery.getMethod()), LogBO::getMethod, logQuery.getMethod());
-        wrapper.like(StrUtil.isNotBlank(logQuery.getContent()), LogBO::getContent, logQuery.getContent());
+        wrapper.matchPhrase(StrUtil.isNotBlank(logQuery.getContent()), LogBO::getContent, logQuery.getContent());
         wrapper.ge(LogBO::getDtTime, start);
         wrapper.le(LogBO::getDtTime, end);
         return baseEsMapper.pageQuery(wrapper, logQuery.getPageNum(), logQuery.getPageSize());

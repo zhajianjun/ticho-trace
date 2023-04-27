@@ -27,7 +27,6 @@ public interface SystemAssembler {
      */
     @Mapping(target = "updateTime", ignore = true)
     @Mapping(target = "updateBy", ignore = true)
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "createBy", ignore = true)
     SystemBO dtoToSystem(SystemDTO systemDTO);

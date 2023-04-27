@@ -18,13 +18,22 @@ import java.util.Map;
 public interface SystemRepository extends BaseEsService<SystemBO> {
 
     /**
-     * 通过id更新状态
+     * 通过系统编号更新状态
      *
-     * @param id id
+     * @param systemId 系统编号
      * @param status 状态
      * @return boolean
      */
-    boolean updateStatusById(String id, Integer status);
+    boolean updateStatus(String systemId, Integer status);
+
+    /**
+     * 通过系统编号更新秘钥
+     *
+     * @param systemId 系统编号
+     * @param secret 秘钥
+     * @return boolean
+     */
+    boolean updateSecret(String systemId, String secret);
 
     /**
      * 根据系统id查询
@@ -63,9 +72,17 @@ public interface SystemRepository extends BaseEsService<SystemBO> {
     /**
      * 根据系统id列表查询
      *
-     * @param systemIds ids系统
+     * @param systemIds 系统id列表
      * @return {@link List}<{@link SystemBO}>
      */
     List<SystemBO> listBySystemIds(Collection<String> systemIds);
+
+    /**
+     * 根据系统id列表查询Map
+     *
+     * @param systemIds 系统id列表
+     * @return {@link Map}<{@link String}, {@link SystemBO}>
+     */
+    Map<String, SystemBO> getMapBySystemIds(Collection<String> systemIds);
 
 }

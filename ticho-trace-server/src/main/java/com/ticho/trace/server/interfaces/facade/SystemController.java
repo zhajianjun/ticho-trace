@@ -14,7 +14,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,12 +53,27 @@ public class SystemController {
     @ApiOperation(value = "系统信息状态更改")
     @ApiOperationSupport(order = 20)
     @ApiImplicitParams({
-        @ApiImplicitParam(value = "编号", name = "id", required = true),
+        @ApiImplicitParam(value = "系统编号", name = "systemId", required = true),
         @ApiImplicitParam(value = "状态", name = "status", required = true),
     })
-    @DeleteMapping
-    public Result<Void> removeById(@RequestParam("id") String id, @RequestParam("status") Integer status) {
-        systemService.updateStatusById(id, status);
+    @PutMapping("updateStatus")
+    public Result<Void> updateStatus(@RequestParam("systemId") String systemId, @RequestParam("status") Integer status) {
+        systemService.updateStatus(systemId, status);
+        return Result.ok();
+    }
+    // @formatter:off
+
+    // @formatter:off
+    @PreAuthorize("@user.hasPerms('admin')")
+    @ApiOperation(value = "系统秘钥更改")
+    @ApiOperationSupport(order = 25)
+    @ApiImplicitParams({
+        @ApiImplicitParam(value = "系统编号", name = "systemId", required = true),
+        @ApiImplicitParam(value = "秘钥", name = "secret", required = true),
+    })
+    @PutMapping("updateSecret")
+    public Result<Void> updateSecret(@RequestParam("systemId") String systemId, @RequestParam("secret") String secret) {
+        systemService.updateSecret(systemId, secret);
         return Result.ok();
     }
     // @formatter:off

@@ -1,5 +1,6 @@
 package com.ticho.trace.server.infrastructure.entity;
 
+import cn.easyes.annotation.HighLight;
 import cn.easyes.annotation.IndexField;
 import cn.easyes.annotation.IndexId;
 import cn.easyes.annotation.IndexName;
@@ -55,6 +56,7 @@ public class LogBO {
     /** 序列号 */
     private Long seq;
     /** 内容 */
+    @HighLight
     private String content;
     /** 线程名称 */
     private String threadName;

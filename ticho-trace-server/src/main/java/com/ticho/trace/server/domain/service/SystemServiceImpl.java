@@ -16,6 +16,7 @@ import com.ticho.trace.server.interfaces.dto.SystemDTO;
 import com.ticho.trace.server.interfaces.query.SystemQuery;
 import com.ticho.trace.server.interfaces.vo.SystemVO;
 import lombok.extern.slf4j.Slf4j;
+import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,9 @@ public class SystemServiceImpl implements SystemService {
     @Autowired
     private SystemRepository systemRepository;
 
+    @Autowired
+    private StringEncryptor stringEncryptor;
+
     @Override
     public void save(SystemDTO systemDTO) {
         ValidUtil.valid(systemDTO, ValidGroup.Add.class);
@@ -44,9 +48,10 @@ public class SystemServiceImpl implements SystemService {
         SystemBO select = systemRepository.getBySystemId(systemId);
         Assert.isNull(select, BizErrCode.FAIL, "系统已存在");
         SystemBO systemBO = SystemAssembler.INSTANCE.dtoToSystem(systemDTO);
+        String secret = systemBO.getSecret();
         LocalDateTime now = LocalDateTime.now();
         systemBO.setId(IdUtil.getSnowflakeNextIdStr());
-        systemBO.setSecret(systemBO.getId());
+        systemBO.setSecret(stringEncryptor.encrypt(secret));
         systemBO.setStatus(UserStatus.NORMAL.code());
         systemBO.setCreateBy(null);
         systemBO.setCreateTime(now);
@@ -56,8 +61,14 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
-    public void updateStatusById(String id, Integer status) {
-        Assert.isTrue(systemRepository.updateStatusById(id, status), BizErrCode.FAIL, "删除失败");
+    public void updateStatus(String systemId, Integer status) {
+        Assert.isTrue(systemRepository.updateStatus(systemId, status), BizErrCode.FAIL, "更新失败");
+    }
+
+    @Override
+    public void updateSecret(String systemId, String secret) {
+        String encrypt = stringEncryptor.encrypt(secret);
+        Assert.isTrue(systemRepository.updateSecret(systemId, encrypt), BizErrCode.FAIL, "更新失败");
     }
 
     @Override
@@ -67,7 +78,9 @@ public class SystemServiceImpl implements SystemService {
         SystemBO byId = systemRepository.getById(id);
         Assert.isNotNull(byId, BizErrCode.FAIL, "用户不存在");
         SystemBO systemBO = SystemAssembler.INSTANCE.dtoToSystem(systemDTO);
+        // 系统id和秘钥不能更新
         systemBO.setSystemId(null);
+        systemBO.setSecret(null);
         LocalDateTime now = LocalDateTime.now();
         systemBO.setUpdateBy(null);
         systemBO.setCreateTime(now);

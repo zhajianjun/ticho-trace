@@ -4,8 +4,10 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.TraceService;
+import com.ticho.trace.server.domain.repository.SystemRepository;
 import com.ticho.trace.server.domain.repository.TraceRepository;
 import com.ticho.trace.server.domain.service.handle.SecretHandle;
+import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.infrastructure.entity.TraceBO;
 import com.ticho.trace.server.interfaces.assembler.TraceAssembler;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +35,9 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
 
     @Autowired
     private TraceRepository traceRepository;
+
+    @Autowired
+    private SystemRepository systemRepository;
 
     @Override
     public void collect(TraceDTO traceDto) {
@@ -56,11 +63,27 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
             return Collections.emptyList();
         }
         // TODO systemName 系统名称查询
-        return traceRepository.selectByTraceId(traceId)
+        List<TraceBO> traceBos = traceRepository.selectByTraceId(traceId);
+        List<String> systemIds = traceBos.stream().map(TraceBO::getSystemId).collect(Collectors.toList());
+        Map<String, SystemBO> systemMap = systemRepository.getMapBySystemIds(systemIds);
+        return traceBos
             .stream()
             .map(TraceAssembler.INSTANCE::traceToVo)
+            .peek(x-> setSystemInfo(x, systemMap))
             .collect(Collectors.toList());
         // @formatter:on
+    }
+
+    private void setSystemInfo(TraceVO traceVO, Map<String, SystemBO> systemMap) {
+        if (Objects.isNull(traceVO)) {
+            return;
+        }
+        String systemId = traceVO.getSystemId();
+        SystemBO systemBO = systemMap.get(systemId);
+        if (Objects.isNull(systemBO)) {
+            return;
+        }
+        traceVO.setSystemName(systemBO.getSystemName());
     }
 
 }
