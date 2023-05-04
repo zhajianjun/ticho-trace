@@ -19,9 +19,10 @@ public interface LogService {
     /**
      * 日志收集
      *
+     * @param secret 秘钥
      * @param logs 日志
      */
-    void collect(List<LogDTO> logs);
+    void collect(String secret, List<LogDTO> logs);
 
     /**
      * 分页查询

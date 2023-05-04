@@ -2,6 +2,7 @@ package com.ticho.trace.server.domain.service;
 
 import cn.easyes.core.biz.EsPageInfo;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.ticho.boot.view.core.BizErrCode;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.util.Assert;
@@ -49,6 +50,7 @@ public class SystemServiceImpl implements SystemService {
         Assert.isNull(select, BizErrCode.FAIL, "系统已存在");
         SystemBO systemBO = SystemAssembler.INSTANCE.dtoToSystem(systemDTO);
         String secret = systemBO.getSecret();
+        secret = StrUtil.isBlank(secret) ? systemId : secret;
         LocalDateTime now = LocalDateTime.now();
         systemBO.setId(IdUtil.getSnowflakeNextIdStr());
         systemBO.setSecret(stringEncryptor.encrypt(secret));

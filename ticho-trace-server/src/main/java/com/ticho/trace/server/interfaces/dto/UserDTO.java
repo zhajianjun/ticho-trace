@@ -1,5 +1,6 @@
 package com.ticho.trace.server.interfaces.dto;
 
+import cn.hutool.core.lang.RegexPool;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ticho.boot.web.util.valid.ValidGroup;
 import io.swagger.annotations.ApiModel;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.List;
 
@@ -45,6 +47,7 @@ public class UserDTO implements Serializable {
 
     /** 邮箱 */
     @ApiModelProperty(value = "邮箱", position = 50)
+    @Pattern(regexp = RegexPool.EMAIL, message = "邮箱格式不正确")
     private String email;
 
     /** 手机号码 */

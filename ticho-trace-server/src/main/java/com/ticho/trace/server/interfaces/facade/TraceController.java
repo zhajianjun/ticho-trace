@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,8 +39,8 @@ public class TraceController {
     @ApiOperation(value = "链路收集")
     @ApiImplicitParam(value = "秘钥信息", name = "secret", required = true, paramType = "header")
     @ApiOperationSupport(order = 10)
-    public Result<Void> collect(@RequestBody TraceDTO traceDto) {
-        traceService.collect(traceDto);
+    public Result<Void> collect(@RequestHeader("secret") String secret, @RequestBody TraceDTO traceDto) {
+        traceService.collect(secret, traceDto);
         return Result.ok();
     }
 

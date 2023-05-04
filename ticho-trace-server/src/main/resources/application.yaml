@@ -17,6 +17,8 @@ easy-es:
   banner: false
   connect-timeout: 5000
   socket-timeout: 60000
+  global-config:
+    print-dsl: false
 
 jasypt:
   encryptor:
@@ -31,7 +33,7 @@ ticho:
     trace: '[${traceId}]'
   log:
     print: true
-    ant-patterns: ["/swagger-resources/**", "/health"]
+    ant-patterns: ["/swagger-resources/**", "/health", "/*/collect"]
   swagger:
     enable: true
   security:

@@ -16,9 +16,10 @@ public interface TraceService {
     /**
      * 收集
      *
+     * @param secret 秘钥
      * @param trace 跟踪收集信息
      */
-    void collect(TraceDTO trace);
+    void collect(String secret, TraceDTO trace);
 
     /**
      * 通过traceId查询链路信息

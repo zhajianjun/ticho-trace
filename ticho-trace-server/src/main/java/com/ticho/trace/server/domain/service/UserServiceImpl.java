@@ -17,12 +17,14 @@ import com.ticho.trace.server.infrastructure.core.constant.CommConst;
 import com.ticho.trace.server.infrastructure.core.enums.UserStatus;
 import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.infrastructure.entity.UserBO;
+import com.ticho.trace.server.interfaces.assembler.SystemAssembler;
 import com.ticho.trace.server.interfaces.assembler.UserAssembler;
 import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
 import com.ticho.trace.server.interfaces.dto.SecurityUser;
 import com.ticho.trace.server.interfaces.dto.UserDTO;
 import com.ticho.trace.server.interfaces.dto.UserPasswordDTO;
 import com.ticho.trace.server.interfaces.query.UserQuery;
+import com.ticho.trace.server.interfaces.vo.SystemVO;
 import com.ticho.trace.server.interfaces.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,18 +167,43 @@ public class UserServiceImpl implements UserService {
         // 更新密码
         boolean update = userRepository.updateById(user);
         Assert.isTrue(update, BizErrCode.FAIL, "更新密码失败");
+        // @formatter:on
     }
 
     @Override
     public UserVO getById(Serializable id) {
         UserBO userBO = userRepository.getById(id);
-        return UserAssembler.INSTANCE.entityToVo(userBO);
+        UserVO userVO = UserAssembler.INSTANCE.entityToVo(userBO);
+        setSystemInfo(userVO);
+        return userVO;
     }
 
     @Override
     public UserVO getByUsername(String username) {
         UserBO userBO = userRepository.getByUsername(username);
-        return UserAssembler.INSTANCE.entityToVo(userBO);
+        UserVO userVO = UserAssembler.INSTANCE.entityToVo(userBO);
+        setSystemInfo(userVO);
+        return userVO;
+    }
+
+    /**
+     * 注入系统信息
+     *
+     * @param userVO 用户信息
+     */
+    private void setSystemInfo(UserVO userVO) {
+        // @formatter:off
+        if (Objects.isNull(userVO)) {
+            return;
+        }
+        List<String> systemIds = userVO.getSystemIds();
+        List<SystemBO> systemBos = systemRepository.listBySystemIds(systemIds);
+        List<SystemVO> systems = systemBos
+            .stream()
+            .map(SystemAssembler.INSTANCE::systemToVO)
+            .collect(Collectors.toList());
+        userVO.setSystems(systems);
+        // @formatter:on
     }
 
     @Override

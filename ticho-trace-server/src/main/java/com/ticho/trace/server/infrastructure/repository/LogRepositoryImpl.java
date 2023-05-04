@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Objects;
 
 /**
  * 日志收集信息 repository实现
@@ -46,6 +47,8 @@ public class LogRepositoryImpl extends BaseEsServiceImpl<LogMapper, LogBO> imple
         wrapper.matchPhrase(StrUtil.isNotBlank(logQuery.getContent()), LogBO::getContent, logQuery.getContent());
         wrapper.ge(LogBO::getDtTime, start);
         wrapper.le(LogBO::getDtTime, end);
+        boolean isAsc = Boolean.TRUE.equals(logQuery.getIsAsc());
+        wrapper.orderBy(true, isAsc, LogBO::getDtTime);
         return baseEsMapper.pageQuery(wrapper, logQuery.getPageNum(), logQuery.getPageSize());
     }
 

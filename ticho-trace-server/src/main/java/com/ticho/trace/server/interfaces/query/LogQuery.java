@@ -70,5 +70,8 @@ public class LogQuery extends BasePageQuery {
     /** 内容 */
     @ApiModelProperty(value = "内容", position = 130)
     private String content;
+    /** 是否按照时间递增排序 */
+    @ApiModelProperty(value = "是否按照时间递增排序", position = 140)
+    private Boolean isAsc;
 
 }

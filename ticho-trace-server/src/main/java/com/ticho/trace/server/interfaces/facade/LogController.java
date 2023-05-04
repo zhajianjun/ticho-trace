@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,8 +41,8 @@ public class LogController {
     @ApiOperation(value = "日志收集")
     @ApiImplicitParam(value = "秘钥信息", name = "secret", required = true, paramType = "header")
     @ApiOperationSupport(order = 10)
-    public Result<Void> collect(@RequestBody List<LogDTO> logs) {
-        logService.collect(logs);
+    public Result<Void> collect(@RequestHeader("secret") String secret, @RequestBody List<LogDTO> logs) {
+        logService.collect(secret, logs);
         return Result.ok();
     }
 

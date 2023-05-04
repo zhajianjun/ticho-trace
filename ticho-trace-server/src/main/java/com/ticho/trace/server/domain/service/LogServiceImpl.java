@@ -45,9 +45,9 @@ public class LogServiceImpl extends SecretHandle implements LogService {
     private LogRepository logRepository;
 
     @Override
-    public void collect(List<LogDTO> logs) {
+    public void collect(String secret, List<LogDTO> logs) {
         // @formatter:off
-        String systemId = getSystemIdAndCheck();
+        String systemId = getSystemIdAndCheck(secret);
         Map<String, List<LogBO>> collect = logs
             .stream()
             .filter(this::checkDate)

@@ -40,8 +40,8 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
     private SystemRepository systemRepository;
 
     @Override
-    public void collect(TraceDTO traceDto) {
-        String systemId = getSystemIdAndCheck();
+    public void collect(String secret, TraceDTO traceDto) {
+        String systemId = getSystemIdAndCheck(secret);
         if (traceDto.getStart() == null) {
             log.warn("链路格式异常，start开始时间戳不存在");
             return;

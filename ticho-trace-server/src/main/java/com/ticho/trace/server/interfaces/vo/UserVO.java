@@ -75,5 +75,8 @@ public class UserVO implements Serializable {
     /** 系统id列表 */
     @ApiModelProperty(value = "系统id列表", position = 160)
     private List<String> systemIds;
+    /** 系统id列表 */
+    @ApiModelProperty(value = "系统信息列表", position = 170)
+    private List<SystemVO> systems;
 
 }
