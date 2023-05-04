@@ -1,36 +1,35 @@
-package com.ticho.trace.core.json.adapter;
+package com.ticho.trace.core.util;
 
 import cn.hutool.json.JSONUtil;
-import com.ticho.trace.core.json.JsonAdapter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * hutool json工具适配类
+ * json工具类
  *
  * @author zhajianjun
  * @date 2023-03-27 12:34
  */
-public class HutoolJsonAdapter implements JsonAdapter {
-    @Override
-    public String toJsonString(Object obj) {
+public class JsonUtil {
+
+    private JsonUtil() {
+    }
+
+    public static String toJsonString(Object obj) {
         return JSONUtil.toJsonStr(obj);
     }
 
-    @Override
-    public <T> T toJavaObject(String jsonString, Class<T> clazz) {
+    public static <T> T toJavaObject(String jsonString, Class<T> clazz) {
         return JSONUtil.toBean(jsonString, clazz);
     }
 
-    @Override
-    public <T> List<T> toList(String jsonStr, Class<T> clazz) {
+    public static <T> List<T> toList(String jsonStr, Class<T> clazz) {
         return JSONUtil.toList(jsonStr, clazz);
     }
 
-    @Override
-    public <V> Map<String, V> toMap(String jsonStr, Class<V> vClass) {
+    public static <V> Map<String, V> toMap(String jsonStr, Class<V> vClass) {
         Map<String, Object> entries = JSONUtil.parseObj(jsonStr);
         Map<String, V> result = new HashMap<>();
         for (Map.Entry<String, Object> entry : entries.entrySet()) {
@@ -40,4 +39,6 @@ public class HutoolJsonAdapter implements JsonAdapter {
         }
         return result;
     }
+
+
 }

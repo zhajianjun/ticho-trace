@@ -3,7 +3,6 @@ package com.ticho.trace.core.handle;
 import cn.hutool.core.date.SystemClock;
 import com.lmax.disruptor.EventHandler;
 import com.ticho.trace.common.bean.LogInfo;
-import com.ticho.trace.core.push.TracePushContext;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.ticho.trace.core.push;
+package com.ticho.trace.core.handle;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.AntPathMatcher;
@@ -8,7 +8,7 @@ import com.ticho.trace.common.bean.LogInfo;
 import com.ticho.trace.common.bean.TraceInfo;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.common.prop.TraceProperty;
-import com.ticho.trace.core.push.adapter.OkHttpPushAdapter;
+import com.ticho.trace.core.util.OkHttpUtil;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,8 +29,6 @@ public class TracePushContext {
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
     /** 线程池 */
     private static final ThreadPoolExecutor executor;
-    /** 日志推送适配器 */
-    private static PushAdapter TRACE_PUSH_ADAPTER;
 
     static {
         // @formatter:off
@@ -43,12 +41,7 @@ public class TracePushContext {
             .setKeepAliveTime(0L)
             .setThreadFactory(threadFactory)
             .build();
-        TRACE_PUSH_ADAPTER = new OkHttpPushAdapter();
         // @formatter:on
-    }
-
-    public static void setTracePushAdapter(PushAdapter pushAdapter) {
-        TRACE_PUSH_ADAPTER = pushAdapter;
     }
 
     /**
@@ -58,7 +51,7 @@ public class TracePushContext {
      * @param logInfos 日志信息
      */
     public static void pushLogInfo(String url, String secret, List<LogInfo> logInfos) {
-        TRACE_PUSH_ADAPTER.push(url, secret, logInfos);
+        OkHttpUtil.push(url, secret, logInfos);
     }
 
     /**
@@ -85,7 +78,7 @@ public class TracePushContext {
         // 不推送链路信息的url匹配
         List<String> antPatterns = traceProperty.getAntPatterns();
         if (CollUtil.isEmpty(antPatterns)) {
-            TRACE_PUSH_ADAPTER.push(traceUrl, secret, traceInfo);
+            OkHttpUtil.push(traceUrl, secret, traceInfo);
         }
         String url = traceInfo.getUrl();
         boolean anyMatch = antPatterns.stream().anyMatch(x -> antPathMatcher.match(x, url));
@@ -94,7 +87,7 @@ public class TracePushContext {
         if (anyMatch && isFirstSpanId) {
             return;
         }
-        TRACE_PUSH_ADAPTER.push(traceUrl, secret, traceInfo);
+        OkHttpUtil.push(traceUrl, secret, traceInfo);
     }
 
 }

@@ -62,7 +62,6 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
         if (StrUtil.isBlank(traceId)) {
             return Collections.emptyList();
         }
-        // TODO systemName 系统名称查询
         List<TraceBO> traceBos = traceRepository.selectByTraceId(traceId);
         List<String> systemIds = traceBos.stream().map(TraceBO::getSystemId).collect(Collectors.toList());
         Map<String, SystemBO> systemMap = systemRepository.getMapBySystemIds(systemIds);
@@ -74,6 +73,12 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
         // @formatter:on
     }
 
+    /**
+     * 系统信息注入
+     *
+     * @param traceVO 链路信息
+     * @param systemMap 系统map
+     */
     private void setSystemInfo(TraceVO traceVO, Map<String, SystemBO> systemMap) {
         if (Objects.isNull(traceVO)) {
             return;

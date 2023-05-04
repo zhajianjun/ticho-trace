@@ -1,4 +1,4 @@
-package com.ticho.trace.core.push.adapter;
+package com.ticho.trace.core.util;
 
 import com.ticho.trace.common.constant.LogConst;
 import okhttp3.MediaType;
@@ -6,8 +6,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import com.ticho.trace.core.json.JsonUtil;
-import com.ticho.trace.core.push.PushAdapter;
 
 import java.io.IOException;
 
@@ -17,12 +15,11 @@ import java.io.IOException;
  * @author zhajianjun
  * @date 2023-03-27 12:34
  */
-public class OkHttpPushAdapter implements PushAdapter {
+public class OkHttpUtil {
     /** http客户端 */
-    private final OkHttpClient httpClient = new OkHttpClient.Builder().build();
+    private static final OkHttpClient httpClient = new OkHttpClient.Builder().build();
 
-    @Override
-    public void push(String url, String secret, Object data) {
+    public static void push(String url, String secret, Object data) {
         // @formatter:off
         String json = JsonUtil.toJsonString(data);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);

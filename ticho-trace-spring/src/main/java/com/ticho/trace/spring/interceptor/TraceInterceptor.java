@@ -5,7 +5,7 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.ticho.trace.common.bean.TraceInfo;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.common.prop.TraceProperty;
-import com.ticho.trace.core.push.TracePushContext;
+import com.ticho.trace.core.handle.TracePushContext;
 import com.ticho.trace.core.util.TraceUtil;
 import com.ticho.trace.spring.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Executor;
 
 /**
  * 链路拦截器
