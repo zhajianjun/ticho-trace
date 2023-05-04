@@ -3,6 +3,7 @@ package com.ticho.trace.server.application.service;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
 import com.ticho.trace.server.interfaces.dto.UserDTO;
+import com.ticho.trace.server.interfaces.dto.UserPasswordDTO;
 import com.ticho.trace.server.interfaces.query.UserQuery;
 import com.ticho.trace.server.interfaces.vo.UserVO;
 
@@ -43,6 +44,13 @@ public interface UserService {
      * @param userDTO 用户信息DTO 对象
      */
     void updateById(UserDTO userDTO);
+
+    /**
+     * 更改用户密码
+     *
+     * @param userPasswordDTO 用户信息
+     */
+    void updatePassword(UserPasswordDTO userPasswordDTO);
 
     /**
      * 根据id查询用户信息

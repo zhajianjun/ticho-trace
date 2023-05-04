@@ -45,7 +45,7 @@ public class LogServiceImpl extends SecretHandle implements LogService {
     private LogRepository logRepository;
 
     @Override
-    public void collect(@RequestBody List<LogDTO> logs) {
+    public void collect(List<LogDTO> logs) {
         // @formatter:off
         String systemId = getSystemIdAndCheck();
         Map<String, List<LogBO>> collect = logs

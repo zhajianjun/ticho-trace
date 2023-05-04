@@ -8,6 +8,7 @@ import com.ticho.boot.view.core.Result;
 import com.ticho.trace.server.application.service.UserService;
 import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
 import com.ticho.trace.server.interfaces.dto.UserDTO;
+import com.ticho.trace.server.interfaces.dto.UserPasswordDTO;
 import com.ticho.trace.server.interfaces.query.UserQuery;
 import com.ticho.trace.server.interfaces.vo.UserVO;
 import io.swagger.annotations.Api;
@@ -75,6 +76,14 @@ public class UserController {
     @PutMapping
     public Result<Void> update(@RequestBody UserDTO userDTO) {
         userService.updateById(userDTO);
+        return Result.ok();
+    }
+
+    @ApiOperation(value = "修改用户密码")
+    @ApiOperationSupport(order = 30)
+    @PutMapping("updatePassword")
+    public Result<Void> updatePassword(@RequestBody UserPasswordDTO userPasswordDTO) {
+        userService.updatePassword(userPasswordDTO);
         return Result.ok();
     }
 

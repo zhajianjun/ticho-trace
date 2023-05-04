@@ -34,11 +34,16 @@ public abstract class SecretHandle {
      */
     public String getSystemIdAndCheck() {
         String secret = request.getHeader(CommConst.SECRET_KEY);
+        return getSystemIdAndCheck(secret);
+    }
+
+    public String getSystemIdAndCheck(String secret) {
         Assert.isNotBlank(secret, BizErrCode.FAIL, "秘钥不能为空");
         SystemBO cacheBySecret = systemRepository.getCacheBySecret(secret);
         Assert.isNotNull(cacheBySecret, BizErrCode.FAIL, "系统信息不存在");
         return cacheBySecret.getSystemId();
     }
+
 
 
 }

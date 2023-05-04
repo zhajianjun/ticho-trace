@@ -4,6 +4,7 @@ import cn.easyes.core.biz.EsPageInfo;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.ticho.boot.security.util.BaseUserUtil;
 import com.ticho.boot.view.core.BizErrCode;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.util.Assert;
@@ -18,7 +19,9 @@ import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.infrastructure.entity.UserBO;
 import com.ticho.trace.server.interfaces.assembler.UserAssembler;
 import com.ticho.trace.server.interfaces.dto.AdminUserDTO;
+import com.ticho.trace.server.interfaces.dto.SecurityUser;
 import com.ticho.trace.server.interfaces.dto.UserDTO;
+import com.ticho.trace.server.interfaces.dto.UserPasswordDTO;
 import com.ticho.trace.server.interfaces.query.UserQuery;
 import com.ticho.trace.server.interfaces.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -134,6 +138,33 @@ public class UserServiceImpl implements UserService {
         userBO.setUpdateBy(null);
         userBO.setCreateTime(now);
         Assert.isTrue(userRepository.updateById(userBO), BizErrCode.FAIL, "修改失败");
+    }
+
+    @Override
+    public void updatePassword(UserPasswordDTO userPasswordDTO) {
+        // @formatter:off
+        ValidUtil.valid(userPasswordDTO);
+        Long id = userPasswordDTO.getId();
+        String password = userPasswordDTO.getPassword();
+        String passwordNew = userPasswordDTO.getPasswordNew();
+        UserBO queryUser = userRepository.getById(id);
+        Assert.isNotEmpty(queryUser, BizErrCode.FAIL, "用户不存在");
+        String encodedPassword = queryUser.getPassword();
+        SecurityUser loginUser = BaseUserUtil.getCurrentUser();
+        // 非管理员用户，只能修改自己的密码
+        boolean isAdmin = Objects.equals(loginUser.getUsername(), CommConst.ADMIN_USERNAME);
+        if (!isAdmin) {
+            Assert.isTrue(Objects.equals(queryUser.getUsername(), loginUser.getUsername()), BizErrCode.FAIL, "只能修改自己的密码");
+        }
+        boolean matches = passwordEncoder.matches(password, encodedPassword);
+        Assert.isTrue(matches, BizErrCode.FAIL, "密码错误");
+        String encodedPasswordNew = passwordEncoder.encode(passwordNew);
+        UserBO user = new UserBO();
+        user.setId(queryUser.getId());
+        user.setPassword(encodedPasswordNew);
+        // 更新密码
+        boolean update = userRepository.updateById(user);
+        Assert.isTrue(update, BizErrCode.FAIL, "更新密码失败");
     }
 
     @Override
