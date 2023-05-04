@@ -59,6 +59,11 @@ public class CilentController {
     @GetMapping("get/{id}")
     @ApiOperation(value = "根据城市id获取")
     public Result<String> city(@PathVariable String id) {
+        try {
+            int i = 1/0;
+        } catch (Exception e) {
+            log.error("查询错误：{}",e.getMessage(), e);
+        }
         return Result.ok(id);
     }
 

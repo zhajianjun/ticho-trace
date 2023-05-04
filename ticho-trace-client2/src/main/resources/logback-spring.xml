@@ -1,29 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="false" scan="true" scanPeriod="30 seconds">
-    <!--日志根目录-->
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+
+    <!-- @formatter:off -->
+    <!--1.日志格式和颜色渲染 -->
+    <!-- 彩色日志依赖的渲染类 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+    <!-- 增加如下的TLog MDC Listener -->
+    <!-- 3.一些属性值定义 -->
+    <!-- 彩色日志格式 -->
+    <property name="console.log.pattern" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}) %clr([%thread]) %highlight(%-5level) %boldMagenta(%logger{50}) %clr(%X{trace}) : %msg%n"/>
+    <!--日志格式-->
+    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} %X{trace} %msg%n"/>"
+    <!--日志最大的历史 7天-->
+    <property name="log.maxHistory" value="7"/>
+    <!--日志最大的文件大小 100MB-->
+    <property name="log.maxFileSize" value="10MB"/>
     <property name="log.path" value="./logs/@artifactId@"/>
-    <include optional="true" resource="ticho-logback-common.xml"/>
+    <!-- 4.日志输出 -->
+    <!-- 4.1.控制台打印 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${console.log.pattern}</pattern>
+        </encoder>
+        <!-- 按临界值过滤日志：低于DEBUG以下级别被抛弃 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
 
-    <springProfile name="local,dev,test,st">
-        <logger name="com.alibaba.nacos.client" level="ERROR"/>
-        <logger name="com.alibaba.cloud.nacos" level="INFO"/>
-        <logger name="io.undertow" level="ERROR"/>
-        <logger name="org.springframework" level="ERROR"/>
-        <logger name="springfox.documentation" level="ERROR"/>
-        <logger name="com.baomidou.mybatisplus" level="ERROR"/>
-        <logger name="com.ulisesbocchio" level="ERROR"/>
-        <logger name="com.ticho" level="DEBUG"/>
-    </springProfile>
+    <!-- 4.6. 所有日志 -->
+    <appender name="all" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/all.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <!-- 按临界值过滤日志：低于DEBUG以下级别被抛弃 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 滚动日志文件保存格式 -->
+            <fileNamePattern>${log.path}/all.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <!-- 最大保存历史时间 -->
+            <maxHistory>${log.maxHistory}</maxHistory>
+            <!-- 最大文件大小 -->
+            <maxFileSize>${log.maxFileSize}</maxFileSize>
+        </rollingPolicy>
+    </appender>
 
-    <springProfile name="uat,prod">
-        <logger name="com.alibaba.nacos.client" level="ERROR"/>
-        <logger name="com.alibaba.cloud.nacos" level="ERROR"/>
-        <logger name="io.undertow" level="ERROR"/>
-        <logger name="org.springframework" level="ERROR"/>
-        <logger name="springfox.documentation" level="ERROR"/>
-        <logger name="com.baomidou.mybatisplus" level="ERROR"/>
-        <logger name="com.ulisesbocchio" level="ERROR"/>
-        <logger name="com.ticho" level="INFO"/>
-    </springProfile>
+    <!-- 5.异步日志输出 -->
+    <!-- 5.1. 异步console日志 -->
+    <appender name="async-console" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!--打印堆栈信息-->
+        <includeCallerData>true</includeCallerData>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="console"/>
+    </appender>
+
+
+    <!-- 5.6. 异步all日志 -->
+    <appender name="async-all" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!--打印堆栈信息-->
+        <includeCallerData>true</includeCallerData>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="all"/>
+    </appender>
+
+    <springProperty scope="context" name="logUrl" source="ticho.trace.logUrl" defaultValue = ""/>
+    <springProperty scope="context" name="pushLog" source="ticho.trace.pushLog" defaultValue = "false"/>
+    <springProperty scope="context" name="secret" source="ticho.trace.secret" defaultValue = ""/>
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue = "UNKNOWN"/>
+    <springProperty scope="context" name="env" source="spring.profiles.active" defaultValue = "UNKNOWN"/>
+
+    <appender name="trace" class="com.ticho.trace.core.logback.DistributedLogAppender">
+        <appName>${appName}</appName>
+        <env>${env}</env>
+        <url>${logUrl}</url>
+        <pushLog>${pushLog}</pushLog>
+        <secret>${secret}</secret>
+        <pushSize>50</pushSize>
+        <flushInterval>1000</flushInterval>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="async-console"/>
+        <appender-ref ref="async-all"/>
+        <appender-ref ref="trace"/>
+    </root>
 
 </configuration>
