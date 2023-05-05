@@ -16,8 +16,8 @@ spec:
   ports:
     - name: http-web
       protocol: TCP
-      port: 8000
-      targetPort: 8000
+      port: 8080
+      targetPort: 8080
       nodePort: 7001
 ---
 # K8S工作负载定义
@@ -73,7 +73,14 @@ spec:
             - '-Xmx512m'
             - '-Xmn170m'
             - '-Dserver.port=8080'
+            - '-Djasypt.encryptor.password=$ENC_PASSWORD'
             - /app.jar
+          env:
+            - name: ENC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ticho-trace
+                  key: ENC_PASSWORD
           # 健康检查
           livenessProbe:
             failureThreshold: 3
