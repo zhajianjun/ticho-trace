@@ -16,9 +16,9 @@ spec:
   ports:
     - name: http-web
       protocol: TCP
-      port: 8080
-      targetPort: 8080
-      nodePort: 8020
+      port: 8000
+      targetPort: 8000
+      nodePort: 7000
 ---
 # K8S工作负载定义
 apiVersion: apps/v1
