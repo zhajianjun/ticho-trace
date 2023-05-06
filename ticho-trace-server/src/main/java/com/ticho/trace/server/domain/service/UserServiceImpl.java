@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ticho.boot.security.util.BaseUserUtil;
+import com.ticho.boot.view.core.BaseSecurityUser;
 import com.ticho.boot.view.core.BizErrCode;
 import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.util.Assert;
@@ -180,6 +181,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserVO getByUsername(String username) {
+        if (StrUtil.isBlank(username)) {
+            SecurityUser currentUser = BaseUserUtil.getCurrentUser();
+            username = currentUser.getUsername();
+        }
         UserBO userBO = userRepository.getByUsername(username);
         UserVO userVO = UserAssembler.INSTANCE.entityToVo(userBO);
         setSystemInfo(userVO);

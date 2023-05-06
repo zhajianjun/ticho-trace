@@ -79,6 +79,7 @@ public class UserController {
         return Result.ok();
     }
 
+    @PreAuthorize("@user.hasPerms('admin')")
     @ApiOperation(value = "修改用户密码")
     @ApiOperationSupport(order = 30)
     @PutMapping("updatePassword")
@@ -99,7 +100,7 @@ public class UserController {
     @ApiOperationSupport(order = 40)
     @ApiImplicitParam(value = "用户名", name = "username", required = true)
     @GetMapping("getByUsername")
-    public Result<UserVO> getByUsername(@RequestParam("username") String username) {
+    public Result<UserVO> getByUsername(String username) {
         return Result.ok(userService.getByUsername(username));
     }
 
