@@ -1,26 +1,25 @@
 import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
-import { t } from '/@/hooks/web/useI18n';
 
 const setup: AppRouteModule = {
-  path: '/setup',
-  name: 'SetupDemo',
+  path: '/log',
+  name: 'Log',
   component: LAYOUT,
-  redirect: '/setup/index',
+  redirect: '/log/index',
   meta: {
-    orderNo: 90000,
+    orderNo: 30,
     hideChildrenInMenu: true,
-    icon: 'whh:paintroll',
-    title: t('routes.demo.setup.page'),
+    icon: 'octicon:log-24',
+    title: '日志信息',
   },
   children: [
     {
       path: 'index',
-      name: 'SetupDemoPage',
-      component: () => import('/@/views/demo/setup/index.vue'),
+      name: 'LogInfo',
+      component: () => import('/@/views/log/index.vue'),
       meta: {
-        title: t('routes.demo.setup.page'),
+        title: '日志列表',
         icon: 'whh:paintroll',
         hideMenu: true,
       },

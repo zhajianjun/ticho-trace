@@ -21,11 +21,11 @@ export function createPermissionGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     if (
       from.path === ROOT_PATH &&
-      to.path === PageEnum.BASE_HOME &&
-      userStore.getUserInfo.homePath &&
-      userStore.getUserInfo.homePath !== PageEnum.BASE_HOME
+      to.path === PageEnum.BASE_HOME
+      // userStore.getUserInfo.homePath &&
+      // userStore.getUserInfo.homePath !== PageEnum.BASE_HOME
     ) {
-      next(userStore.getUserInfo.homePath);
+      next(PageEnum.BASE_HOME);
       return;
     }
 
@@ -73,9 +73,9 @@ export function createPermissionGuard(router: Router) {
     if (
       from.path === LOGIN_PATH &&
       to.name === PAGE_NOT_FOUND_ROUTE.name &&
-      to.fullPath !== (userStore.getUserInfo.homePath || PageEnum.BASE_HOME)
+      to.fullPath !== (PageEnum.BASE_HOME)
     ) {
-      next(userStore.getUserInfo.homePath || PageEnum.BASE_HOME);
+      next(PageEnum.BASE_HOME);
       return;
     }
 
