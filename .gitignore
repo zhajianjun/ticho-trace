@@ -37,3 +37,4 @@ logs/
 ./git-flow-plus.config
 
 !**/JasyptUtil.java
+**/application-remote.yaml
