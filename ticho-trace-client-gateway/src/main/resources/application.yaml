@@ -20,7 +20,7 @@ spring:
           filters:
             - StripPrefix= 1
   profiles:
-    active: local
+    active: remote
 
 logging:
   config: classpath:logback-spring.xml
@@ -37,13 +37,3 @@ management:
     web:
       exposure:
         include: "*" #开启所有接口
-
-ticho:
-  trace:
-    enable: true
-    url: http://127.0.0.1:8000/trace/collect
-    logUrl: http://127.0.0.1:8000/log/collect
-    order: -1000
-  log:
-    print: true
-    order: -100

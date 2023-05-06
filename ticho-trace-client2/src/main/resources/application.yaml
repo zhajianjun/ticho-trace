@@ -5,22 +5,7 @@ spring:
   application:
     name: ticho-trace-client2
   profiles:
-    active: local
+    active: remote
 
 logging:
   config: classpath:logback-spring.xml
-
-ticho:
-  swagger:
-    enable: true
-  trace:
-    enable: true
-    url: http://127.0.0.1:8000/trace/collect
-    logUrl: http://127.0.0.1:8000/log/collect
-    order: -1000
-  log:
-    print: true
-    order: -100
-  http:
-    open-log: true
-    print-log: true

@@ -1,0 +1,15 @@
+ticho:
+  swagger:
+    enable: true
+  trace:
+    enable: true
+    url: http://192.168.243.138:7000/trace/collect
+    logUrl: http://192.168.243.138:7000/log/collect
+    order: -1000
+    pushLog: true
+    pushTrace: true
+    secret: NUC9PwiLuR9ou1ukP8ASk3cy9sh6Mn0+
+    ant-patterns: [ "/doc.html", "/swagger-resources/**", "/webjars/**", "/v2/api-docs","/favicon.ico", "/health" ]
+  log:
+    print: true
+    order: -100
