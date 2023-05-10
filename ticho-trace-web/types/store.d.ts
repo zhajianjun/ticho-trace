@@ -31,22 +31,23 @@ export interface ErrorLogInfo {
 }
 
 export interface UserInfo {
-  'id': string,
-  'username': string,
-  'realname': string,
-  'email': string,
-  'mobile': string,
-  'photo': string,
-  'lastIp': string,
-  'lastTime': string,
-  'status': number,
-  'remark': string,
-  'createBy': string,
-  'createTime': string,
-  'updateBy': string,
-  'updateTime': string,
-  'systemIds': string[],
-  'systems': System[]
+  id: string;
+  username: string;
+  realname: string;
+  email: string;
+  mobile: string;
+  photo: string;
+  lastIp: string;
+  lastTime: string;
+  status: number;
+  remark: string;
+  createBy: string;
+  createTime: string;
+  updateBy: string;
+  updateTime: string;
+  systemIds: string[];
+  systems: System[];
+  avatar: string;
 }
 
 export interface BeforeMiniState {
