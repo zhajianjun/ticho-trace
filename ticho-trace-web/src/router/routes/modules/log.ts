@@ -16,7 +16,7 @@ const setup: AppRouteModule = {
   children: [
     {
       path: 'index',
-      name: 'LogInfo',
+      name: 'LogPage',
       component: () => import('/@/views/log/index.vue'),
       meta: {
         title: '日志列表',

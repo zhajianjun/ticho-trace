@@ -16,7 +16,7 @@ const setup: AppRouteModule = {
   children: [
     {
       path: 'index',
-      name: 'SystemInfo',
+      name: 'SystemPage',
       component: () => import('/@/views/system/index.vue'),
       meta: {
         title: '系统列表',

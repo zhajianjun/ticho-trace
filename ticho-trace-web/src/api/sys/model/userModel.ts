@@ -1,25 +1,38 @@
-/**
- * @description: Login interface parameters
- */
-export interface LoginParams {
+import { System } from '/@/api/system/model/system';
+
+export interface User {
+  id: string;
   username: string;
-  password: string;
+  realname: string;
+  email: string;
+  mobile: string;
+  photo: string;
+  lastIp: string;
+  lastTime: string;
+  status: number;
+  remark: string;
+  createBy: string;
+  createTime: string;
+  updateBy: string;
+  updateTime: string;
+  systemIds: string[];
+  systems: System[];
+  avatar: string;
 }
 
-export interface UsernameParam {
+export interface UserQuery {
+  pageNum: number;
+  pageSize: number;
+  id: string;
   username: string;
+  realname: string;
+  email: string;
+  mobile: string;
+  photo: string;
+  lastIp: string;
+  lastTime: string;
+  status: number;
+  remark: string;
+  systemIds: string[];
 }
 
-export interface RoleInfo {
-  roleName: string;
-  value: string;
-}
-
-/**
- * @description: Login interface return value
- */
-export interface LoginResultModel {
-  userId: string | number;
-  token: string;
-  role: RoleInfo;
-}

@@ -1,4 +1,5 @@
-import type { UserInfo } from '/#/store';
+// @ts-ignore
+import { User } from '/@/api/sys/model/userModel';
 import type { ErrorMessageMode } from '/#/axios';
 import { defineStore } from 'pinia';
 import { store } from '/@/store';
@@ -6,8 +7,8 @@ import { RoleEnum } from '/@/enums/roleEnum';
 import { PageEnum } from '/@/enums/pageEnum';
 import { ROLES_KEY, TOKEN_KEY, USER_INFO_KEY } from '/@/enums/cacheEnum';
 import { getAuthCache, setAuthCache } from '/@/utils/auth';
-import { LoginParams } from '/@/api/sys/model/userModel';
-import { doLogout, getUserInfo, loginApi } from '/@/api/sys/user';
+import { LoginRequest } from '/@/api/sys/model/loginModel';
+import { getUserInfo, loginApi } from '/@/api/sys/user';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { router } from '/@/router';
@@ -17,7 +18,7 @@ import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
 import { h } from 'vue';
 
 interface UserState {
-  userInfo: Nullable<UserInfo>;
+  userInfo: Nullable<User>;
   token?: string;
   roleList: RoleEnum[];
   sessionTimeout?: boolean;
@@ -39,8 +40,8 @@ export const useUserStore = defineStore({
     lastUpdateTime: 0,
   }),
   getters: {
-    getUserInfo(): UserInfo {
-      return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {};
+    getUserInfo(): User {
+      return this.userInfo || getAuthCache<User>(USER_INFO_KEY) || {};
     },
     getToken(): string {
       return this.token || getAuthCache<string>(TOKEN_KEY);
@@ -64,7 +65,7 @@ export const useUserStore = defineStore({
       this.roleList = roleList;
       setAuthCache(ROLES_KEY, roleList);
     },
-    setUserInfo(info: UserInfo | null) {
+    setUserInfo(info: User | null) {
       this.userInfo = info;
       this.lastUpdateTime = new Date().getTime();
       setAuthCache(USER_INFO_KEY, info);
@@ -82,17 +83,17 @@ export const useUserStore = defineStore({
      * @description: login
      */
     async login(
-      params: LoginParams & {
+      params: LoginRequest & {
         goHome?: boolean;
         mode?: ErrorMessageMode;
       },
-    ): Promise<UserInfo | null> {
+    ): Promise<User | null> {
       try {
         // 获取token
         const { goHome = true, mode, ...loginParams } = params;
         const data = await loginApi(loginParams, mode);
         // @ts-ignore
-        const { access_token: token, code } = data;
+        const { access_token: token } = data;
         // save token
         this.setToken(token);
         return this.afterLoginAction(goHome);
@@ -100,7 +101,7 @@ export const useUserStore = defineStore({
         return Promise.reject(error);
       }
     },
-    async afterLoginAction(goHome?: boolean): Promise<UserInfo | null> {
+    async afterLoginAction(goHome?: boolean): Promise<User | null> {
       if (!this.getToken) return null;
       // 查询用户信息
       const userInfo = await this.getUserInfoAction();
@@ -122,7 +123,7 @@ export const useUserStore = defineStore({
       }
       return userInfo;
     },
-    async getUserInfoAction(): Promise<UserInfo | null> {
+    async getUserInfoAction(): Promise<User | null> {
       if (!this.getToken) return null;
       const userInfo = await getUserInfo();
       this.setUserInfo(userInfo);
@@ -134,7 +135,7 @@ export const useUserStore = defineStore({
     async logout(goLogin = false) {
       if (this.getToken) {
         try {
-          await doLogout();
+          // await doLogout();
         } catch {
           console.log('注销Token失败');
         }

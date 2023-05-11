@@ -1,26 +1,25 @@
-import {defHttp} from '/@/utils/http/axios';
-import {LoginParams, LoginResultModel} from './model/userModel';
+import { defHttp } from '/@/utils/http/axios';
+import { LoginRequest, Oauth2AccessToken } from '/@/api/sys/model/loginModel';
+import { User, UserQuery } from '/@/api/sys/model/userModel';
 
-import {ErrorMessageMode} from '/#/axios';
-import {UserInfo} from '/#/store';
-import {ContentTypeEnum} from "/@/enums/httpEnum";
+import { ErrorMessageMode } from '/#/axios';
+import { ContentTypeEnum } from '/@/enums/httpEnum';
 
 enum Api {
   Login = '/oauth/token',
-  Logout = '/logout',
   GetUserInfo = '/user/getByUsername',
+  UserPage = '/user/page',
   GetPermCode = '/getPermCode',
-  TestRetry = '/testRetry',
 }
 
 /**
  * @description: user login api
  */
-export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') {
-  return defHttp.post<LoginResultModel>(
+export function loginApi(params: LoginRequest, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<Oauth2AccessToken>(
     {
       url: Api.Login,
-      headers: {'Content-Type': ContentTypeEnum.FORM_URLENCODED},
+      headers: { 'Content-Type': ContentTypeEnum.FORM_URLENCODED },
       params,
     },
     {
@@ -33,26 +32,13 @@ export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') 
  * @description: getUserInfo
  */
 export function getUserInfo() {
-  return defHttp.get<UserInfo>({url: Api.GetUserInfo}, {errorMessageMode: 'none'});
+  return defHttp.get<User>({ url: Api.GetUserInfo }, { errorMessageMode: 'none' });
+}
+
+export function userPage(params: UserQuery) {
+  return defHttp.get<User>({ url: Api.UserPage, params }, { errorMessageMode: 'none' });
 }
 
 export function getPermCode() {
-  return defHttp.get<string[]>({url: Api.GetPermCode});
-}
-
-export function doLogout() {
-  return defHttp.get({url: Api.Logout});
-}
-
-export function testRetry() {
-  return defHttp.get(
-    {url: Api.TestRetry},
-    {
-      retryRequest: {
-        isOpenRetry: true,
-        count: 5,
-        waitTime: 1000,
-      },
-    },
-  );
+  return defHttp.get<string[]>({ url: Api.GetPermCode });
 }

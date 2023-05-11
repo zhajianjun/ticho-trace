@@ -16,7 +16,7 @@ const setup: AppRouteModule = {
   children: [
     {
       path: 'index',
-      name: 'TraceInfo',
+      name: 'TracePage',
       component: () => import('/@/views/trace/index.vue'),
       meta: {
         title: '链路列表',

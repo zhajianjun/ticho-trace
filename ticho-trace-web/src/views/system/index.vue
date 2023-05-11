@@ -1,13 +1,9 @@
 <template>
-
+  <h1>system</h1>
 </template>
 
-<script>
-  export default {
-    name: "index"
-  }
+<script lang="ts" setup>
+
 </script>
 
-<style scoped>
-
-</style>
+<style lang="less" scoped></style>

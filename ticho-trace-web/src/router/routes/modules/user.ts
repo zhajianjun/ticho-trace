@@ -16,7 +16,7 @@ const setup: AppRouteModule = {
   children: [
     {
       path: 'index',
-      name: 'UserInfo',
+      name: 'UserPage',
       component: () => import('/@/views/user/index.vue'),
       meta: {
         title: '用户列表',
