@@ -30,11 +30,6 @@ public class UserQuery extends BasePageQuery implements Serializable {
     @ApiModelProperty(value = "账户;账户具有唯一性", position = 20)
     private String username;
 
-    /** 密码 */
-    @ApiModelProperty(value = "密码", position = 30)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String password;
-
     /** 真实姓名 */
     @ApiModelProperty(value = "真实姓名", position = 40)
     private String realname;
