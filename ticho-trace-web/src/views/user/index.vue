@@ -1,17 +1,11 @@
 <template>
   <BasicTable @register="registerTable">
-    <template #headerTop>
-      <a-alert type="info" show-icon>
-        <template #message>
-          <template v-if="checkedKeys.length > 0">
-            <span>已选中{{ checkedKeys.length }}条记录</span>
-            <a-button type="link" @click="checkedKeys = []" size="small">清空</a-button>
-          </template>
-          <template v-else>
-            <span>未选中任何项目</span>
-          </template>
-        </template>
-      </a-alert>
+
+    <template #tableTitle>
+      <a-space :size="10">
+        <a-button ghost type="primary" preIcon="ant-design:plus-circle-outlined" >新增</a-button>
+        <a-button ghost type="danger" preIcon="ant-design:delete-outlined">删除{{ checkedKeysText }}</a-button>
+      </a-space>
     </template>
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
@@ -41,14 +35,15 @@
   import { defineComponent, ref } from 'vue';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
   import { getBasicColumns, getFormConfig } from './tableData';
-  import { Alert } from 'ant-design-vue';
+  import { Alert, Space } from 'ant-design-vue';
 
   import { userPage } from '/@/api/sys/user';
 
   export default defineComponent({
-    components: { TableAction, BasicTable, AAlert: Alert },
+    components: { TableAction, BasicTable, AAlert: Alert, ASpace: Space },
     setup() {
       const checkedKeys = ref<Array<string | number>>([]);
+      const checkedKeysText = ref<string | number>();
       const [registerTable, { getForm }] = useTable({
         title: '',
         api: userPage,
@@ -84,6 +79,7 @@
         } else {
           checkedKeys.value = checkedKeys.value.filter((id) => id !== record.id);
         }
+        checkedKeysText.value = checkedKeys.value.length > 0 ?  checkedKeys.value.length : '';
       }
 
       function onSelectAll(selected, selectedRows, changeRows) {
@@ -95,6 +91,7 @@
             return !changeIds.includes(id);
           });
         }
+        checkedKeysText.value = checkedKeys.value.length > 0 ?  checkedKeys.value.length : '';
       }
 
       function openUserDialogue(record: Recordable) {
@@ -105,6 +102,7 @@
         registerTable,
         getFormValues,
         checkedKeys,
+        checkedKeysText,
         onSelect,
         onSelectAll,
         openUserDialogue,
