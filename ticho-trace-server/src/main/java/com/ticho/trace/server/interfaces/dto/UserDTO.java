@@ -36,7 +36,6 @@ public class UserDTO implements Serializable {
     private String username;
 
     /** 密码 */
-    @NotBlank(message = "密码不能为空", groups = ValidGroup.Add.class)
     @ApiModelProperty(value = "密码", position = 30)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

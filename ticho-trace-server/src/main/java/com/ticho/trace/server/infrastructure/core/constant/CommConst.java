@@ -14,6 +14,8 @@ public class CommConst {
 
     public static final String ADMIN_USERNAME = "admin";
 
+    public static final String DEFAULT_PASSWOR = "123456";
+
     public static final String ADMIN_REALNAME = "管理员";
 
     public static final String USER_PERM_KEY = "user";

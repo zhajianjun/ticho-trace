@@ -16,16 +16,11 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * 用户信息 控制器
@@ -65,8 +60,18 @@ public class UserController {
     @ApiOperationSupport(order = 20)
     @ApiImplicitParam(value = "编号", name = "id", required = true)
     @DeleteMapping
-    public Result<Void> removeById(@RequestParam("id") Serializable id) {
+    public Result<Void> removeById(@RequestParam("id") Long id) {
         userService.removeById(id);
+        return Result.ok();
+    }
+
+    @PreAuthorize("@user.hasPerms('admin')")
+    @ApiOperation(value = "批量删除用户信息")
+    @ApiOperationSupport(order = 20)
+    @ApiImplicitParam(value = "编号", name = "id", required = true)
+    @DeleteMapping("removeByIds")
+    public Result<Void> removeByIds(@RequestParam("ids") String ids) {
+        userService.removeByIds(Arrays.stream(ids.split(",")).map(Long::valueOf).collect(Collectors.toList()));
         return Result.ok();
     }
 

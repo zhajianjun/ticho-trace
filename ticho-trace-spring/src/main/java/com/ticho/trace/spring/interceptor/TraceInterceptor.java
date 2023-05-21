@@ -13,7 +13,6 @@ import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -39,7 +38,6 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
     /** 环境变量 */
     private final Environment environment;
     /** url地址匹配 */
-    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     public TraceInterceptor(TraceProperty traceProperty, Environment environment) {
         this.startLocal = new TransmittableThreadLocal<>();

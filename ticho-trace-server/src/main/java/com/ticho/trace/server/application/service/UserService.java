@@ -8,6 +8,7 @@ import com.ticho.trace.server.interfaces.query.UserQuery;
 import com.ticho.trace.server.interfaces.vo.UserVO;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 用户信息 服务接口
@@ -36,7 +37,14 @@ public interface UserService {
      *
      * @param id 主键
      */
-    void removeById(Serializable id);
+    void removeById(Long id);
+
+    /**
+     * 批量删除用户信息
+     *
+     * @param ids id
+     */
+    void removeByIds(List<Long> ids);
 
     /**
      * 修改用户信息

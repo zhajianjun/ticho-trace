@@ -37,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -105,7 +106,7 @@ public class UserServiceImpl implements UserService {
     public void save(UserDTO userDTO) {
         ValidUtil.valid(userDTO, ValidGroup.Add.class);
         String username = userDTO.getUsername();
-        String password = userDTO.getPassword();
+        String password = Optional.ofNullable(userDTO.getPassword()).orElse(CommConst.DEFAULT_PASSWOR);
         UserBO select = userRepository.getByUsername(username);
         Assert.isNull(select, BizErrCode.FAIL, "用户已存在");
         checkSystemInfo(userDTO.getSystemIds());
@@ -123,8 +124,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void removeById(Serializable id) {
+    public void removeById(Long id) {
+        UserBO select = userRepository.getById(id);
+        Assert.isNotNull(select, BizErrCode.FAIL, "删除失败");
+        Assert.isTrue(!Objects.equals(select.getUsername(), CommConst.ADMIN_USERNAME), BizErrCode.FAIL, "管理员用户无法删除");
         Assert.isTrue(userRepository.removeById(id), BizErrCode.FAIL, "删除失败");
+    }
+
+    @Override
+    public void removeByIds(List<Long> ids) {
+        // @formatter:off
+        List<UserBO> select = userRepository.listByIds(ids);
+        Assert.isNotEmpty(select, BizErrCode.FAIL, "删除失败");
+        List<String> idsDb = select.stream()
+            .filter(x -> !Objects.equals(x.getUsername(), CommConst.ADMIN_USERNAME))
+            .map(UserBO::getId)
+            .collect(Collectors.toList());
+        Assert.isTrue(userRepository.removeByIds(idsDb), BizErrCode.FAIL, "删除失败");
+        // @formatter:on
     }
 
     @Override

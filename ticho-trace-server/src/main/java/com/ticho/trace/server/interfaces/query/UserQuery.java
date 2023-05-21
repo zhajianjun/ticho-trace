@@ -1,6 +1,5 @@
 package com.ticho.trace.server.interfaces.query;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ticho.boot.view.core.BasePageQuery;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

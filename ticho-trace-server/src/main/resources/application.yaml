@@ -19,6 +19,8 @@ easy-es:
   socket-timeout: 60000
   global-config:
     print-dsl: false
+    db-config:
+      refresh-policy: wait_until
 
 jasypt:
   encryptor:
