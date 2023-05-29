@@ -1,16 +1,15 @@
 package com.ticho.trace.core.util;
 
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.ttl.TransmittableThreadLocal;
-import org.slf4j.MDC;
-import com.ticho.trace.common.constant.LogConst;
-
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+
+import com.alibaba.ttl.TransmittableThreadLocal;
+import com.ticho.trace.common.constant.LogConst;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
+import org.slf4j.MDC;
 
 /**
  * 链路工具类
@@ -111,7 +110,7 @@ public class TraceUtil {
      * 更新trace表达式
      */
     public static void putTrace(String trace){
-        trace = nullDefault(trace, () -> LogConst.DEFAULT_TRACE);
+        trace = nullDefault(trace, () -> Optional.ofNullable(MDC.get(LogConst.TRACE_KEY)).orElse(LogConst.DEFAULT_TRACE));
         MDC.put(LogConst.TRACE_KEY, trace);
     }
 
