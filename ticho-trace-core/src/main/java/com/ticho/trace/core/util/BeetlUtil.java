@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.ReThrowConsoleErrorHandler;
-import org.beetl.core.ResourceLoader;
 import org.beetl.core.Template;
 import org.beetl.core.resource.StringTemplateResourceLoader;
 
@@ -41,7 +40,7 @@ public class BeetlUtil {
     /**
      * 渲染
      *
-     * @param template 模板表达式
+     * @param template  模板表达式
      * @param paramsMap 参数map
      * @return {@link String}
      */
@@ -50,7 +49,6 @@ public class BeetlUtil {
         t.binding(paramsMap);
         return t.render();
     }
-
 
 
 }

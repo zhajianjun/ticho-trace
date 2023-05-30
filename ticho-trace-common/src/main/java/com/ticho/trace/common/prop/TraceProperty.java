@@ -1,7 +1,7 @@
 package com.ticho.trace.common.prop;
 
-import lombok.Data;
 import com.ticho.trace.common.constant.LogConst;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;

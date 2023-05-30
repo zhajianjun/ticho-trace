@@ -20,7 +20,7 @@ public interface LogService {
      * 日志收集
      *
      * @param secret 秘钥
-     * @param logs 日志
+     * @param logs   日志
      */
     void collect(String secret, List<LogDTO> logs);
 

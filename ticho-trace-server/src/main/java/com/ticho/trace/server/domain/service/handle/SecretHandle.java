@@ -12,8 +12,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
- *
  * @author zhajianjun
  * @date 2023-04-26 21:05:10
  */
@@ -43,7 +41,6 @@ public abstract class SecretHandle {
         Assert.isNotNull(cacheBySecret, BizErrCode.FAIL, "系统信息不存在");
         return cacheBySecret.getSystemId();
     }
-
 
 
 }

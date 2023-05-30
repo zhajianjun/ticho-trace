@@ -76,7 +76,7 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
     /**
      * 系统信息注入
      *
-     * @param traceVO 链路信息
+     * @param traceVO   链路信息
      * @param systemMap 系统map
      */
     private void setSystemInfo(TraceVO traceVO, Map<String, SystemBO> systemMap) {

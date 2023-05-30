@@ -1,15 +1,15 @@
 package com.ticho.trace.core.util;
 
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
+import com.ticho.trace.common.constant.LogConst;
+import org.slf4j.MDC;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-
-import com.alibaba.ttl.TransmittableThreadLocal;
-import com.ticho.trace.common.constant.LogConst;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import org.slf4j.MDC;
 
 /**
  * 链路工具类
@@ -62,13 +62,13 @@ public class TraceUtil {
     /**
      * 链路生成准备
      *
-     * @param traceId 链路id
-     * @param spanId 跨度id
-     * @param appName 当前应用名称
-     * @param ip 当前ip
+     * @param traceId    链路id
+     * @param spanId     跨度id
+     * @param appName    当前应用名称
+     * @param ip         当前ip
      * @param preAppName 上个链路的应用名称
-     * @param preIp 上个链路的ip
-     * @param trace 链路
+     * @param preIp      上个链路的ip
+     * @param trace      链路
      */
     public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp, String trace) {
         traceId = nullDefault(traceId, IdUtil::getSnowflakeNextIdStr);
@@ -96,7 +96,7 @@ public class TraceUtil {
      * 链路完成时处理
      */
     public static void complete() {
-        //移除MDC里的信息
+        // 移除MDC里的信息
         MDC.remove(LogConst.TRACE_KEY);
         MDC.remove(LogConst.TRACE_ID_KEY);
         MDC.remove(LogConst.SPAN_ID_KEY);
@@ -109,7 +109,7 @@ public class TraceUtil {
     /**
      * 更新trace表达式
      */
-    public static void putTrace(String trace){
+    public static void putTrace(String trace) {
         trace = nullDefault(trace, () -> Optional.ofNullable(MDC.get(LogConst.TRACE_KEY)).orElse(LogConst.DEFAULT_TRACE));
         MDC.put(LogConst.TRACE_KEY, trace);
     }
@@ -136,7 +136,7 @@ public class TraceUtil {
     /**
      * 空值返回处理
      *
-     * @param obj obj
+     * @param obj      obj
      * @param supplier 供应商
      * @return {@link String}
      */

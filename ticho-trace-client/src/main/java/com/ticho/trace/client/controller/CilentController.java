@@ -2,6 +2,9 @@ package com.ticho.trace.client.controller;
 
 import com.ticho.boot.view.core.Result;
 import com.ticho.boot.web.util.valid.ValidUtil;
+import com.ticho.trace.client.dto.CityDTO;
+import com.ticho.trace.client.dto.FileDTO;
+import com.ticho.trace.client.dto.FileSimpleDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.ticho.trace.client.dto.CityDTO;
-import com.ticho.trace.client.dto.FileDTO;
-import com.ticho.trace.client.dto.FileSimpleDTO;
 
 import java.util.List;
 
@@ -60,9 +60,9 @@ public class CilentController {
     @ApiOperation(value = "根据城市id获取")
     public Result<String> city(@PathVariable String id) {
         try {
-            int i = 1/0;
+            int i = 1 / 0;
         } catch (Exception e) {
-            log.error("查询错误：{}",e.getMessage(), e);
+            log.error("查询错误：{}", e.getMessage(), e);
         }
         return Result.ok(id);
     }

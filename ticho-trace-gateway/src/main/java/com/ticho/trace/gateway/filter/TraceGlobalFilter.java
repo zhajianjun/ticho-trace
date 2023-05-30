@@ -6,8 +6,8 @@ import com.ticho.trace.common.bean.HttpLogInfo;
 import com.ticho.trace.common.bean.TraceInfo;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.common.prop.TraceProperty;
-import com.ticho.trace.core.util.JsonUtil;
 import com.ticho.trace.core.handle.TracePushContext;
+import com.ticho.trace.core.util.JsonUtil;
 import com.ticho.trace.core.util.TraceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -43,7 +43,6 @@ import java.util.stream.Stream;
 
 /**
  * 链路全局过滤
- *
  *
  * @author zhajianjun
  * @date 2023-04-03 11:05
@@ -147,8 +146,8 @@ public class TraceGlobalFilter implements GlobalFilter, Ordered {
                         byte[] content = new byte[join.readableByteCount()];
                         join.read(content);
                         DataBufferUtils.release(join);
-                        //String responseData = new String(content, StandardCharsets.UTF_8);
-                        //httpLogInfo.setResBody(responseData);
+                        // String responseData = new String(content, StandardCharsets.UTF_8);
+                        // httpLogInfo.setResBody(responseData);
                         originalResponse.getHeaders().setContentLength(content.length);
                         return bufferFactory.wrap(content);
                     }));

@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
- *
  * @author zhajianjun
  * @date 2022-09-26 10:32
  */
@@ -22,7 +20,7 @@ public class SecurityUser extends BaseSecurityUser {
     private Integer status = 2;
 
     @Override
-    public String toString(){
+    public String toString() {
         return super.toString();
     }
 

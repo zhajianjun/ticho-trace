@@ -17,7 +17,7 @@ public interface TraceService {
      * 收集
      *
      * @param secret 秘钥
-     * @param trace 跟踪收集信息
+     * @param trace  跟踪收集信息
      */
     void collect(String secret, TraceDTO trace);
 

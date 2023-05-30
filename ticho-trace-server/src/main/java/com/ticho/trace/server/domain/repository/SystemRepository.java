@@ -21,7 +21,7 @@ public interface SystemRepository extends BaseEsService<SystemBO> {
      * 通过系统编号更新状态
      *
      * @param systemId 系统编号
-     * @param status 状态
+     * @param status   状态
      * @return boolean
      */
     boolean updateStatus(String systemId, Integer status);
@@ -30,7 +30,7 @@ public interface SystemRepository extends BaseEsService<SystemBO> {
      * 通过系统编号更新秘钥
      *
      * @param systemId 系统编号
-     * @param secret 秘钥
+     * @param secret   秘钥
      * @return boolean
      */
     boolean updateSecret(String systemId, String secret);
@@ -62,8 +62,7 @@ public interface SystemRepository extends BaseEsService<SystemBO> {
     /**
      * 根据条件查询query列表
      *
-     * @param query 查询条件
-     *
+     * @param query      查询条件
      * @param indexNames 索引名称
      * @return {@link EsPageInfo}<{@link SystemBO}>
      */

@@ -1,5 +1,7 @@
 package com.ticho.trace.spring.config;
 
+import com.ticho.trace.common.prop.TraceProperty;
+import com.ticho.trace.spring.interceptor.TraceInterceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -7,8 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import com.ticho.trace.common.prop.TraceProperty;
-import com.ticho.trace.spring.interceptor.TraceInterceptor;
 
 /**
  * 链路bean初始化配置

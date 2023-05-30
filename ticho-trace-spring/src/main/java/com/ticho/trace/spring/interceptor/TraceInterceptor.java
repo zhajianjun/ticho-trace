@@ -40,6 +40,7 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
     private final TraceProperty traceProperty;
     /** 环境变量 */
     private final Environment environment;
+
     /** url地址匹配 */
 
     public TraceInterceptor(TraceProperty traceProperty, Environment environment) {
@@ -112,15 +113,14 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
     }
 
 
-
     public Map<String, String> getHeaders(HttpServletRequest request) {
         Map<String, String> map = new HashMap<>();
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
-            //获得每个文本域的name
+            // 获得每个文本域的name
             String name = headerNames.nextElement();
-            //根据文本域的name来获取值
-            //因为无法判断文本域是否是单值或者双值，所以我们全部使用双值接收
+            // 根据文本域的name来获取值
+            // 因为无法判断文本域是否是单值或者双值，所以我们全部使用双值接收
             String value = request.getHeader(name);
             map.put(name, value);
         }

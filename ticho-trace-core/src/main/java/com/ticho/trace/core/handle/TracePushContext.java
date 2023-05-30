@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- *
+ * 链路推送上下文
  *
  * @author zhajianjun
  * @date 2023-03-27 12:34
@@ -47,7 +47,7 @@ public class TracePushContext {
     /**
      * 推送日志信息
      *
-     * @param url url
+     * @param url      url
      * @param logInfos 日志信息
      */
     public static void pushLogInfo(String url, String secret, List<LogInfo> logInfos) {

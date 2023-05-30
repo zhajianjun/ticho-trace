@@ -47,8 +47,8 @@ public class LogEventListen implements EventHandler<LogInfo> {
     /**
      * 日志事件消费
      *
-     * @param event 事件
-     * @param sequence 序列
+     * @param event      事件
+     * @param sequence   序列
      * @param endOfBatch 是否达到批次大小或者到达批次末尾
      */
     public void onEvent(LogInfo event, long sequence, boolean endOfBatch) {

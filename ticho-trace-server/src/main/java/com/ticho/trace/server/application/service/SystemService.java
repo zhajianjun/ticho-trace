@@ -26,7 +26,7 @@ public interface SystemService {
      * 系统信息状态更改
      *
      * @param systemId systemId
-     * @param status 状态
+     * @param status   状态
      */
     void updateStatus(String systemId, Integer status);
 
@@ -34,7 +34,7 @@ public interface SystemService {
      * 系统秘钥更新
      *
      * @param systemId 系统标识
-     * @param secret 秘钥
+     * @param secret   秘钥
      */
     void updateSecret(String systemId, String secret);
 

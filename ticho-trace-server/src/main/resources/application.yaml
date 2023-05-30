@@ -11,7 +11,7 @@ easy-es:
   #默认为true,若为false则认为不启用本框架
   enable: true
   # es的连接地址,必须含端口 若为集群,则可以用逗号隔开 例如:127.0.0.1:9200,127.0.0.2:9200
-  address : @es.host@
+  address: @es.host@
   username: @es.username@
   password: @es.password@
   banner: false
@@ -35,10 +35,10 @@ ticho:
     trace: '[${traceId}]'
   log:
     print: true
-    ant-patterns: ["/swagger-resources/**", "/health", "/*/collect"]
+    ant-patterns: [ "/swagger-resources/**", "/health", "/*/collect" ]
   swagger:
     enable: true
   security:
-    ant-patterns: [ "/doc.html", "/swagger-resources/**", "/webjars/**", "/v2/api-docs","/favicon.ico", "/health", "/oauth/token", "/oauth/refreshToken", "/oauth/publicKey"]
+    ant-patterns: [ "/doc.html", "/swagger-resources/**", "/webjars/**", "/v2/api-docs","/favicon.ico", "/health", "/oauth/token", "/oauth/refreshToken", "/oauth/publicKey" ]
   cors:
     enable: true

@@ -38,7 +38,7 @@ public class UserRepositoryImpl extends BaseEsServiceImpl<UserMapper, UserBO> im
         wrapper.eq(Objects.nonNull(query.getStatus()), UserBO::getStatus, query.getStatus());
         wrapper.like(StrUtil.isNotBlank(query.getRemark()), UserBO::getRemark, query.getRemark());
         if (CollUtil.isNotEmpty(query.getSystemIds())) {
-            wrapper.and(item-> {
+            wrapper.and(item -> {
                 for (String systemId : query.getSystemIds()) {
                     item.match(UserBO::getSystemIds, systemId).or();
                 }

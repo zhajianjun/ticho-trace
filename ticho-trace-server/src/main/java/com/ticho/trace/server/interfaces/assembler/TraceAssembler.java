@@ -1,8 +1,6 @@
 package com.ticho.trace.server.interfaces.assembler;
 
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
-import cn.hutool.core.util.StrUtil;
 import com.ticho.trace.server.infrastructure.entity.TraceBO;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
 import com.ticho.trace.server.interfaces.vo.TraceVO;
@@ -11,7 +9,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * 链路转换
@@ -44,7 +41,7 @@ public interface TraceAssembler {
     TraceVO traceToVo(TraceBO trace);
 
 
-    static LocalDateTime getTime(Long time){
+    static LocalDateTime getTime(Long time) {
         if (time == null) {
             return null;
         }

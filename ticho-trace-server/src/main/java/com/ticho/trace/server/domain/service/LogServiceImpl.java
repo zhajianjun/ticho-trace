@@ -20,7 +20,6 @@ import com.ticho.trace.server.interfaces.vo.LogVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -109,9 +108,9 @@ public class LogServiceImpl extends SecretHandle implements LogService {
      * 当开始日期累加到大于结束日期则结束
      *
      * @param startDate 开始日期
-     * @param endDate 结束日期
-     * @param systemId 系统id
-     * @param indexs 索引
+     * @param endDate   结束日期
+     * @param systemId  系统id
+     * @param indexs    索引
      */
     public void addIndexs(LocalDate startDate, LocalDate endDate, String systemId, List<String> indexs) {
         if (startDate.isAfter(endDate)) {
@@ -126,7 +125,7 @@ public class LogServiceImpl extends SecretHandle implements LogService {
     /**
      * 根据日志的时间获取索引
      *
-     * @param logDTO 日志信息
+     * @param logDTO   日志信息
      * @param systemId 系统id
      * @return {@link String}
      */
