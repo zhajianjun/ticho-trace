@@ -1,15 +1,18 @@
 package com.ticho.trace.spring.interceptor;
 
 import cn.hutool.core.date.SystemClock;
+import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.ticho.trace.common.bean.TraceInfo;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.common.prop.TraceProperty;
 import com.ticho.trace.core.handle.TracePushContext;
 import com.ticho.trace.core.util.TraceUtil;
+import com.ticho.trace.spring.event.TraceEvent;
 import com.ticho.trace.spring.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
@@ -101,6 +104,8 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
             .consume(consume)
             .build();
         TracePushContext.asyncPushTrace(traceProperty, traceInfo);
+        ApplicationContext applicationContext = SpringUtil.getApplicationContext();
+        applicationContext.publishEvent(new TraceEvent(applicationContext, traceInfo));
         TraceUtil.complete();
         startLocal.remove();
         // @formatter:on
