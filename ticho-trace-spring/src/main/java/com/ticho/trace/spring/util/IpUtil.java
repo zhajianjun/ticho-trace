@@ -26,7 +26,8 @@ public class IpUtil {
 
     private static final List<String> localhosts = Stream.of("127.0.0.1", "0:0:0:0:0:0:0:1").collect(Collectors.toList());
 
-    public static String preIp(HttpServletRequest request) {
+
+    public static String getIp(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
         // Proxy-Client-IP 这个一般是经过apache http服务器的请求才会有，用apache http做代理时一般会加上Proxy-Client-IP请求头，而WL-Proxy-Client-IP是他的weblogic插件加上的头。
         String unknown = "unknown";

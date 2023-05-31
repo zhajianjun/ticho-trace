@@ -66,7 +66,7 @@ public class TraceInterceptor implements HandlerInterceptor, Ordered {
         String preIp = headersMap.get(LogConst.PRE_IP_KEY);
         String ip = IpUtil.localIp();
         if (preIp == null) {
-            preIp = IpUtil.preIp(request);
+            preIp = IpUtil.getIp(request);
         }
         TraceUtil.prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
         return true;

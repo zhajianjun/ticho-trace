@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Objects;
+
 
 /**
  * 链路收集信息
@@ -57,6 +59,9 @@ public class TraceInfo {
 
 
     public String getFullUrl() {
+        if (Objects.nonNull(fullUrl)) {
+            return fullUrl;
+        }
         if (url == null || port == null || ip == null) {
             return null;
         }
