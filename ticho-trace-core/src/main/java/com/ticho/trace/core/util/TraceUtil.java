@@ -25,6 +25,11 @@ public class TraceUtil {
     /** 下个跨度id的索引 */
     private static final TransmittableThreadLocal<AtomicInteger> NEXT_SPAN_INDEX_TL = new TransmittableThreadLocal<>();
 
+
+    public static AtomicInteger getNextSpanIndex() {
+        return NEXT_SPAN_INDEX_TL.get();
+    }
+
     /**
      * 下一个跨度id
      *
@@ -104,6 +109,7 @@ public class TraceUtil {
         MDC.remove(LogConst.IP_KEY);
         MDC.remove(LogConst.PRE_APP_NAME_KEY);
         MDC.remove(LogConst.PRE_IP_KEY);
+        NEXT_SPAN_INDEX_TL.remove();
     }
 
     /**
