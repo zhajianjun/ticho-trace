@@ -30,6 +30,18 @@ public class TraceUtil {
         return NEXT_SPAN_INDEX_TL.get();
     }
 
+    public static void setNextSpanIndex(AtomicInteger atomicInteger) {
+        NEXT_SPAN_INDEX_TL.set(atomicInteger);
+    }
+
+    public static void clearNextSpanIndex() {
+        NEXT_SPAN_INDEX_TL.remove();
+    }
+
+    public static void main(String[] args) {
+        clearNextSpanIndex();
+    }
+
     /**
      * 下一个跨度id
      *
