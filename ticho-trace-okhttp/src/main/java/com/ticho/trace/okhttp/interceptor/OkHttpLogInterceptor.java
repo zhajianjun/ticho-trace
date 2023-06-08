@@ -1,6 +1,5 @@
 package com.ticho.trace.okhttp.interceptor;
 
-import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.StrUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.core.util.TraceUtil;
@@ -23,7 +22,6 @@ public class OkHttpLogInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        long t1 = SystemClock.now();
         Request req = chain.request();
         String traceId = MDC.get(LogConst.TRACE_ID_KEY);
         if (StrUtil.isBlank(traceId)) {
