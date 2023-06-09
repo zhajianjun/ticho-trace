@@ -50,7 +50,7 @@ public class TraceBO {
     private String fullUrl;
     /** 接口 */
     private String method;
-    /** 请求类型 */
+    /** 响应状态 */
     private Integer status;
     /* 请求开始时间戳 */
     private Long start;

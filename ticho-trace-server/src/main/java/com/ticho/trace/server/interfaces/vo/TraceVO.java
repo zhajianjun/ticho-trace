@@ -64,7 +64,7 @@ public class TraceVO {
     @ApiModelProperty(value = "接口", position = 130)
     private String method;
     /** 请求类型 */
-    @ApiModelProperty(value = "请求类型", position = 140)
+    @ApiModelProperty(value = "响应状态", position = 140)
     private Integer status;
     /* 请求开始时间戳 */
     @ApiModelProperty(value = "请求开始时间戳", position = 150)

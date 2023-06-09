@@ -3,6 +3,7 @@ package com.ticho.trace.server.interfaces.query;
 import com.ticho.boot.view.core.BasePageQuery;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -13,6 +14,7 @@ import java.io.Serializable;
  * @date 2023-04-23 14:22
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class SystemQuery extends BasePageQuery implements Serializable {
     private static final long serialVersionUID = 1L;
 
