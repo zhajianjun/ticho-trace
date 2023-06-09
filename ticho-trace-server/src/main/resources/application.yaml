@@ -32,7 +32,7 @@ logging:
 
 ticho:
   trace:
-    trace: '[${traceId}]'
+    trace: '[${traceId!}]'
   log:
     print: true
     ant-patterns: [ "/swagger-resources/**", "/health", "/*/collect" ]

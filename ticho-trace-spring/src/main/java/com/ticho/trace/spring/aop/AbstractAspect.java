@@ -12,6 +12,7 @@ import com.ticho.trace.spring.util.IpUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 
 import javax.annotation.Resource;
@@ -22,7 +23,7 @@ import javax.annotation.Resource;
  * @author zhajianjun
  * @date 2023-06-09 11:35
  */
-public abstract class AbstractAspect {
+public abstract class AbstractAspect implements Ordered {
 
     @Resource
     private Environment environment;

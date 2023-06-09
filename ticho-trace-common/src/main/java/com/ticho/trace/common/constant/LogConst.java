@@ -30,7 +30,7 @@ public class LogConst {
     /** 链路表达式 key */
     public static final String TRACE_KEY = "trace";
     /** 默认链路表达式 */
-    public static final String DEFAULT_TRACE = "[${traceId}].[${spanId}]";
+    public static final String DEFAULT_TRACE = "[${traceId!}].[${spanId!}]";
     /** secret key */
     public static final String SECRET_KEY = "secret";
     /** 日志索引前缀 */

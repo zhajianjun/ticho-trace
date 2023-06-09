@@ -1,4 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.ticho.trace.spring.config.TraceBeanConfig,\
-  com.ticho.trace.spring.config.TraceMvcConfig
+  com.ticho.trace.spring.config.TraceMvcConfig,\
+  com.ticho.trace.spring.aop.RabbitMqAspect,\
+  com.ticho.trace.spring.aop.ScheduledAspect,\
+  com.ticho.trace.spring.aop.XxlJobAspect
 
