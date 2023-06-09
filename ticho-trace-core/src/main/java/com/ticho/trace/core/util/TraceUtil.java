@@ -3,6 +3,7 @@ package com.ticho.trace.core.util;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
+import com.ticho.trace.common.bean.TraceInit;
 import com.ticho.trace.common.constant.LogConst;
 import org.slf4j.MDC;
 
@@ -68,8 +69,24 @@ public class TraceUtil {
         // 上个链路的Ip */
         String preIp = map.get(LogConst.PRE_IP_KEY);
         // 链路
-        String traceKey = map.get(LogConst.TRACE_KEY);
-        prepare(traceId, spanId, currAppName, currIp, preAppName, preIp, traceKey);
+        String trace = map.get(LogConst.TRACE_KEY);
+        prepare(traceId, spanId, currAppName, currIp, preAppName, preIp, trace);
+    }
+
+    /**
+     * 链路生成准备
+     *
+     * @param traceInit 跟踪初始化
+     */
+    public static void prepare(TraceInit traceInit) {
+        String traceId = traceInit.getTraceId();
+        String spanId = traceInit.getSpanId();
+        String appName = traceInit.getAppName();
+        String ip = traceInit.getIp();
+        String preAppName = traceInit.getPreAppName();
+        String preIp = traceInit.getPreIp();
+        String trace = traceInit.getTrace();
+        prepare(traceId, spanId, appName, ip, preAppName, preIp, trace);
     }
 
     /**
@@ -84,8 +101,13 @@ public class TraceUtil {
      * @param trace      链路
      */
     public static void prepare(String traceId, String spanId, String appName, String ip, String preAppName, String preIp, String trace) {
-        traceId = nullDefault(traceId, IdUtil::getSnowflakeNextIdStr);
-        spanId = nullDefault(spanId, () -> null);
+        if (StrUtil.isBlank(traceId)) {
+            traceId = IdUtil.getSnowflakeNextIdStr();
+            spanId = LogConst.FIRST_SPAN_ID;
+        } else {
+            spanId = nullDefault(spanId, () -> LogConst.FIRST_SPAN_ID);
+        }
+        NEXT_SPAN_INDEX_TL.set(new AtomicInteger(0));
         appName = nullDefault(appName);
         ip = nullDefault(ip);
         preAppName = nullDefault(preAppName);
@@ -93,10 +115,6 @@ public class TraceUtil {
         trace = nullDefault(trace, () -> LogConst.DEFAULT_TRACE);
         MDC.put(LogConst.TRACE_KEY, trace);
         MDC.put(LogConst.TRACE_ID_KEY, traceId);
-        if (StrUtil.isBlank(spanId)) {
-            spanId = LogConst.FIRST_SPAN_ID;
-        }
-        NEXT_SPAN_INDEX_TL.set(new AtomicInteger(0));
         MDC.put(LogConst.SPAN_ID_KEY, spanId);
         MDC.put(LogConst.IP_KEY, ip);
         MDC.put(LogConst.APP_NAME_KEY, appName);
@@ -134,7 +152,7 @@ public class TraceUtil {
     public static void render() {
         String traceKey = MDC.get(LogConst.TRACE_KEY);
         String trace = BeetlUtil.render(traceKey, MDC.getCopyOfContextMap());
-        MDC.put(LogConst.TRACE, trace);
+        MDC.put(LogConst.TRACE_KEY, trace);
     }
 
     /**

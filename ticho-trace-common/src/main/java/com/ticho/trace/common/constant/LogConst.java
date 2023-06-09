@@ -27,10 +27,8 @@ public class LogConst {
     public static final String PRE_IP_KEY = "preIp";
     /** UNKNOWN */
     public static final String UNKNOWN = "UNKNOWN";
-    /** TRACE_KEY */
-    public static final String TRACE_KEY = "traceKey";
-    /** TRACE */
-    public static final String TRACE = "trace";
+    /** 链路表达式 key */
+    public static final String TRACE_KEY = "trace";
     /** 默认链路表达式 */
     public static final String DEFAULT_TRACE = "[${traceId}].[${spanId}]";
     /** secret key */
