@@ -20,7 +20,7 @@ spring:
           filters:
             - StripPrefix= 1
   profiles:
-    active: remote
+    active: dev
 
 logging:
   config: classpath:logback-spring.xml

@@ -5,7 +5,7 @@ spring:
   application:
     name: ticho-trace-client2
   profiles:
-    active: remote
+    active: dev
 
 logging:
   config: classpath:logback-spring.xml

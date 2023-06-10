@@ -96,7 +96,7 @@ public class LogServiceImpl extends SecretHandle implements LogService {
         LocalDateTime startDateTime = logQuery.getStartDateTime();
         LocalDateTime endDateTime = logQuery.getEndDateTime();
         // 日志开始时间要小于结束时间
-        boolean before = startDateTime.compareTo(endDateTime) <= 0;
+        boolean before = !startDateTime.isAfter(endDateTime);
         Assert.isTrue(before, BizErrCode.PARAM_ERROR, "日志开始时间要小于等于结束时间");
         // 日志时间间隔不能超过7天
         boolean between = LocalDateTimeUtil.between(startDateTime, endDateTime, ChronoUnit.DAYS) <= 7;

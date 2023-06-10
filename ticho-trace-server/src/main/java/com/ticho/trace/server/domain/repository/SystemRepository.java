@@ -84,4 +84,11 @@ public interface SystemRepository extends BaseEsService<SystemBO> {
      */
     Map<String, SystemBO> getMapBySystemIds(Collection<String> systemIds);
 
+    /**
+     * 查询所有
+     *
+     * @return {@link List}<{@link SystemBO}>
+     */
+    List<SystemBO> listAll();
+
 }

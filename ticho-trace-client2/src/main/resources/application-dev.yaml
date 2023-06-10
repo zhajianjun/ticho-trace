@@ -8,7 +8,7 @@ ticho:
     order: -1000
     pushLog: true
     pushTrace: true
-    secret: NUC9PwiLuR9ou1ukP8ASk3cy9sh6Mn0+
+    secret: P3ZiV07bvsfwhnuQARZE+DTwC6Y7nyNkUm6B74Mz6xM=
     ant-patterns: [ "/doc.html", "/swagger-resources/**", "/webjars/**", "/v2/api-docs","/favicon.ico", "/health" ]
   log:
     print: true

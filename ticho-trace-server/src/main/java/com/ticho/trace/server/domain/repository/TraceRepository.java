@@ -1,7 +1,9 @@
 package com.ticho.trace.server.domain.repository;
 
+import cn.easyes.core.biz.EsPageInfo;
 import com.ticho.boot.es.service.BaseEsService;
 import com.ticho.trace.server.infrastructure.entity.TraceBO;
+import com.ticho.trace.server.interfaces.query.TraceQuery;
 
 import java.util.List;
 
@@ -17,8 +19,18 @@ public interface TraceRepository extends BaseEsService<TraceBO> {
      * 根据链路id查询
      *
      * @param traceId 跟踪id
+     * @param indexNames 索引名称
      * @return {@link List}<{@link TraceBO}>
      */
-    List<TraceBO> selectByTraceId(String traceId);
+    List<TraceBO> selectByTraceId(String traceId, String... indexNames);
+
+    /**
+     * 分页查询
+     *
+     * @param query      查询
+     * @param indexNames 索引名称
+     * @return {@link EsPageInfo}<{@link TraceBO}>
+     */
+    EsPageInfo<TraceBO> page(TraceQuery query, String... indexNames);
 
 }

@@ -26,7 +26,7 @@ public class SystemDTO {
     @ApiModelProperty(value = "系统id", position = 20)
     private String systemId;
     /** 系统名称 */
-    @NotBlank(message = "系统id不能为空", groups = ValidGroup.Add.class)
+    @NotBlank(message = "系统名称不能为空", groups = ValidGroup.Add.class)
     @ApiModelProperty(value = "系统名称", position = 30)
     private String systemName;
     /** 秘钥 */

@@ -60,8 +60,8 @@ public class TraceVO {
     /** 全路径接口 */
     @ApiModelProperty(value = "全路径接口", position = 120)
     private String fullUrl;
-    /** 接口 */
-    @ApiModelProperty(value = "接口", position = 130)
+    /** 方法 */
+    @ApiModelProperty(value = "方法", position = 130)
     private String method;
     /** 请求类型 */
     @ApiModelProperty(value = "响应状态", position = 140)

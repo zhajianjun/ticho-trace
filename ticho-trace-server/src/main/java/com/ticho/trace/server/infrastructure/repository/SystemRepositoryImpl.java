@@ -152,4 +152,10 @@ public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, System
         // @formatter:on
     }
 
+    @Override
+    public List<SystemBO> listAll() {
+        LambdaEsQueryWrapper<SystemBO> wrapper = EsWrappers.lambdaQuery(null);
+        return baseEsMapper.selectList(wrapper);
+    }
+
 }

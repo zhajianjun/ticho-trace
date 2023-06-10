@@ -48,7 +48,7 @@ public class TraceBO {
     private String port;
     /** 全路径接口 */
     private String fullUrl;
-    /** 接口 */
+    /** 方法 */
     private String method;
     /** 响应状态 */
     private Integer status;

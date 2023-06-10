@@ -18,7 +18,7 @@ easy-es:
   connect-timeout: 5000
   socket-timeout: 60000
   global-config:
-    print-dsl: false
+    print-dsl: true
     db-config:
       refresh-policy: wait_until
 

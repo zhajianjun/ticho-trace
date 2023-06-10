@@ -3,20 +3,17 @@ package com.ticho.trace.server.interfaces.facade;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.ticho.boot.security.annotation.IgnoreJwtCheck;
+import com.ticho.boot.view.core.PageResult;
 import com.ticho.boot.view.core.Result;
 import com.ticho.trace.server.application.service.TraceService;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
+import com.ticho.trace.server.interfaces.query.TraceQuery;
 import com.ticho.trace.server.interfaces.vo.TraceVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,6 +46,13 @@ public class TraceController {
     @ApiOperationSupport(order = 20)
     public Result<List<TraceVO>> getByTraceId(String traceId) {
         return Result.ok(traceService.getByTraceId(traceId));
+    }
+
+    @GetMapping("page")
+    @ApiOperation(value = "链路分页查询")
+    @ApiOperationSupport(order = 20)
+    public Result<PageResult<TraceVO>> page(TraceQuery query) {
+        return Result.ok(traceService.page(query));
     }
 
 }

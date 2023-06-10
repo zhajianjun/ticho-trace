@@ -1,7 +1,9 @@
 package com.ticho.trace.server.domain.service;
 
+import cn.easyes.core.biz.EsPageInfo;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.ticho.boot.view.core.PageResult;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.TraceService;
 import com.ticho.trace.server.domain.repository.SystemRepository;
@@ -11,6 +13,7 @@ import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.infrastructure.entity.TraceBO;
 import com.ticho.trace.server.interfaces.assembler.TraceAssembler;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
+import com.ticho.trace.server.interfaces.query.TraceQuery;
 import com.ticho.trace.server.interfaces.vo.TraceVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +65,7 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
         if (StrUtil.isBlank(traceId)) {
             return Collections.emptyList();
         }
-        List<TraceBO> traceBos = traceRepository.selectByTraceId(traceId);
+        List<TraceBO> traceBos = traceRepository.selectByTraceId(traceId, LogConst.TRACE_INDEX_PREFIX + "*");
         List<String> systemIds = traceBos.stream().map(TraceBO::getSystemId).collect(Collectors.toList());
         Map<String, SystemBO> systemMap = systemRepository.getMapBySystemIds(systemIds);
         return traceBos
@@ -70,6 +73,27 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
             .map(TraceAssembler.INSTANCE::traceToVo)
             .peek(x-> setSystemInfo(x, systemMap))
             .collect(Collectors.toList());
+        // @formatter:on
+    }
+
+    @Override
+    public PageResult<TraceVO> page(TraceQuery query) {
+        // @formatter:off
+        EsPageInfo<TraceBO> page = traceRepository.page(query, LogConst.TRACE_INDEX_PREFIX + "*");
+        List<TraceBO> traceBos = page.getList();
+        List<String> systemIds = traceBos
+            .stream()
+            .map(TraceBO::getSystemId)
+            .filter(StrUtil::isNotBlank)
+            .distinct()
+            .collect(Collectors.toList());
+        Map<String, SystemBO> systemMap = systemRepository.getMapBySystemIds(systemIds);
+        List<TraceVO> traceVos= traceBos
+            .stream()
+            .map(TraceAssembler.INSTANCE::traceToVo)
+            .peek(x-> setSystemInfo(x, systemMap))
+            .collect(Collectors.toList());
+        return new PageResult<>(query.getPageNum(), query.getPageSize(), page.getTotal(), traceVos);
         // @formatter:on
     }
 

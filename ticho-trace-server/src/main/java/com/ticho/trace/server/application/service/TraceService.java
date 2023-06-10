@@ -1,6 +1,10 @@
 package com.ticho.trace.server.application.service;
 
+import cn.easyes.core.biz.EsPageInfo;
+import com.ticho.boot.view.core.PageResult;
+import com.ticho.trace.server.infrastructure.entity.TraceBO;
 import com.ticho.trace.server.interfaces.dto.TraceDTO;
+import com.ticho.trace.server.interfaces.query.TraceQuery;
 import com.ticho.trace.server.interfaces.vo.TraceVO;
 
 import java.util.List;
@@ -28,5 +32,13 @@ public interface TraceService {
      * @return {@link List}<{@link TraceVO}>
      */
     List<TraceVO> getByTraceId(String traceId);
+
+    /**
+     * 分页查询
+     *
+     * @param query 查询
+     * @return {@link EsPageInfo}<{@link TraceBO}>
+     */
+    PageResult<TraceVO> page(TraceQuery query);
 
 }

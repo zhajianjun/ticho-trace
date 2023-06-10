@@ -33,10 +33,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -217,14 +214,27 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(userVO)) {
             return;
         }
-        List<String> systemIds = userVO.getSystemIds();
-        List<SystemBO> systemBos = systemRepository.listBySystemIds(systemIds);
+        boolean isAdmin = Objects.equals(userVO.getUsername(), CommConst.ADMIN_USERNAME);
+        List<SystemBO> systemBos;
+        if (isAdmin) {
+            systemBos = systemRepository.listAll();
+        } else {
+            List<String> systemIds = userVO.getSystemIds();
+            systemBos = systemRepository.listBySystemIds(systemIds);
+        }
+        setSystemInfo(userVO, systemBos);
+        // @formatter:on
+    }
+
+    private void setSystemInfo(UserVO userVO, List<SystemBO> systemBos) {
+        List<String> systemIds = new ArrayList<>();
         List<SystemVO> systems = systemBos
             .stream()
+            .peek(x-> systemIds.add(x.getSystemId()))
             .map(SystemAssembler.INSTANCE::systemToVO)
             .collect(Collectors.toList());
+        userVO.setSystemIds(systemIds);
         userVO.setSystems(systems);
-        // @formatter:on
     }
 
     @Override
