@@ -1,9 +1,9 @@
 package com.ticho.trace.server.infrastructure.repository;
 
 import cn.easyes.core.biz.EsPageInfo;
-import cn.easyes.core.conditions.LambdaEsQueryWrapper;
-import cn.easyes.core.conditions.LambdaEsUpdateWrapper;
-import cn.easyes.core.toolkit.EsWrappers;
+import cn.easyes.core.conditions.select.LambdaEsQueryWrapper;
+import cn.easyes.core.conditions.update.LambdaEsUpdateWrapper;
+import cn.easyes.core.core.EsWrappers;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -23,11 +23,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;

@@ -1,6 +1,6 @@
 package com.ticho.trace.server.infrastructure.mapper;
 
-import cn.easyes.core.conditions.interfaces.BaseEsMapper;
+import cn.easyes.core.core.BaseEsMapper;
 import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import org.springframework.stereotype.Repository;
 

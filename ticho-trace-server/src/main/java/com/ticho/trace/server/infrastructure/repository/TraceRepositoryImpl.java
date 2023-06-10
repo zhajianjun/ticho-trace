@@ -2,8 +2,8 @@ package com.ticho.trace.server.infrastructure.repository;
 
 import cn.easyes.core.biz.EsPageInfo;
 import cn.easyes.core.biz.OrderByParam;
-import cn.easyes.core.conditions.LambdaEsQueryWrapper;
-import cn.easyes.core.toolkit.EsWrappers;
+import cn.easyes.core.conditions.select.LambdaEsQueryWrapper;
+import cn.easyes.core.core.EsWrappers;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ticho.boot.es.service.impl.BaseEsServiceImpl;

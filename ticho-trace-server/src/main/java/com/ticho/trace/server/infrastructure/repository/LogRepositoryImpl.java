@@ -1,8 +1,8 @@
 package com.ticho.trace.server.infrastructure.repository;
 
 import cn.easyes.core.biz.EsPageInfo;
-import cn.easyes.core.conditions.LambdaEsQueryWrapper;
-import cn.easyes.core.toolkit.EsWrappers;
+import cn.easyes.core.conditions.select.LambdaEsQueryWrapper;
+import cn.easyes.core.core.EsWrappers;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ticho.boot.es.service.impl.BaseEsServiceImpl;
@@ -34,7 +34,10 @@ public class LogRepositoryImpl extends BaseEsServiceImpl<LogMapper, LogBO> imple
         wrapper.eq(StrUtil.isNotBlank(logQuery.getIp()), LogBO::getIp, logQuery.getIp());
         wrapper.like(StrUtil.isNotBlank(logQuery.getPreAppName()), LogBO::getPreAppName, logQuery.getPreAppName());
         wrapper.eq(StrUtil.isNotBlank(logQuery.getPreIp()), LogBO::getPreIp, logQuery.getPreIp());
-        wrapper.eq(StrUtil.isNotBlank(logQuery.getLogLevel()), LogBO::getLogLevel, logQuery.getLogLevel());
+        String logLevel = logQuery.getLogLevel();
+        if (StrUtil.isNotBlank(logLevel)) {
+            wrapper.eq(StrUtil.isNotBlank(logLevel), LogBO::getLogLevel, logLevel.toUpperCase());
+        }
         wrapper.like(StrUtil.isNotBlank(logQuery.getClassName()), LogBO::getClassName, logQuery.getClassName());
         wrapper.like(StrUtil.isNotBlank(logQuery.getMethod()), LogBO::getMethod, logQuery.getMethod());
         wrapper.matchPhrase(StrUtil.isNotBlank(logQuery.getContent()), LogBO::getContent, logQuery.getContent());
