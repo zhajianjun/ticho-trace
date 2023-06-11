@@ -50,6 +50,8 @@ public class TraceRepositoryImpl extends BaseEsServiceImpl<TraceMapper, TraceBO>
         wrapper.le(Objects.nonNull(query.getStartTimeLast()), TraceBO::getStart, toEpochMilli(query.getStartTimeLast()));
         wrapper.ge(Objects.nonNull(query.getEndTimeFirst()), TraceBO::getEnd, toEpochMilli(query.getEndTimeFirst()));
         wrapper.le(Objects.nonNull(query.getEndTimeLast()), TraceBO::getEnd, toEpochMilli(query.getEndTimeLast()));
+        wrapper.ge(Objects.nonNull(query.getConsumeFirst()), TraceBO::getConsume, query.getConsumeFirst());
+        wrapper.le(Objects.nonNull(query.getConsumeLast()), TraceBO::getConsume, query.getConsumeLast());
         wrapper.index(indexNames);
         return baseEsMapper.pageQuery(wrapper, query.getPageNum(), query.getPageSize());
     }

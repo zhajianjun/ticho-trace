@@ -53,12 +53,12 @@ public class LogQuery extends BasePageQuery {
     private String logLevel;
     /** 日志时间起 */
     @NotNull(message = "日志开始时间不能为空")
-    @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN)
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN, timezone = "GMT+8")
     @ApiModelProperty(value = "日志时间起", position = 90)
     private LocalDateTime startDateTime;
     /** 日志时间止 */
     @NotNull(message = "日志结束时间不能为空")
-    @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN)
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN, timezone = "GMT+8")
     @ApiModelProperty(value = "日志时间止", position = 100)
     private LocalDateTime endDateTime;
     /** 类名称 */

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +96,11 @@ public class LogServiceImpl extends SecretHandle implements LogService {
     private void checkDate(LogQuery logQuery) {
         LocalDateTime startDateTime = logQuery.getStartDateTime();
         LocalDateTime endDateTime = logQuery.getEndDateTime();
+        // 因为时间精确到毫秒，如果结束时间的毫秒数等于0，则毫秒数增加到最大值
+        int i = endDateTime.get(ChronoField.MILLI_OF_SECOND);
+        if (i == 0) {
+            endDateTime = endDateTime.plus(999, ChronoUnit.MILLIS);
+        }
         // 日志开始时间要小于结束时间
         boolean before = !startDateTime.isAfter(endDateTime);
         Assert.isTrue(before, BizErrCode.PARAM_ERROR, "日志开始时间要小于等于结束时间");

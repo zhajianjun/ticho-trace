@@ -57,6 +57,8 @@ public class CostomUtil {
             joiner.add(StrUtil.format("    {\n" +
                     "      title: '{}',\n" +
                     "      dataIndex: '{}',\n" +
+                    "      resizable: true,\n" +
+                    "      width: 150,\n" +
                     "    },", annotation.value(), name));
         }
         joiner.add("  ];\n" +
