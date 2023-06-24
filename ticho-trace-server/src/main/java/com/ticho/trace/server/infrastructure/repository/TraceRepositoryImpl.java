@@ -56,7 +56,7 @@ public class TraceRepositoryImpl extends BaseEsServiceImpl<TraceMapper, TraceBO>
         return baseEsMapper.pageQuery(wrapper, query.getPageNum(), query.getPageSize());
     }
 
-    public Long toEpochMilli(LocalDateTime localDateTime){
+    public Long toEpochMilli(LocalDateTime localDateTime) {
         if (localDateTime == null) {
             return null;
         }

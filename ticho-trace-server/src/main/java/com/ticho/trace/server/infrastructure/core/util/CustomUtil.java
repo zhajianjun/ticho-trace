@@ -14,7 +14,7 @@ import java.util.StringJoiner;
  * @author zhajianjun
  * @date 2023-06-10 12:46
  */
-public class CostomUtil {
+public class CustomUtil {
 
     public static void main(String[] args) {
         printModel(LogQuery.class);

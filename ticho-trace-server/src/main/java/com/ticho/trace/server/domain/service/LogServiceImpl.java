@@ -11,7 +11,7 @@ import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.LogService;
 import com.ticho.trace.server.domain.repository.LogRepository;
-import com.ticho.trace.server.domain.service.handle.SecretHandle;
+import com.ticho.trace.server.domain.handle.CommonHandle;
 import com.ticho.trace.server.infrastructure.entity.LogBO;
 import com.ticho.trace.server.interfaces.assembler.LogAssembler;
 import com.ticho.trace.server.interfaces.dto.LogDTO;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class LogServiceImpl extends SecretHandle implements LogService {
+public class LogServiceImpl extends CommonHandle implements LogService {
 
     @Autowired
     private LogRepository logRepository;
@@ -57,17 +57,18 @@ public class LogServiceImpl extends SecretHandle implements LogService {
     }
 
     @Override
-    public PageResult<LogVO> page(LogQuery logQuery) {
+    public PageResult<LogVO> page(LogQuery query) {
         // @formatter:off
-        ValidUtil.valid(logQuery);
-        checkDate(logQuery);
-        String[] indexs = getIndexs(logQuery);
-        EsPageInfo<LogBO> page = logRepository.page(logQuery, indexs);
+        ValidUtil.valid(query);
+        checkDate(query);
+        checkCurUserSystemId(query.getSystemId());
+        String[] indexs = getIndexs(query);
+        EsPageInfo<LogBO> page = logRepository.page(query, indexs);
         List<LogVO> logs = page.getList()
             .stream()
             .map(LogAssembler.INSTANCE::logToVO)
             .collect(Collectors.toList());
-        return new PageResult<>(logQuery.getPageNum(), logQuery.getPageSize(), page.getTotal(), logs);
+        return new PageResult<>(query.getPageNum(), query.getPageSize(), page.getTotal(), logs);
         // @formatter:on
     }
 

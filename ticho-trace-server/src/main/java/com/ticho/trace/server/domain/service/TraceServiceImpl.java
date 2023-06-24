@@ -1,14 +1,18 @@
 package com.ticho.trace.server.domain.service;
 
 import cn.easyes.core.biz.EsPageInfo;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.ticho.boot.view.core.BizErrCode;
 import com.ticho.boot.view.core.PageResult;
+import com.ticho.boot.view.util.Assert;
+import com.ticho.boot.web.util.valid.ValidUtil;
 import com.ticho.trace.common.constant.LogConst;
 import com.ticho.trace.server.application.service.TraceService;
 import com.ticho.trace.server.domain.repository.SystemRepository;
 import com.ticho.trace.server.domain.repository.TraceRepository;
-import com.ticho.trace.server.domain.service.handle.SecretHandle;
+import com.ticho.trace.server.domain.handle.CommonHandle;
 import com.ticho.trace.server.infrastructure.entity.SystemBO;
 import com.ticho.trace.server.infrastructure.entity.TraceBO;
 import com.ticho.trace.server.interfaces.assembler.TraceAssembler;
@@ -20,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +40,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class TraceServiceImpl extends SecretHandle implements TraceService {
+public class TraceServiceImpl extends CommonHandle implements TraceService {
 
     @Autowired
     private TraceRepository traceRepository;
@@ -79,6 +85,9 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
     @Override
     public PageResult<TraceVO> page(TraceQuery query) {
         // @formatter:off
+        ValidUtil.valid(query);
+        checkDate(query);
+        checkCurUserSystemId(query.getSystemId());
         EsPageInfo<TraceBO> page = traceRepository.page(query, LogConst.TRACE_INDEX_PREFIX + "*");
         List<TraceBO> traceBos = page.getList();
         List<String> systemIds = traceBos
@@ -95,6 +104,27 @@ public class TraceServiceImpl extends SecretHandle implements TraceService {
             .collect(Collectors.toList());
         return new PageResult<>(query.getPageNum(), query.getPageSize(), page.getTotal(), traceVos);
         // @formatter:on
+    }
+
+    /**
+     * 检查日期
+     *
+     * @param logQuery 日志查询
+     */
+    private void checkDate(TraceQuery logQuery) {
+        LocalDateTime startDateTime = logQuery.getStartTimeFirst();
+        LocalDateTime endDateTime = logQuery.getStartTimeLast();
+        // 因为时间精确到毫秒，如果结束时间的毫秒数等于0，则毫秒数增加到最大值
+        int i = endDateTime.get(ChronoField.MILLI_OF_SECOND);
+        if (i == 0) {
+            endDateTime = endDateTime.plus(999, ChronoUnit.MILLIS);
+        }
+        // 日志开始时间要小于结束时间
+        boolean before = !startDateTime.isAfter(endDateTime);
+        Assert.isTrue(before, BizErrCode.PARAM_ERROR, "链路开始时间要小于等于结束时间");
+        // 日志时间间隔不能超过7天
+        boolean between = LocalDateTimeUtil.between(startDateTime, endDateTime, ChronoUnit.DAYS) <= 7;
+        Assert.isTrue(between, BizErrCode.PARAM_ERROR, "链路时间间隔不能超过7天");
     }
 
     /**

@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -25,6 +27,7 @@ public class TraceQuery extends BasePageQuery {
     @ApiModelProperty(value = "主键编号", position = 10)
     private Long id;
     /** 系统id */
+    @NotBlank(message = "系统id不能为空")
     @ApiModelProperty(value = "系统id", position = 20)
     private String systemId;
     /** 链路id */
@@ -67,10 +70,12 @@ public class TraceQuery extends BasePageQuery {
     @ApiModelProperty(value = "响应状态", position = 150)
     private Integer status;
     /* 请求开始时间起始 */
+    @NotNull(message = "请求开始时间起始不能为空")
     @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN, timezone = "GMT+8")
     @ApiModelProperty(value = "请求开始时间起始", position = 160)
     private LocalDateTime startTimeFirst;
     /* 请求开始时间终止 */
+    @NotNull(message = "请求开始时间终止不能为空")
     @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN, timezone = "GMT+8")
     @ApiModelProperty(value = "请求开始时间终止", position = 170)
     private LocalDateTime startTimeLast;
