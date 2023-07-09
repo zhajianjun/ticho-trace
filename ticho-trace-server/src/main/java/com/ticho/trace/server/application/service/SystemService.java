@@ -6,6 +6,7 @@ import com.ticho.trace.server.interfaces.query.SystemQuery;
 import com.ticho.trace.server.interfaces.vo.SystemVO;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 系统信息接口
@@ -69,4 +70,10 @@ public interface SystemService {
      */
     PageResult<SystemVO> page(SystemQuery query);
 
+    /**
+     * 列出所有
+     *
+     * @return {@link List}<{@link SystemVO}>
+     */
+    List<SystemVO> listAll();
 }

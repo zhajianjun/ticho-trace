@@ -114,4 +114,14 @@ public class SystemServiceImpl implements SystemService {
         // @formatter:on
     }
 
+    @Override
+    public List<SystemVO> listAll() {
+        // @formatter:off
+        return systemRepository.list()
+            .stream()
+            .map(SystemAssembler.INSTANCE::systemToVO)
+            .collect(Collectors.toList());
+        // @formatter:on
+    }
+
 }

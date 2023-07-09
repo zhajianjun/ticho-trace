@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 系统信息
@@ -108,6 +109,13 @@ public class SystemController {
     @GetMapping("page")
     public Result<PageResult<SystemVO>> page(SystemQuery query) {
         return Result.ok(systemService.page(query));
+    }
+
+    @ApiOperation(value = "查询所有系统信息")
+    @ApiOperationSupport(order = 70)
+    @GetMapping("listAll")
+    public Result<List<SystemVO>> listAll() {
+        return Result.ok(systemService.listAll());
     }
 
 }

@@ -33,7 +33,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -144,9 +149,13 @@ public class UserServiceImpl implements UserService {
     public void updateById(UserDTO userDTO) {
         ValidUtil.valid(userDTO, ValidGroup.Upd.class);
         String id = userDTO.getId();
-        UserBO byId = userRepository.getById(id);
-        Assert.isNotNull(byId, BizErrCode.FAIL, "用户不存在");
-        checkSystemInfo(userDTO.getSystemIds());
+        UserBO dbUser = userRepository.getById(id);
+        Assert.isNotNull(dbUser, BizErrCode.FAIL, "用户不存在");
+        if (!Objects.equals(dbUser.getUsername(), CommConst.ADMIN_USERNAME)) {
+            checkSystemInfo(userDTO.getSystemIds());
+        } else {
+            userDTO.setSystemIds(Collections.emptyList());
+        }
         UserBO userBO = UserAssembler.INSTANCE.dtoToEntity(userDTO);
         // 账户不可更改
         userBO.setUsername(null);
@@ -227,14 +236,16 @@ public class UserServiceImpl implements UserService {
     }
 
     private void setSystemInfo(UserVO userVO, List<SystemBO> systemBos) {
+        // @formatter:off
         List<String> systemIds = new ArrayList<>();
         List<SystemVO> systems = systemBos
             .stream()
-            .peek(x-> systemIds.add(x.getSystemId()))
+            .peek(x -> systemIds.add(x.getSystemId()))
             .map(SystemAssembler.INSTANCE::systemToVO)
             .collect(Collectors.toList());
         userVO.setSystemIds(systemIds);
         userVO.setSystems(systems);
+        // @formatter:on
     }
 
     @Override
@@ -246,7 +257,7 @@ public class UserServiceImpl implements UserService {
             .stream()
             .map(UserAssembler.INSTANCE::entityToVo)
             .collect(Collectors.toList());
-        return new PageResult<>(query.getPageNum(), query.getPageSize(), page.getTotal(), userDTOS);
+    return new PageResult<>(query.getPageNum(), query.getPageSize(), page.getTotal(), userDTOS);
         // @formatter:on
     }
 
