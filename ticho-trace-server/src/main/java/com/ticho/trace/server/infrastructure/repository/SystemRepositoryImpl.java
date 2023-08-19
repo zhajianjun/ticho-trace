@@ -23,7 +23,11 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -126,6 +130,7 @@ public class SystemRepositoryImpl extends BaseEsServiceImpl<SystemMapper, System
         wrapper.eq(Objects.nonNull(query.getStatus()), SystemBO::getStatus, query.getStatus());
         wrapper.like(StrUtil.isNotBlank(query.getRemark()), SystemBO::getRemark, query.getRemark());
         wrapper.index(indexNames);
+        wrapper.orderBy(true, true, SystemBO::getCreateTime);
         return baseEsMapper.pageQuery(wrapper, query.getPageNum(), query.getPageSize());
     }
 

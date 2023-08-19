@@ -85,7 +85,7 @@ public class SystemServiceImpl implements SystemService {
         systemBO.setSecret(null);
         LocalDateTime now = LocalDateTime.now();
         systemBO.setUpdateBy(null);
-        systemBO.setCreateTime(now);
+        systemBO.setUpdateTime(now);
         Assert.isTrue(systemRepository.updateById(systemBO), BizErrCode.FAIL, "修改失败");
     }
 
