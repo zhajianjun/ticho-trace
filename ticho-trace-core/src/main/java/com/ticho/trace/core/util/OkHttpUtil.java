@@ -1,6 +1,6 @@
-package com.ticho.trace.core.util;
+package top.ticho.trace.core.util;
 
-import com.ticho.trace.common.constant.LogConst;
+import top.ticho.trace.common.constant.LogConst;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

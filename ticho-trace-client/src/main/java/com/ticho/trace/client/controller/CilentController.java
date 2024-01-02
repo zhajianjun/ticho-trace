@@ -1,10 +1,10 @@
-package com.ticho.trace.client.controller;
+package top.ticho.trace.client.controller;
 
-import com.ticho.boot.view.core.Result;
-import com.ticho.boot.web.util.valid.ValidUtil;
-import com.ticho.trace.client.dto.CityDTO;
-import com.ticho.trace.client.dto.FileDTO;
-import com.ticho.trace.client.dto.FileSimpleDTO;
+import top.ticho.boot.view.core.Result;
+import top.ticho.boot.web.util.valid.ValidUtil;
+import top.ticho.trace.client.dto.CityDTO;
+import top.ticho.trace.client.dto.FileDTO;
+import top.ticho.trace.client.dto.FileSimpleDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

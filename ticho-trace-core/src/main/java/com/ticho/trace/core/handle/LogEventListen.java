@@ -1,8 +1,8 @@
-package com.ticho.trace.core.handle;
+package top.ticho.trace.core.handle;
 
 import cn.hutool.core.date.SystemClock;
 import com.lmax.disruptor.EventHandler;
-import com.ticho.trace.common.bean.LogInfo;
+import top.ticho.trace.common.bean.LogInfo;
 
 import java.util.ArrayList;
 import java.util.List;

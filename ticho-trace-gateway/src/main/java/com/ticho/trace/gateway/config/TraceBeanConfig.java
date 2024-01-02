@@ -1,7 +1,7 @@
-package com.ticho.trace.gateway.config;
+package top.ticho.trace.gateway.config;
 
-import com.ticho.trace.common.prop.TraceProperty;
-import com.ticho.trace.gateway.filter.TraceGlobalFilter;
+import top.ticho.trace.common.prop.TraceProperty;
+import top.ticho.trace.gateway.filter.TraceGlobalFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;

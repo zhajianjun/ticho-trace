@@ -1,7 +1,7 @@
-package com.ticho.trace.spring.config;
+package top.ticho.trace.spring.config;
 
-import com.ticho.trace.common.prop.TraceProperty;
-import com.ticho.trace.spring.interceptor.TraceInterceptor;
+import top.ticho.trace.common.prop.TraceProperty;
+import top.ticho.trace.spring.interceptor.TraceInterceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;

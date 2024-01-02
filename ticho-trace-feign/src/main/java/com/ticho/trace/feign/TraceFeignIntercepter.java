@@ -1,8 +1,8 @@
-package com.ticho.trace.feign;
+package top.ticho.trace.feign;
 
 import cn.hutool.core.util.StrUtil;
-import com.ticho.trace.common.constant.LogConst;
-import com.ticho.trace.core.util.TraceUtil;
+import top.ticho.trace.common.constant.LogConst;
+import top.ticho.trace.core.util.TraceUtil;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.extern.slf4j.Slf4j;

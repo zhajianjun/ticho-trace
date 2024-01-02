@@ -1,6 +1,6 @@
-package com.ticho.trace.spring.event;
+package top.ticho.trace.spring.event;
 
-import com.ticho.trace.common.bean.TraceInfo;
+import top.ticho.trace.common.bean.TraceInfo;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;

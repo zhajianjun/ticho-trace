@@ -1,4 +1,4 @@
-package com.ticho.trace.client;
+package top.ticho.trace.client;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

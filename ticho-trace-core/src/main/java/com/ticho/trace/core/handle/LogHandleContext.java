@@ -1,4 +1,4 @@
-package com.ticho.trace.core.handle;
+package top.ticho.trace.core.handle;
 
 import cn.hutool.core.thread.ThreadUtil;
 import com.lmax.disruptor.EventFactory;
@@ -7,8 +7,8 @@ import com.lmax.disruptor.TimeoutBlockingWaitStrategy;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import com.ticho.trace.common.bean.LogInfo;
-import com.ticho.trace.common.constant.LogConst;
+import top.ticho.trace.common.bean.LogInfo;
+import top.ticho.trace.common.constant.LogConst;
 
 import java.util.Map;
 import java.util.Optional;

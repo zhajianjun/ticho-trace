@@ -1,6 +1,6 @@
-package com.ticho.trace.common.prop;
+package top.ticho.trace.common.prop;
 
-import com.ticho.trace.common.constant.LogConst;
+import top.ticho.trace.common.constant.LogConst;
 import lombok.Data;
 
 import java.util.ArrayList;

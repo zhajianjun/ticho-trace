@@ -1,4 +1,4 @@
-package com.ticho.trace.spring.aop;
+package top.ticho.trace.spring.aop;
 
 import com.xxl.job.core.handler.annotation.XxlJob;
 import org.aspectj.lang.ProceedingJoinPoint;

@@ -1,4 +1,4 @@
-package com.ticho.trace.common.constant;
+package top.ticho.trace.common.constant;
 
 /**
  * 日志静态常量

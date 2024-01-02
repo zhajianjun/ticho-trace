@@ -1,4 +1,4 @@
-package com.ticho.trace.spring.aop;
+package top.ticho.trace.spring.aop;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

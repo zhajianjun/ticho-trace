@@ -1,6 +1,6 @@
-package com.ticho.trace.client2.feign;
+package top.ticho.trace.client2.feign;
 
-import com.ticho.boot.view.core.Result;
+import top.ticho.boot.view.core.Result;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,7 +1,7 @@
-package com.ticho.trace.client2.controller;
+package top.ticho.trace.client2.controller;
 
-import com.ticho.boot.view.core.Result;
-import com.ticho.trace.client2.feign.ClientProvide;
+import top.ticho.boot.view.core.Result;
+import top.ticho.trace.client2.feign.ClientProvide;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

@@ -1,8 +1,8 @@
-package com.ticho.trace.okhttp.interceptor;
+package top.ticho.trace.okhttp.interceptor;
 
 import cn.hutool.core.util.StrUtil;
-import com.ticho.trace.common.constant.LogConst;
-import com.ticho.trace.core.util.TraceUtil;
+import top.ticho.trace.common.constant.LogConst;
+import top.ticho.trace.core.util.TraceUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.Request;

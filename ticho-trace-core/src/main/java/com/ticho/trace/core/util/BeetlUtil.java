@@ -1,4 +1,4 @@
-package com.ticho.trace.core.util;
+package top.ticho.trace.core.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.beetl.core.Configuration;

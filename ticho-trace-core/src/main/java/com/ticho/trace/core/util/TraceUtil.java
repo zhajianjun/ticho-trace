@@ -1,10 +1,10 @@
-package com.ticho.trace.core.util;
+package top.ticho.trace.core.util;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
-import com.ticho.trace.common.bean.TraceInit;
-import com.ticho.trace.common.constant.LogConst;
+import top.ticho.trace.common.bean.TraceInit;
+import top.ticho.trace.common.constant.LogConst;
 import org.slf4j.MDC;
 
 import java.util.Map;

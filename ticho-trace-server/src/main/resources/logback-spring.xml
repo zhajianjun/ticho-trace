@@ -12,7 +12,7 @@
         <logger name="springfox.documentation" level="ERROR"/>
         <logger name="com.baomidou.mybatisplus" level="ERROR"/>
         <logger name="com.ulisesbocchio" level="ERROR"/>
-        <logger name="com.ticho" level="DEBUG"/>
+        <logger name="top.ticho" level="DEBUG"/>
     </springProfile>
 
     <springProfile name="uat,prod">
@@ -23,7 +23,7 @@
         <logger name="springfox.documentation" level="ERROR"/>
         <logger name="com.baomidou.mybatisplus" level="ERROR"/>
         <logger name="com.ulisesbocchio" level="ERROR"/>
-        <logger name="com.ticho" level="INFO"/>
+        <logger name="top.ticho" level="INFO"/>
     </springProfile>
 
 </configuration>
