@@ -7,7 +7,7 @@ import cn.easyes.core.core.EsWrappers;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.StrUtil;
 import top.ticho.boot.es.service.impl.BaseEsServiceImpl;
-import top.ticho.trace.common.constant.LogConst;
+import top.ticho.tool.trace.common.constant.LogConst;
 import top.ticho.trace.server.domain.repository.TraceRepository;
 import top.ticho.trace.server.infrastructure.entity.TraceBO;
 import top.ticho.trace.server.infrastructure.mapper.TraceMapper;

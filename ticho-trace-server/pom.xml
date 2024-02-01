@@ -122,7 +122,7 @@
             <id>local</id>
             <properties>
                 <spring.active>local</spring.active>
-                <es.host>ENC(wI5t6PPkOvJacNYUDLEHghuZu+tCvdptyvZve1Niw9A=)</es.host>
+                <es.host>ENC(wq1B5bxiXCHn/4O6ctqy/dvwiwsnxOTak0MWiz/a2k0=)</es.host>
                 <es.username>ENC(9xGUDJEGhujXpc7cu3yG6A==)</es.username>
                 <es.password>ENC(cFW6dvepPqk8/Y7eF70aYgqGLYFK7LQM)</es.password>
             </properties>

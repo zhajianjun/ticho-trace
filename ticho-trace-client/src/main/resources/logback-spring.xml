@@ -82,7 +82,7 @@
     <springProperty scope="context" name="appName" source="spring.application.name" defaultValue = "UNKNOWN"/>
     <springProperty scope="context" name="env" source="spring.profiles.active" defaultValue = "UNKNOWN"/>
 
-    <appender name="trace" class="top.ticho.trace.core.logback.DistributedLogAppender">
+    <appender name="trace" class="top.ticho.tool.trace.core.logback.DistributedLogAppender">
         <appName>${appName}</appName>
         <env>${env}</env>
         <url>${logUrl}</url>

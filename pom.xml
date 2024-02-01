@@ -8,12 +8,6 @@
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <modules>
-        <module>ticho-trace-core</module>
-        <module>ticho-trace-spring</module>
-        <module>ticho-trace-common</module>
-        <module>ticho-trace-feign</module>
-        <module>ticho-trace-gateway</module>
-        <module>ticho-trace-okhttp</module>
         <module>ticho-trace-server</module>
     </modules>
 

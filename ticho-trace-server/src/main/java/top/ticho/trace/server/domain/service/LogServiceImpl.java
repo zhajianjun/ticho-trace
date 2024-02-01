@@ -11,6 +11,7 @@ import top.ticho.boot.view.core.PageResult;
 import top.ticho.boot.view.enums.BizErrCode;
 import top.ticho.boot.view.util.Assert;
 import top.ticho.boot.web.util.valid.ValidUtil;
+import top.ticho.tool.trace.common.constant.LogConst;
 import top.ticho.trace.server.application.service.LogService;
 import top.ticho.trace.server.domain.handle.CommonHandle;
 import top.ticho.trace.server.domain.repository.LogRepository;
@@ -147,7 +148,7 @@ public class LogServiceImpl extends CommonHandle implements LogService {
 
     public String parseIndex(String systemId, String date) {
         String s = "_";
-        return top.ticho.trace.common.constant.LogConst.LOG_INDEX_PREFIX + s + systemId + s + date;
+        return LogConst.LOG_INDEX_PREFIX + s + systemId + s + date;
     }
 
     private LogBO convert(LogDTO logDTO) {

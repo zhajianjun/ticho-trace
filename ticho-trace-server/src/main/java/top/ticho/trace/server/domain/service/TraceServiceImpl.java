@@ -11,6 +11,7 @@ import top.ticho.boot.view.core.PageResult;
 import top.ticho.boot.view.enums.BizErrCode;
 import top.ticho.boot.view.util.Assert;
 import top.ticho.boot.web.util.valid.ValidUtil;
+import top.ticho.tool.trace.common.constant.LogConst;
 import top.ticho.trace.server.application.service.TraceService;
 import top.ticho.trace.server.domain.handle.CommonHandle;
 import top.ticho.trace.server.domain.repository.SystemRepository;
@@ -56,7 +57,7 @@ public class TraceServiceImpl extends CommonHandle implements TraceService {
         }
         TraceBO trace = TraceAssembler.INSTANCE.dtoToTrace(traceDto);
         LocalDateTime startTime = trace.getStartTime();
-        String indexName = top.ticho.trace.common.constant.LogConst.TRACE_INDEX_PREFIX + "_" + startTime.toString().substring(0, 10);
+        String indexName = LogConst.TRACE_INDEX_PREFIX + "_" + startTime.toString().substring(0, 10);
         String id = IdUtil.getSnowflakeNextIdStr();
         trace.setId(id);
         trace.setCreateTime(LocalDateTime.now());
@@ -70,7 +71,7 @@ public class TraceServiceImpl extends CommonHandle implements TraceService {
         if (StrUtil.isBlank(traceId)) {
             return Collections.emptyList();
         }
-        List<TraceBO> traceBos = traceRepository.selectByTraceId(traceId, top.ticho.trace.common.constant.LogConst.TRACE_INDEX_PREFIX + "*");
+        List<TraceBO> traceBos = traceRepository.selectByTraceId(traceId, LogConst.TRACE_INDEX_PREFIX + "*");
         List<String> systemIds = traceBos.stream().map(TraceBO::getSystemId).collect(Collectors.toList());
         Map<String, SystemBO> systemMap = systemRepository.getMapBySystemIds(systemIds);
         return traceBos
@@ -87,7 +88,7 @@ public class TraceServiceImpl extends CommonHandle implements TraceService {
         ValidUtil.valid(query);
         checkDate(query);
         checkCurUserSystemId(query.getSystemId());
-        EsPageInfo<TraceBO> page = traceRepository.page(query, top.ticho.trace.common.constant.LogConst.TRACE_INDEX_PREFIX + "*");
+        EsPageInfo<TraceBO> page = traceRepository.page(query, LogConst.TRACE_INDEX_PREFIX + "*");
         List<TraceBO> traceBos = page.getList();
         List<String> systemIds = traceBos
             .stream()
